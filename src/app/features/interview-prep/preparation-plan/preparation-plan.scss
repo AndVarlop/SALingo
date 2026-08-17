@@ -17,6 +17,36 @@
     margin-top: 4px;
     font-size: 0.9rem;
   }
+
+  &--urgent h1 {
+    color: var(--color-warn);
+  }
+}
+
+.pp__date-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  input {
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 0.9rem;
+    max-width: 200px;
+  }
+}
+
+.pp__date-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
 }
 
 .pp__list {

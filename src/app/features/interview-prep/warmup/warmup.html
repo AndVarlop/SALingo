@@ -1,0 +1,21 @@
+<section class="wu">
+  @if (!done()) {
+    <div class="card wu__card">
+      <span class="wu__progress">Step {{ index() + 1 }} / {{ steps().length }}</span>
+      <span class="wu__icon" aria-hidden="true">🎤</span>
+      <h1>{{ currentStep()!.prompt }}</h1>
+      <p class="wu__note">Say it out loud (or in your head). No scoring — just warming up.</p>
+      <button type="button" class="btn btn--primary btn--block" (click)="next()">
+        {{ index() + 1 === steps().length ? 'Finish warm-up' : 'Next' }}
+      </button>
+    </div>
+  } @else {
+    <div class="card wu__card wu__card--done">
+      <span class="wu__icon" aria-hidden="true">🔥</span>
+      <h1>You're warmed up. Good luck!</h1>
+      <p class="wu__note">Now go take that Mock Interview with confidence.</p>
+      <a class="btn btn--primary btn--block" routerLink="/interview-prep/mock-interview">Start Mock Interview</a>
+      <button type="button" class="btn btn--ghost btn--block wu__restart" (click)="restart()">Warm up again</button>
+    </div>
+  }
+</section>

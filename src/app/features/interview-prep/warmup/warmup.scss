@@ -1,0 +1,37 @@
+.wu {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.wu__card {
+  text-align: center;
+  padding: 40px 28px;
+}
+
+.wu__progress {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  margin-bottom: 10px;
+}
+
+.wu__icon {
+  font-size: 2.4rem;
+}
+
+.wu__card h1 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 12px 0;
+}
+
+.wu__note {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+}
+
+.wu__restart {
+  margin-top: 10px;
+}

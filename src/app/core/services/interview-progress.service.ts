@@ -119,6 +119,19 @@ export class InterviewProgressService {
       .then(({ error }) => error && console.error('[InterviewProgress] saveAnswer failed', error));
   }
 
+  /** Lets a user set/change their interview date after onboarding (e.g. once it gets scheduled) — drives 24-Hour Interview Mode. */
+  async updateInterviewDate(interviewDate: string | null): Promise<void> {
+    const userId = this.auth.userId();
+    this.profile.update((p) => ({ ...p, interviewDate }));
+    if (!userId) return;
+
+    const { error } = await this.supabase
+      .from('interview_profile')
+      .update({ interview_date: interviewDate })
+      .eq('user_id', userId);
+    if (error) console.error('[InterviewProgress] updateInterviewDate failed', error);
+  }
+
   toggleWordKnown(wordId: string): void {
     const userId = this.auth.userId();
     const isKnown = this.knownWordIds().has(wordId);

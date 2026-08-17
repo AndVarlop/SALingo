@@ -185,6 +185,11 @@ export const routes: Routes = [
         title: 'My Mistakes · SALingo',
       },
       {
+        path: 'interview-prep/warmup',
+        loadComponent: () => import('./features/interview-prep/warmup/warmup').then((m) => m.WarmupComponent),
+        title: 'Speaking Warm-up · SALingo',
+      },
+      {
         path: 'profile',
         loadComponent: () => import('./features/profile/profile').then((m) => m.ProfileComponent),
         title: 'Profile · SALingo',

@@ -197,5 +197,17 @@ Roleplay already *was* a call simulator in disguise (12 customer-service scenari
 `tsc --noEmit` clean, `ng build` clean (one non-blocking CSS budget warning on `roleplay-session.scss`, 116 bytes over 4kB — cosmetic, not fixed this round). Dashboard, adaptive Mock Interview, Call Center Simulator, My Mistakes, Pronunciation Coach (except live mic capture), and Company Prep 2.0 → Personalized Interview all checked live in Chrome against the real Supabase-backed test account.
 
 **Action needed from you:**
-1. Run `supabase/mistakes.sql` in the SQL Editor to persist mistakes across sessions (works today without it, just doesn't survive a reload).
+1. Run `supabase/mistakes.sql` in the SQL Editor to persist mistakes across sessions (works today without it, just doesn't survive a reload). **Done — confirmed run and verified live: a Mock Interview's mistakes survived a full page reload.**
 2. Manually try Pronunciation Coach's "Record my answer" with an actual microphone — it wasn't exercised by automation this round.
+
+---
+
+## 10. Fase 3 P2 — 24-Hour Interview Mode + Speaking Warm-up
+
+- `PreparationPlanComponent` now branches on `interviewProgress.profile().interviewDate` (already existed from onboarding, just wasn't used for this): if the interview is today or tomorrow, it swaps the 7-day plan for a **condensed same-day intensive plan** — "Tell me about yourself" → "Common questions" → "Call Center Vocabulary" → "Customer Service Roleplay" → "Mock Interview" → **"Review your mistakes"** (reuses the new My Mistakes page) → **"Speaking Warm-up"** (new, below). No new service — pure reuse of `InterviewProgressService`/`InterviewSessionService` already injected into that component.
+- New `/interview-prep/warmup` page (spec §20): 5-prompt speaking warm-up (introduce yourself → experience → why this job → a difficult-customer scenario → one random real question pulled from `InterviewQuestionService`). No scoring — it's meant to loosen someone up right before the real thing, not add pressure. Ends with "You're warmed up. Good luck!" and a direct link into Mock Interview. Awards a small XP for showing up.
+- Added `InterviewProgressService.updateInterviewDate()` + a "When is your interview?" date field directly on the Preparation Plan page, so this isn't a one-shot onboarding-only value — closes the gap of not being able to set/change it later.
+- **Verified live end-to-end**: set the date field to today via the UI, page instantly switched from the 7-day plan to "⏰ My Interview Is Tomorrow" with correct real completion checkmarks (already-completed Mock Interview/Roleplay steps showed ✓), cleared the date back to null afterward to leave the test account clean. Also ran the full 5-step Speaking Warm-up flow end to end, reached the "warmed up" screen. No console errors either time.
+
+### Build/verification
+`tsc --noEmit` clean, `ng build` clean (same pre-existing CSS budget warning, unrelated).
