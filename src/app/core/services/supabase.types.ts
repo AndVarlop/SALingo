@@ -158,6 +158,21 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['grammar_progress']['Row']>;
         Relationships: [];
       };
+      roleplay_sessions: {
+        Row: { id: string; user_id: string; scenario_id: string; score: number; completed_at: string };
+        Insert: Partial<Database['public']['Tables']['roleplay_sessions']['Row']> & {
+          user_id: string;
+          scenario_id: string;
+        };
+        Update: Partial<Database['public']['Tables']['roleplay_sessions']['Row']>;
+        Relationships: [];
+      };
+      scenario_sessions: {
+        Row: { id: string; user_id: string; accuracy: number; completed_at: string };
+        Insert: Partial<Database['public']['Tables']['scenario_sessions']['Row']> & { user_id: string };
+        Update: Partial<Database['public']['Tables']['scenario_sessions']['Row']>;
+        Relationships: [];
+      };
       interview_sessions: {
         Row: {
           id: string;

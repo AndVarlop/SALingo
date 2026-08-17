@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { MOCK_INTERVIEW_SCENARIOS } from '../../../core/services/mock-data/mock-interview-scenarios.data';
 import { MOCK_DIFFICULT_CUSTOMER_TIPS } from '../../../core/services/mock-data/mock-difficult-customers.data';
 import { UserStateService } from '../../../core/services/user-state.service';
+import { InterviewSessionService } from '../../../core/services/interview-session.service';
 import { ExerciseResult } from '../../../core/models';
 import { ExercisePlayerComponent } from '../../lessons/exercise-player/exercise-player';
 
@@ -18,6 +19,7 @@ type Phase = 'idle' | 'playing' | 'summary';
 })
 export class InterviewScenariosComponent {
   private readonly userState = inject(UserStateService);
+  private readonly sessionService = inject(InterviewSessionService);
 
   protected readonly tab = signal<Tab>('scenarios');
   protected readonly phase = signal<Phase>('idle');
@@ -32,7 +34,7 @@ export class InterviewScenariosComponent {
     this.phase.set('playing');
   }
 
-  protected onFinished(payload: { results: ExerciseResult[]; xpEarned: number }): void {
+  protected async onFinished(payload: { results: ExerciseResult[]; xpEarned: number }): Promise<void> {
     const correctCount = payload.results.filter((r) => r.correct).length;
     const accuracy = Math.round((correctCount / payload.results.length) * 100);
     const minutes = Math.max(
@@ -47,6 +49,7 @@ export class InterviewScenariosComponent {
       title: 'Practiced customer service scenarios',
       accuracy,
     });
+    await this.sessionService.saveScenarioSession(accuracy);
 
     this.lastAccuracy.set(accuracy);
     this.lastXp.set(payload.xpEarned);

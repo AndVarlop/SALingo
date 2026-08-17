@@ -67,7 +67,7 @@ export class PreparationPlanComponent {
         icon: '😤',
         routerLink: '/interview-prep/scenarios',
         actionLabel: 'Explore scenarios',
-        completed: null,
+        completed: this.sessionService.hasCompletedAnyScenarioSession(),
       },
       {
         day: 5,
@@ -76,7 +76,7 @@ export class PreparationPlanComponent {
         icon: '🎭',
         routerLink: '/interview-prep/roleplay',
         actionLabel: 'Start roleplay',
-        completed: null,
+        completed: this.sessionService.roleplayCount() > 0,
       },
       {
         day: 6,

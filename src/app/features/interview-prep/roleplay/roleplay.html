@@ -24,6 +24,9 @@
         <span>{{ scenario.context }}</span>
         <div class="roleplay-list__meta">
           <span class="roleplay-list__badge">{{ scenario.difficulty }}</span>
+          @if (isCompleted(scenario.id)) {
+            <app-badge-chip tone="success" icon="✓">Completed</app-badge-chip>
+          }
         </div>
       </a>
     }

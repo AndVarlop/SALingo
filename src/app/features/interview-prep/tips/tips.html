@@ -1,0 +1,115 @@
+<section class="tips">
+  <header class="tips__header">
+    <h1>Interview Tips</h1>
+    <p>The extra guidance that makes the difference: how to structure answers, what to do with no experience, and how to walk in prepared.</p>
+  </header>
+
+  <div class="tips__tabs">
+    <button type="button" class="tips__tab" [class.tips__tab--active]="tab() === 'star'" (click)="tab.set('star')">
+      ⭐ STAR Method
+    </button>
+    <button type="button" class="tips__tab" [class.tips__tab--active]="tab() === 'no-experience'" (click)="tab.set('no-experience')">
+      🌱 No Experience?
+    </button>
+    <button type="button" class="tips__tab" [class.tips__tab--active]="tab() === 'checklist'" (click)="tab.set('checklist')">
+      ✅ Checklist
+    </button>
+    <button type="button" class="tips__tab" [class.tips__tab--active]="tab() === 'ask-them'" (click)="tab.set('ask-them')">
+      ❓ Ask Them
+    </button>
+  </div>
+
+  @switch (tab()) {
+    @case ('star') {
+      <div class="card tips__section">
+        <h2>How to answer behavioral questions</h2>
+        <p class="tips__intro">
+          When you hear "Tell me about a time when...", the interviewer wants a real story, not a general opinion.
+          The STAR method gives your answer a clear shape.
+        </p>
+
+        <div class="tips__star-grid">
+          @for (step of starSteps; track step.letter) {
+            <div class="tips__star-step">
+              <span class="tips__star-letter">{{ step.letter }}</span>
+              <div>
+                <strong>{{ step.word }}</strong>
+                <p>{{ step.meaning }}</p>
+                <span class="tips__star-example">"{{ step.example }}"</span>
+              </div>
+            </div>
+          }
+        </div>
+
+        <p class="tips__note">
+          💡 Put all four together and you get a complete answer to: "Tell me about a time you dealt with a difficult customer."
+          Try it yourself in <strong>Practice Questions → Behavioral</strong>.
+        </p>
+      </div>
+    }
+
+    @case ('no-experience') {
+      <div class="card tips__section">
+        <h2>"I have no experience. What should I say?"</h2>
+        <p class="tips__intro">
+          Even without a call center job before, you have real experience that counts. Interviewers care about your
+          skills, not just your job titles.
+        </p>
+
+        <h3>Where to find experience you already have</h3>
+        <ul class="tips__list">
+          @for (source of noExperienceSources; track source) {
+            <li>{{ source }}</li>
+          }
+        </ul>
+
+        <div class="tips__example-box">
+          <span>Example answer</span>
+          <p>
+            "I don't have previous call center experience, but I have developed strong communication and
+            problem-solving skills through working in retail and helping organize events at my university."
+          </p>
+        </div>
+      </div>
+    }
+
+    @case ('checklist') {
+      <div class="card tips__section">
+        <h2>Before your interview</h2>
+        <p class="tips__intro">Check these off the day before or the morning of your interview.</p>
+
+        <ul class="tips__checklist">
+          @for (item of checklist; track item; let i = $index) {
+            <li>
+              <label>
+                <input type="checkbox" [checked]="isChecked(i)" (change)="toggleChecklistItem(i)" />
+                <span [class.tips__checklist-done]="isChecked(i)">{{ item }}</span>
+              </label>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+
+    @case ('ask-them') {
+      <div class="card tips__section">
+        <h2>"Do you have any questions for us?"</h2>
+        <p class="tips__intro">Always have at least one question ready — it shows genuine interest.</p>
+
+        <h3>✅ Good questions to ask</h3>
+        <ul class="tips__list tips__list--good">
+          @for (q of candidateQuestions.good; track q) {
+            <li>{{ q }}</li>
+          }
+        </ul>
+
+        <h3>⚠️ Questions to avoid asking too early</h3>
+        <ul class="tips__list tips__list--avoid">
+          @for (q of candidateQuestions.avoid; track q) {
+            <li>{{ q }}</li>
+          }
+        </ul>
+      </div>
+    }
+  }
+</section>

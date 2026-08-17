@@ -12,6 +12,7 @@ export interface AchievementContext {
   interviewWordsKnown: number;
   mockInterviewsCompleted: number;
   bestMockInterviewScore: number;
+  roleplaysCompleted: number;
 }
 
 export interface AchievementDef {
@@ -159,5 +160,23 @@ export const MOCK_ACHIEVEMENTS: AchievementDef[] = [
     category: AchievementCategory.Accuracy,
     goal: 90,
     isUnlocked: (ctx) => ctx.bestMockInterviewScore >= 90,
+  },
+  {
+    id: 'ach-first-roleplay',
+    title: 'First Roleplay',
+    description: 'Complete your first customer service roleplay.',
+    iconEmoji: '🎭',
+    category: AchievementCategory.Lessons,
+    goal: 1,
+    isUnlocked: (ctx) => ctx.roleplaysCompleted >= 1,
+  },
+  {
+    id: 'ach-roleplays-7',
+    title: '7 Roleplays Practiced',
+    description: 'Complete 7 customer service roleplays.',
+    iconEmoji: '🔥',
+    category: AchievementCategory.Lessons,
+    goal: 7,
+    isUnlocked: (ctx) => ctx.roleplaysCompleted >= 7,
   },
 ];

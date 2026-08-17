@@ -1,0 +1,71 @@
+<section class="cp">
+  <header class="cp__header">
+    <h1>🏢 Company-Specific Preparation</h1>
+    <p>Paste a real job posting and get a tailored prep plan — possible questions, vocabulary, and skills to highlight.</p>
+  </header>
+
+  @if (!result()) {
+    <form class="card cp__form" [formGroup]="form" (ngSubmit)="analyze()">
+      <div class="cp__field">
+        <label for="company">Company (optional)</label>
+        <input id="company" type="text" formControlName="company" placeholder="e.g. Acme Support Co." />
+      </div>
+
+      <div class="cp__field">
+        <label for="position">Position</label>
+        <select id="position" formControlName="position">
+          <option [ngValue]="null">Not sure yet</option>
+          @for (position of positions; track position) {
+            <option [ngValue]="position">{{ positionLabel[position] }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="cp__field">
+        <label for="jd">Job description</label>
+        <textarea
+          id="jd"
+          rows="8"
+          formControlName="jobDescription"
+          placeholder="Paste the job description here…"
+        ></textarea>
+      </div>
+
+      <button type="submit" class="btn btn--primary btn--block" [disabled]="analyzing() || !form.controls.jobDescription.value.trim()">
+        {{ analyzing() ? 'Analyzing…' : 'Generate my prep plan' }}
+      </button>
+    </form>
+  } @else {
+    <div class="card cp__result">
+      <span class="card__eyebrow">Possible questions</span>
+      <ul class="cp__list">
+        @for (q of result()!.possibleQuestions; track q) {
+          <li>💬 {{ q }}</li>
+        }
+      </ul>
+
+      <span class="card__eyebrow cp__section-gap">Relevant vocabulary</span>
+      <div class="cp__chips">
+        @for (word of result()!.relevantVocabulary; track word) {
+          <span class="cp__chip">{{ word }}</span>
+        }
+      </div>
+
+      <span class="card__eyebrow cp__section-gap">Skills to highlight</span>
+      <div class="cp__chips">
+        @for (skill of result()!.skillsToHighlight; track skill) {
+          <span class="cp__chip cp__chip--accent">{{ skill }}</span>
+        }
+      </div>
+
+      <span class="card__eyebrow cp__section-gap">Suggested preparation</span>
+      <ul class="cp__list">
+        @for (item of result()!.suggestedPreparation; track item) {
+          <li>📌 {{ item }}</li>
+        }
+      </ul>
+
+      <button type="button" class="btn btn--ghost btn--block cp__reset" (click)="reset()">Analyze another posting</button>
+    </div>
+  }
+</section>

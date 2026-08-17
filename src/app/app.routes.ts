@@ -154,6 +154,17 @@ export const routes: Routes = [
         title: 'Preparation Plan · Lingo',
       },
       {
+        path: 'interview-prep/company-prep',
+        loadComponent: () =>
+          import('./features/interview-prep/company-prep/company-prep').then((m) => m.CompanyPrepComponent),
+        title: 'Company Prep · Lingo',
+      },
+      {
+        path: 'interview-prep/tips',
+        loadComponent: () => import('./features/interview-prep/tips/tips').then((m) => m.InterviewTipsComponent),
+        title: 'Interview Tips · Lingo',
+      },
+      {
         path: 'interview-prep/vocabulary',
         loadComponent: () =>
           import('./features/interview-prep/vocabulary/vocabulary').then((m) => m.InterviewVocabularyComponent),

@@ -3,7 +3,11 @@ import { SupabaseService } from './supabase.service';
 import { AuthService } from './auth.service';
 import { InterviewPosition, InterviewSession } from '../models';
 
-/** Owns Mock Interview session history — separate from InterviewProgressService's profile/answers/vocab concerns. */
+/**
+ * Owns every kind of Interview Prep "practice session" log — Mock Interview
+ * history, plus lighter-weight Roleplay and Scenario completion records
+ * (separate from InterviewProgressService's profile/answers/vocab concerns).
+ */
 @Injectable({ providedIn: 'root' })
 export class InterviewSessionService {
   private readonly supabase = inject(SupabaseService).client;
@@ -11,6 +15,8 @@ export class InterviewSessionService {
 
   readonly loading = signal(false);
   private readonly sessions = signal<InterviewSession[]>([]);
+  private readonly roleplayCompletions = signal<{ scenarioId: string; score: number }[]>([]);
+  private readonly scenarioSessionCount = signal(0);
 
   readonly history = computed(() => this.sessions());
   readonly sessionCount = computed(() => this.sessions().length);
@@ -21,6 +27,12 @@ export class InterviewSessionService {
     return Math.round(list.reduce((sum, s) => sum + s.overallScore, 0) / list.length);
   });
 
+  readonly roleplayCount = computed(() => this.roleplayCompletions().length);
+  readonly completedRoleplayScenarioIds = computed(
+    () => new Set(this.roleplayCompletions().map((r) => r.scenarioId)),
+  );
+  readonly hasCompletedAnyScenarioSession = computed(() => this.scenarioSessionCount() > 0);
+
   constructor() {
     effect(() => {
       const userId = this.auth.userId();
@@ -28,6 +40,8 @@ export class InterviewSessionService {
         this.load(userId);
       } else if (this.auth.ready()) {
         this.sessions.set([]);
+        this.roleplayCompletions.set([]);
+        this.scenarioSessionCount.set(0);
       }
     });
   }
@@ -69,19 +83,43 @@ export class InterviewSessionService {
     if (error) console.error('[InterviewSession] saveSession failed', error);
   }
 
+  async saveRoleplayCompletion(scenarioId: string, score: number): Promise<void> {
+    this.roleplayCompletions.update((list) => [...list, { scenarioId, score }]);
+
+    const userId = this.auth.userId();
+    if (!userId) return;
+    const { error } = await this.supabase
+      .from('roleplay_sessions')
+      .insert({ user_id: userId, scenario_id: scenarioId, score });
+    if (error) console.error('[InterviewSession] saveRoleplayCompletion failed', error);
+  }
+
+  async saveScenarioSession(accuracy: number): Promise<void> {
+    this.scenarioSessionCount.update((n) => n + 1);
+
+    const userId = this.auth.userId();
+    if (!userId) return;
+    const { error } = await this.supabase.from('scenario_sessions').insert({ user_id: userId, accuracy });
+    if (error) console.error('[InterviewSession] saveScenarioSession failed', error);
+  }
+
   private async load(userId: string): Promise<void> {
     this.loading.set(true);
     try {
-      const { data, error } = await this.supabase
-        .from('interview_sessions')
-        .select('*')
-        .eq('user_id', userId)
-        .order('started_at', { ascending: false })
-        .limit(30);
-      if (error) throw error;
+      const [sessionsRes, roleplayRes, scenarioRes] = await Promise.all([
+        this.supabase
+          .from('interview_sessions')
+          .select('*')
+          .eq('user_id', userId)
+          .order('started_at', { ascending: false })
+          .limit(30),
+        this.supabase.from('roleplay_sessions').select('scenario_id,score').eq('user_id', userId),
+        this.supabase.from('scenario_sessions').select('id').eq('user_id', userId),
+      ]);
 
+      if (sessionsRes.error) throw sessionsRes.error;
       this.sessions.set(
-        (data ?? []).map((row) => ({
+        (sessionsRes.data ?? []).map((row) => ({
           id: row.id,
           position: row.target_position as InterviewPosition | null,
           startedAt: row.started_at,
@@ -93,6 +131,14 @@ export class InterviewSessionService {
           mode: row.mode as InterviewSession['mode'],
         })),
       );
+
+      if (roleplayRes.error) throw roleplayRes.error;
+      this.roleplayCompletions.set(
+        (roleplayRes.data ?? []).map((r) => ({ scenarioId: r.scenario_id, score: r.score })),
+      );
+
+      if (scenarioRes.error) throw scenarioRes.error;
+      this.scenarioSessionCount.set((scenarioRes.data ?? []).length);
     } catch (err) {
       console.error('[InterviewSession] load failed', err);
     } finally {

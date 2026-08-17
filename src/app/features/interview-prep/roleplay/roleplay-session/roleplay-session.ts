@@ -5,6 +5,7 @@ import { MOCK_ROLEPLAY_SCENARIOS } from '../../../../core/services/mock-data/moc
 import { AiRoleplayService } from '../../../../core/services/ai-roleplay.service';
 import { AiInterviewEvaluationService, InterviewAnswerEvaluation } from '../../../../core/services/ai-interview-evaluation.service';
 import { UserStateService } from '../../../../core/services/user-state.service';
+import { InterviewSessionService } from '../../../../core/services/interview-session.service';
 import { XP_RULES } from '../../../../core/constants/xp.constant';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state';
 
@@ -28,6 +29,7 @@ export class RoleplaySessionComponent {
   private readonly aiRoleplay = inject(AiRoleplayService);
   private readonly aiEvaluation = inject(AiInterviewEvaluationService);
   private readonly userState = inject(UserStateService);
+  private readonly sessionService = inject(InterviewSessionService);
   private readonly scrollAnchor = viewChild<ElementRef<HTMLDivElement>>('scrollAnchor');
 
   protected readonly scenario = computed(() =>
@@ -99,6 +101,7 @@ export class RoleplaySessionComponent {
       title: `Completed roleplay: ${scenario.title}`,
       accuracy: result.overallScore,
     });
+    await this.sessionService.saveRoleplayCompletion(scenario.id, result.overallScore);
   }
 
   private scrollToBottom(): void {

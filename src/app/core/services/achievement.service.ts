@@ -39,6 +39,7 @@ export class AchievementService {
     interviewWordsKnown: this.interviewProgress.knownWordCount(),
     mockInterviewsCompleted: this.interviewSessions.sessionCount(),
     bestMockInterviewScore: this.interviewSessions.bestScore(),
+    roleplaysCompleted: this.interviewSessions.roleplayCount(),
   }));
 
   readonly achievements = computed<Achievement[]>(() =>
