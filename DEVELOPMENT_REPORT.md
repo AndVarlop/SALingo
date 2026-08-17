@@ -230,3 +230,14 @@ Roleplay already *was* a call simulator in disguise (12 customer-service scenari
 
 ### Build/verification
 `tsc --noEmit` clean, `ng build` clean (same pre-existing CSS budget warning, unrelated).
+
+## 13. Fase 3 P2 — Gamification 2.0
+
+- 4 new achievements added to the existing `MOCK_ACHIEVEMENTS` catalog (17 → 21), reusing the same evaluate-on-context-change engine — no parallel gamification system: **🔥 7 Interviews** (7 Mock Interviews), **💯 Perfect Interview** (100 on a Mock Interview), **🎤 Speaking Master** (90%+ Speaking mastery, from `skillMastery()`), **💼 Job Ready** (75%+ Job Ready Score, from `CareerCoachService`).
+- `AchievementContext` extended with `speakingMasteryPercent` and `jobReadyScore` — both derived from services already injected elsewhere, nothing new tracked.
+- Verified live: Profile page achievement count went from 17 to 21 total, all 4 new achievement cards render correctly with the right title/description/lock state, no console errors.
+
+### Build/verification
+`tsc --noEmit` clean, `ng build` clean (same pre-existing CSS budget warning, unrelated).
+
+**Fase 3 P2 complete (5/5): 24-Hour Interview Mode + Speaking Warm-up, Career Path, Career Tracks, Gamification 2.0, plus Advanced Analytics is the one remaining P2 item — not started this round.**

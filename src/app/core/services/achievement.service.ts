@@ -6,8 +6,9 @@ import { VocabularyService } from './vocabulary.service';
 import { GrammarService } from './grammar.service';
 import { InterviewProgressService } from './interview-progress.service';
 import { InterviewSessionService } from './interview-session.service';
+import { CareerCoachService } from './career-coach.service';
 import { MOCK_ACHIEVEMENTS, AchievementContext } from './mock-data/mock-achievements.data';
-import { Achievement } from '../models';
+import { Achievement, Skill } from '../models';
 
 /**
  * Evaluates the static achievement catalog against live app state and
@@ -23,6 +24,7 @@ export class AchievementService {
   private readonly grammarService = inject(GrammarService);
   private readonly interviewProgress = inject(InterviewProgressService);
   private readonly interviewSessions = inject(InterviewSessionService);
+  private readonly careerCoach = inject(CareerCoachService);
 
   private readonly unlockedAt = signal<Record<string, string>>({});
   private readonly loaded = signal(false);
@@ -40,6 +42,9 @@ export class AchievementService {
     mockInterviewsCompleted: this.interviewSessions.sessionCount(),
     bestMockInterviewScore: this.interviewSessions.bestScore(),
     roleplaysCompleted: this.interviewSessions.roleplayCount(),
+    speakingMasteryPercent:
+      this.userState.skillMastery().find((s) => s.skill === Skill.Speaking)?.masteryPercent ?? 0,
+    jobReadyScore: this.careerCoach.jobReadyScore().overall,
   }));
 
   readonly achievements = computed<Achievement[]>(() =>

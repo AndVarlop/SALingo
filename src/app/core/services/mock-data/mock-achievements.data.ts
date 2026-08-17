@@ -13,6 +13,8 @@ export interface AchievementContext {
   mockInterviewsCompleted: number;
   bestMockInterviewScore: number;
   roleplaysCompleted: number;
+  speakingMasteryPercent: number;
+  jobReadyScore: number | null;
 }
 
 export interface AchievementDef {
@@ -178,5 +180,41 @@ export const MOCK_ACHIEVEMENTS: AchievementDef[] = [
     category: AchievementCategory.Lessons,
     goal: 7,
     isUnlocked: (ctx) => ctx.roleplaysCompleted >= 7,
+  },
+  {
+    id: 'ach-interviews-7',
+    title: '7 Interviews',
+    description: 'Complete 7 Mock Interviews.',
+    iconEmoji: '🔥',
+    category: AchievementCategory.Lessons,
+    goal: 7,
+    isUnlocked: (ctx) => ctx.mockInterviewsCompleted >= 7,
+  },
+  {
+    id: 'ach-perfect-interview',
+    title: 'Perfect Interview',
+    description: 'Score a perfect 100 on a Mock Interview.',
+    iconEmoji: '💯',
+    category: AchievementCategory.Accuracy,
+    goal: 100,
+    isUnlocked: (ctx) => ctx.bestMockInterviewScore >= 100,
+  },
+  {
+    id: 'ach-speaking-master',
+    title: 'Speaking Master',
+    description: 'Reach 90%+ Speaking mastery.',
+    iconEmoji: '🎤',
+    category: AchievementCategory.Accuracy,
+    goal: 90,
+    isUnlocked: (ctx) => ctx.speakingMasteryPercent >= 90,
+  },
+  {
+    id: 'ach-job-ready',
+    title: 'Job Ready',
+    description: 'Reach a 75%+ Job Ready Score.',
+    iconEmoji: '💼',
+    category: AchievementCategory.Accuracy,
+    goal: 75,
+    isUnlocked: (ctx) => ctx.jobReadyScore !== null && ctx.jobReadyScore >= 75,
   },
 ];
