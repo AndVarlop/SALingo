@@ -180,7 +180,15 @@ Roleplay already *was* a call simulator in disguise (12 customer-service scenari
 - New `/interview-prep/mistakes` page: grouped by category, shows wrong→correct, source, occurrence count, days since last seen, and a "Mark as reviewed" action. Linked from the Interview Prep hub.
 - **Verified live end-to-end** (in-memory, before the migration was run — confirms graceful degradation too): completed a Mock Interview repeating "I have 5 years working... I am agree that...", navigated to My Mistakes, saw all 3 mistakes correctly extracted, deduplicated to 3 rows with `occurrences: 8` each (one per question), grouped under Grammar, "Mark as reviewed" updated `lastSeenAt` with no console errors. Also verified the failure path: with the table not yet created, `MistakeMemoryService.load()` catches the error, logs it, and the page still renders its empty state cleanly — no crash.
 
-### Build/verification
-`tsc --noEmit` clean, `ng build` clean (one non-blocking CSS budget warning on `roleplay-session.scss`, 116 bytes over 4kB — cosmetic, not fixed this round). Dashboard, adaptive Mock Interview, Call Center Simulator, and My Mistakes all checked live in Chrome against the real Supabase-backed test account.
+### Pronunciation Coach (P1)
+- `SpeechRecognitionService.listenAndAnalyze()` (new method, additive — the original `listen()`/`scoreTranscript()` used by Speaking exercises are untouched): times the recording and returns `PronunciationResult` — recognition match score, missed words, words-per-minute, duration. Explicitly documented (in code and in the UI) as recognition accuracy + pace, **not** phonetic pronunciation quality — the browser can't judge accent, only whether it understood the words. No invented precision.
+- `TextToSpeechService` (new, thin `speechSynthesis` wrapper): "Listen" button plays the correct pronunciation before the user attempts it.
+- New `/pronunciation-coach` page + sidebar nav entry: reuses `MOCK_SPEAKING_EXERCISES` content (no new data file) — listen → record → see score/WPM/missed words → next sentence. Falls back gracefully with a visible warning when `SpeechRecognition` isn't supported (still allows Listen via TTS).
+- Verified live: page renders, correct sentence (1/16, confirming it reads the already-expanded Speaking set), Listen button fires with no console errors. Actual microphone recording was **not** exercised in this session (no mic in the automated browser environment, and triggering a real permission prompt risked hanging the automation) — worth a manual check in a real browser with a microphone.
 
-**Action needed from you:** run `supabase/mistakes.sql` in the SQL Editor to persist mistakes across sessions (works today without it, just doesn't survive a reload).
+### Build/verification
+`tsc --noEmit` clean, `ng build` clean (one non-blocking CSS budget warning on `roleplay-session.scss`, 116 bytes over 4kB — cosmetic, not fixed this round). Dashboard, adaptive Mock Interview, Call Center Simulator, My Mistakes, and Pronunciation Coach (except live mic capture) all checked live in Chrome against the real Supabase-backed test account.
+
+**Action needed from you:**
+1. Run `supabase/mistakes.sql` in the SQL Editor to persist mistakes across sessions (works today without it, just doesn't survive a reload).
+2. Manually try Pronunciation Coach's "Record my answer" with an actual microphone — it wasn't exercised by automation this round.

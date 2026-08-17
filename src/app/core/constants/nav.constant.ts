@@ -13,6 +13,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Grammar', icon: '✏️', routerLink: '/grammar' },
   { label: 'Listening', icon: '🎧', routerLink: '/listening' },
   { label: 'Speaking', icon: '🎤', routerLink: '/speaking' },
+  { label: 'Pronunciation Coach', icon: '🗣️', routerLink: '/pronunciation-coach' },
   { label: 'Writing', icon: '📝', routerLink: '/writing' },
   { label: 'Progress', icon: '📊', routerLink: '/progress' },
   { label: 'Interview Prep', icon: '📞', routerLink: '/interview-prep' },
@@ -26,5 +27,5 @@ export const MOBILE_NAV_ITEMS: NavItem[] = [
   NAV_ITEMS[1], // Learn
   NAV_ITEMS[2], // Review
   NAV_ITEMS[3], // Vocabulary
-  NAV_ITEMS[11], // Profile
+  NAV_ITEMS[12], // Profile
 ];

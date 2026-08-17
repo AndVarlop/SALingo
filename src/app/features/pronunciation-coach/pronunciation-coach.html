@@ -1,0 +1,72 @@
+<section class="pc">
+  <header class="pc__header">
+    <h1>🗣️ Pronunciation Coach</h1>
+    <p>Listen, then say the sentence out loud. We'll check what the browser recognized — not phonetic accuracy.</p>
+  </header>
+
+  @if (!isRecognitionSupported) {
+    <div class="card pc__warning">
+      ⚠️ Your browser doesn't support speech recognition (works best in Chrome). You can still use "Listen" to hear the correct pronunciation.
+    </div>
+  }
+
+  <div class="card pc__practice">
+    <span class="pc__progress">{{ index() + 1 }} / {{ sentences.length }}</span>
+    <h2>"{{ currentSentence().expectedSentence }}"</h2>
+    @if (currentSentence().hint) {
+      <p class="pc__hint">💡 {{ currentSentence().hint }}</p>
+    }
+
+    <div class="pc__actions">
+      <button type="button" class="btn btn--ghost" (click)="listenToSentence()" [disabled]="!isTtsSupported">
+        🔊 Listen
+      </button>
+
+      @switch (phase()) {
+        @case ('idle') {
+          <button
+            type="button"
+            class="btn btn--primary"
+            (click)="record()"
+            [disabled]="!isRecognitionSupported"
+          >
+            🎙️ Record my answer
+          </button>
+        }
+        @case ('recording') {
+          <button type="button" class="btn btn--primary" disabled>🔴 Listening…</button>
+        }
+        @case ('result') {
+          <button type="button" class="btn btn--primary" (click)="next()">Next sentence</button>
+        }
+      }
+    </div>
+
+    @if (error(); as err) {
+      <p class="pc__error">{{ err }}</p>
+      <button type="button" class="btn btn--ghost" (click)="tryAgain()">Try again</button>
+    }
+
+    @if (result(); as r) {
+      <div class="pc__result">
+        <div class="pc__result-score" [class.pc__result-score--good]="r.matchScore >= 70">
+          {{ r.matchScore }}%
+        </div>
+        <p class="pc__transcript">We heard: "{{ r.transcript || '(nothing recognized)' }}"</p>
+        <div class="pc__metrics">
+          <div><span>Speaking speed</span><strong>{{ r.wordsPerMinute }} wpm</strong></div>
+          <div><span>Duration</span><strong>{{ r.durationSeconds | number: '1.0-1' }}s</strong></div>
+        </div>
+        @if (r.missedWords.length) {
+          <p class="pc__missed">Words we didn't catch: {{ r.missedWords.join(', ') }}</p>
+        } @else {
+          <p class="pc__missed pc__missed--none">✅ Every word was recognized!</p>
+        }
+        <p class="pc__disclaimer">
+          This measures speech-recognition accuracy and pace, not phonetic pronunciation quality — the
+          browser can't judge your accent, only whether it understood the words.
+        </p>
+      </div>
+    }
+  </div>
+</section>

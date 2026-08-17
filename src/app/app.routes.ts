@@ -60,6 +60,14 @@ export const routes: Routes = [
         title: 'Speaking · SALingo',
       },
       {
+        path: 'pronunciation-coach',
+        loadComponent: () =>
+          import('./features/pronunciation-coach/pronunciation-coach').then(
+            (m) => m.PronunciationCoachComponent,
+          ),
+        title: 'Pronunciation Coach · SALingo',
+      },
+      {
         path: 'writing',
         loadComponent: () => import('./features/writing/writing').then((m) => m.WritingComponent),
         title: 'Writing · SALingo',
