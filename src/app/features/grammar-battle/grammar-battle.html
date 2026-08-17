@@ -1,0 +1,63 @@
+<section class="gb">
+  @switch (phase()) {
+    @case ('idle') {
+      <div class="card gb__intro">
+        <span class="gb__icon" aria-hidden="true">⚔️</span>
+        <h1>Grammar Battle</h1>
+        <p>Answer as many questions as you can before the clock runs out. Build a streak for bonus XP.</p>
+        @if (focusTopicLabel(); as topic) {
+          <p class="gb__focus">🎯 We'll start with <strong>{{ topic }}</strong> — your weakest grammar topic right now.</p>
+        }
+        <button type="button" class="btn btn--primary btn--block" (click)="start()">Start Battle</button>
+      </div>
+    }
+
+    @case ('playing') {
+      @if (currentQuestion(); as q) {
+        <div class="gb__hud">
+          <span>Q{{ index() + 1 }} / {{ questions().length }}</span>
+          <span class="gb__streak">🔥 {{ streak() }} streak</span>
+          <span class="gb__timer" [class.gb__timer--low]="timeLeft() <= 4">⏱️ {{ timeLeft() }}s</span>
+        </div>
+
+        <div class="card gb__question">
+          <h2>{{ q.exercise.prompt }}</h2>
+          <div class="gb__options">
+            @for (option of q.exercise.options; track $index) {
+              <button
+                type="button"
+                class="gb__option"
+                [class.gb__option--selected]="selectedIndex() === $index"
+                [class.gb__option--correct]="selectedIndex() !== null && $index === q.exercise.correctOptionIndex"
+                [class.gb__option--wrong]="selectedIndex() === $index && $index !== q.exercise.correctOptionIndex"
+                [disabled]="selectedIndex() !== null"
+                (click)="selectAnswer($index)"
+              >
+                {{ option }}
+              </button>
+            }
+          </div>
+
+          @if (feedback(); as fb) {
+            <p class="gb__feedback" [class.gb__feedback--bad]="fb !== 'correct'">
+              {{ fb === 'correct' ? '✅ Correct!' : fb === 'timeout' ? "⏰ Time's up!" : '❌ Not quite.' }}
+            </p>
+          }
+        </div>
+      }
+    }
+
+    @case ('result') {
+      <div class="card gb__result">
+        <span class="gb__icon" aria-hidden="true">{{ score() >= questions().length / 2 ? '🏆' : '💪' }}</span>
+        <h1>{{ score() }} / {{ questions().length }}</h1>
+        <div class="gb__result-stats">
+          <div><span>Best streak</span><strong>{{ bestStreak() }}</strong></div>
+          <div><span>XP earned</span><strong>+{{ xpEarned() }}</strong></div>
+        </div>
+        <button type="button" class="btn btn--primary btn--block" (click)="playAgain()">Play Again</button>
+        <a class="btn btn--ghost btn--block" routerLink="/dashboard">Back to Dashboard</a>
+      </div>
+    }
+  }
+</section>

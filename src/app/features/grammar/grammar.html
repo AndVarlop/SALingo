@@ -4,6 +4,15 @@
     <p>Plain-language explanations, examples, common mistakes and a short test for each topic.</p>
   </header>
 
+  <a class="card grammar__battle-cta" routerLink="/grammar-battle">
+    <span aria-hidden="true">⚔️</span>
+    <div>
+      <strong>Grammar Battle</strong>
+      <span>Timed multiple-choice across every topic — build a streak for bonus XP.</span>
+    </div>
+    <span class="grammar__battle-arrow">→</span>
+  </a>
+
   @for (level of levels; track level) {
     @if (topicsForLevel(level).length) {
       <div class="grammar__level">

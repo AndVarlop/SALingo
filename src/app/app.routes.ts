@@ -60,6 +60,12 @@ export const routes: Routes = [
         title: 'Speaking · SALingo',
       },
       {
+        path: 'grammar-battle',
+        loadComponent: () =>
+          import('./features/grammar-battle/grammar-battle').then((m) => m.GrammarBattleComponent),
+        title: 'Grammar Battle · SALingo',
+      },
+      {
         path: 'pronunciation-coach',
         loadComponent: () =>
           import('./features/pronunciation-coach/pronunciation-coach').then(
