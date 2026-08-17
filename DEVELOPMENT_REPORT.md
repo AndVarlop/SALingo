@@ -295,7 +295,6 @@ Every item in 16a/16b/16c went through its own `tsc --noEmit` → `ng lint` → 
 **Remaining (reasonable next P1/P2 work, none externally blocked)**:
 - Find the Mistake / Grammar Battle / Vocabulary Rush have no dedicated `.spec.ts` files (verified live instead, consistent with how they were built, but a unit test on the scoring/streak math would still be worth adding).
 - More exams could be added to the registry with no engine changes: Listening Exam, Customer Service Exam, Interview Exam, Job Readiness Exam (the strategy doc's full list) — each is one `build*Exam()` method.
-- Adaptive Learning "what should I do today" Home/Dashboard redesign (strategy doc §1/§9/§19) — the biggest remaining piece of the gamification vision. `weakestSkillTags()` already exists and is ready to feed a real recommendation, but the Dashboard itself hasn't been redesigned around it yet.
 - Daily Challenges, Missions, Boss Challenges (strategy doc §15-17) — not started; each needs its own small data model, but can reuse the mini-games/exams above as their underlying activities rather than inventing new content.
 - Call Center Simulator evolution (multi-turn scenario trees beyond the current single-resolution Roleplay) and AI Interviewer evolution (resume/job-description-aware interviews) — both explicitly deferred pending the AI backend decision below.
 
@@ -306,4 +305,17 @@ Every item in 16a/16b/16c went through its own `tsc --noEmit` → `ng lint` → 
 
 **External dependencies**: Task #63 remains open — whether/which real AI backend (LLM provider, hosting) SALingo should integrate for AI Tutor/Roleplay/Mock Interview/Resume Analysis is an explicit product + credentials decision only the user can make. Every AI-adjacent service in the app already follows the "Angular → documented mock/interface, never an API key in the client" rule so swapping in a real backend later is additive, not a rewrite.
 
-**Recommended next steps**: run `supabase/skill-tags.sql`; decide the AI backend question (#63); then either continue toward the Adaptive Learning Home redesign (highest product value, no external blocker) or keep expanding the Exam Engine's registry (cheapest incremental value, same pattern already proven twice).
+**Recommended next steps**: run `supabase/skill-tags.sql`; decide the AI backend question (#63); then either build Daily Challenges/Missions on top of the mini-games/exams that now exist, or keep expanding the Exam Engine's registry (cheapest incremental value, same pattern already proven twice).
+
+## 17. Adaptive Learning Home redesign
+
+Closed out the "biggest remaining piece" noted in the previous FINAL STATUS. The Dashboard is now built around a real "What should I do today?" hero — `recommendedActivities()[0]` (RecommendationService's top pick, which as of the prior commit can point at a specific mini-game when a skill tag is genuinely weak) leads the page instead of being buried in a list further down. Added a compact 3-up "Today's goal / Level progress / Interview readiness" row for an at-a-glance status check, consolidated the now-redundant duplicate recommendation display, and paired up the previously-orphaned "This week" card with "Weaknesses" so nothing sits alone in a half-empty grid row. Zero new/fabricated data — everything comes from `RecommendationService` / `CareerCoachService` which already existed and were already correct; this was a reorganization, not a new data pipeline.
+
+One real type error caught by `tsc` (not by review): binding `jobReadyScore().overall` (typed `number | null`) directly to `ProgressBarComponent`'s required `number` input, inside an `@if` branch that only narrows the type at runtime, not for Angular's template type-checker. Fixed with `?? 0` (the `@if (hasEnoughData)` guard means the fallback is never actually reached).
+
+### Build/verification
+`tsc --noEmit` clean, `ng lint` clean (0 errors), `ng test` 56/56 passing, `ng build` clean (same pre-existing non-blocking budget warning). Live-verified: hero showed the real top recommendation for the test account, quick-stats row correct (Interview readiness 60%), remaining recommendations list didn't repeat the hero's item, full Job Ready Score breakdown and Weaknesses rendered with real data, hero's primary CTA navigated correctly end-to-end. No console errors.
+
+## FINAL STATUS (updated)
+
+Same as §16's FINAL STATUS, with the Adaptive Learning Home redesign now moved from "remaining" to "completed." Known limitations, external dependencies, and recommended next steps are unchanged (see above) — the AI backend decision (#63) and the `skill-tags.sql` migration confirmation remain the two open items outside this session's control.
