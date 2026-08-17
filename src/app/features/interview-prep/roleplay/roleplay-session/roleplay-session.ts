@@ -4,9 +4,11 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MOCK_ROLEPLAY_SCENARIOS } from '../../../../core/services/mock-data/mock-roleplay.data';
 import { AiRoleplayService } from '../../../../core/services/ai-roleplay.service';
 import { AiInterviewEvaluationService, InterviewAnswerEvaluation } from '../../../../core/services/ai-interview-evaluation.service';
+import { CallFlowScoringService } from '../../../../core/services/call-flow-scoring.service';
 import { UserStateService } from '../../../../core/services/user-state.service';
 import { InterviewSessionService } from '../../../../core/services/interview-session.service';
 import { XP_RULES } from '../../../../core/constants/xp.constant';
+import { CallPerformance } from '../../../../core/models';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state';
 
 interface RoleplayMessage {
@@ -28,6 +30,7 @@ export class RoleplaySessionComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly aiRoleplay = inject(AiRoleplayService);
   private readonly aiEvaluation = inject(AiInterviewEvaluationService);
+  private readonly callFlowScoring = inject(CallFlowScoringService);
   private readonly userState = inject(UserStateService);
   private readonly sessionService = inject(InterviewSessionService);
   private readonly scrollAnchor = viewChild<ElementRef<HTMLDivElement>>('scrollAnchor');
@@ -42,6 +45,7 @@ export class RoleplaySessionComponent {
   protected readonly thinking = signal(false);
   protected readonly resolved = signal(false);
   protected readonly evaluation = signal<InterviewAnswerEvaluation | null>(null);
+  protected readonly callPerformance = signal<CallPerformance | null>(null);
 
   private turnIndex = 0;
 
@@ -91,6 +95,9 @@ export class RoleplaySessionComponent {
     this.thinking.set(true);
     const result = await this.aiEvaluation.evaluateAnswer(agentText || 'No response given.');
     this.evaluation.set(result);
+    this.callPerformance.set(
+      this.callFlowScoring.score(agentText, scenario.availableInfo.length > 0),
+    );
     this.thinking.set(false);
     this.phase.set('result');
 

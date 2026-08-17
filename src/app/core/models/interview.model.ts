@@ -101,9 +101,23 @@ export interface AnswerBuilderField {
 
 export type RoleplayDifficulty = 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
 
+/** Call type — doubles as the Call Center Simulator's scenario categories. */
+export type CallCategory =
+  | 'Billing'
+  | 'Technical Support'
+  | 'Cancellation'
+  | 'Refund'
+  | 'Sales'
+  | 'Delivery'
+  | 'Account'
+  | 'Angry Customer'
+  | 'Escalation'
+  | 'Retention';
+
 export interface RoleplayScenario {
   id: string;
   difficulty: RoleplayDifficulty;
+  category: CallCategory;
   title: string;
   context: string;
   objective: string;
@@ -112,6 +126,33 @@ export interface RoleplayScenario {
   availableInfo: string[];
   expectedResolution: string;
   openingLine: string;
+}
+
+/** The call-flow checklist a well-handled call is expected to follow. Not
+ * every scenario needs every step (e.g. a simple info request skips
+ * "escalation"), so scoring only counts steps that were actually attempted
+ * or clearly missing from context, never penalizing an irrelevant step. */
+export type CallFlowStepId =
+  | 'greeting'
+  | 'identification'
+  | 'verification'
+  | 'understanding'
+  | 'empathy'
+  | 'investigation'
+  | 'solution'
+  | 'confirmation'
+  | 'closing';
+
+export interface CallFlowScore {
+  step: CallFlowStepId;
+  label: string;
+  percent: number;
+  detected: boolean;
+}
+
+export interface CallPerformance {
+  steps: CallFlowScore[];
+  overall: number;
 }
 
 /** One saved run of a Mock Interview. */

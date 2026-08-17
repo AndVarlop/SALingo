@@ -3,7 +3,11 @@
     @switch (phase()) {
       @case ('intro') {
         <div class="card rp-session__intro">
-          <span class="rp-session__badge">{{ scenario.difficulty }}</span>
+          <span class="rp-session__incoming">📞 INCOMING CALL</span>
+          <div class="rp-session__badges">
+            <span class="rp-session__badge">{{ scenario.difficulty }}</span>
+            <span class="rp-session__badge rp-session__badge--category">{{ scenario.category }}</span>
+          </div>
           <h1>{{ scenario.title }}</h1>
 
           <div class="rp-session__field">
@@ -91,6 +95,22 @@
               <div><span>Clarity</span><strong>{{ evaluation.clarity }}%</strong></div>
               <div><span>Relevance</span><strong>{{ evaluation.relevance }}%</strong></div>
             </div>
+
+            @if (callPerformance(); as performance) {
+              <div class="rp-session__call-performance">
+                <h3>Call performance</h3>
+                @for (step of performance.steps; track step.step) {
+                  <div class="rp-session__call-step">
+                    <span>{{ step.detected ? '✅' : '➖' }} {{ step.label }}</span>
+                    <strong>{{ step.percent }}%</strong>
+                  </div>
+                }
+                <div class="rp-session__call-step rp-session__call-step--overall">
+                  <span>Overall</span>
+                  <strong>{{ performance.overall }}%</strong>
+                </div>
+              </div>
+            }
 
             <div class="rp-session__feedback">
               <h3>What you did well</h3>

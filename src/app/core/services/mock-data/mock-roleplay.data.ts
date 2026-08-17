@@ -5,6 +5,7 @@ export const MOCK_ROLEPLAY_SCENARIOS: RoleplayScenario[] = [
   {
     id: 'rp-1',
     difficulty: 'Beginner',
+    category: 'Delivery',
     title: 'Checking an order status',
     context: 'A calm customer wants to know when their package will arrive.',
     objective: 'Verify the order and give a clear status update.',
@@ -17,6 +18,7 @@ export const MOCK_ROLEPLAY_SCENARIOS: RoleplayScenario[] = [
   {
     id: 'rp-2',
     difficulty: 'Beginner',
+    category: 'Account',
     title: 'Simple password reset',
     context: 'A customer can\'t log into their account.',
     objective: 'Guide them through resetting their password.',
@@ -29,6 +31,7 @@ export const MOCK_ROLEPLAY_SCENARIOS: RoleplayScenario[] = [
   {
     id: 'rp-3',
     difficulty: 'Beginner',
+    category: 'Account',
     title: 'Asking about business hours',
     context: 'A customer wants to know when the store is open.',
     objective: 'Answer clearly and offer further help.',
@@ -43,6 +46,7 @@ export const MOCK_ROLEPLAY_SCENARIOS: RoleplayScenario[] = [
   {
     id: 'rp-4',
     difficulty: 'Intermediate',
+    category: 'Billing',
     title: 'Confused about a bill',
     context: 'A customer doesn\'t understand a charge on their invoice.',
     objective: 'Explain the charge clearly and patiently.',
@@ -55,6 +59,7 @@ export const MOCK_ROLEPLAY_SCENARIOS: RoleplayScenario[] = [
   {
     id: 'rp-5',
     difficulty: 'Intermediate',
+    category: 'Delivery',
     title: 'Delayed shipment',
     context: 'A customer\'s order is late and they\'re getting impatient.',
     objective: 'Apologize, explain, and offer a solution.',
@@ -67,6 +72,7 @@ export const MOCK_ROLEPLAY_SCENARIOS: RoleplayScenario[] = [
   {
     id: 'rp-6',
     difficulty: 'Intermediate',
+    category: 'Refund',
     title: 'Wrong item received',
     context: 'A customer got the wrong product in their delivery.',
     objective: 'Apologize and arrange a correction quickly.',
@@ -79,6 +85,7 @@ export const MOCK_ROLEPLAY_SCENARIOS: RoleplayScenario[] = [
   {
     id: 'rp-7',
     difficulty: 'Intermediate',
+    category: 'Retention',
     title: 'Requesting a plan change',
     context: 'A customer wants to switch to a cheaper plan.',
     objective: 'Explain the options clearly without being pushy.',
@@ -93,6 +100,7 @@ export const MOCK_ROLEPLAY_SCENARIOS: RoleplayScenario[] = [
   {
     id: 'rp-8',
     difficulty: 'Advanced',
+    category: 'Technical Support',
     title: 'Angry about a service outage',
     context: 'A customer lost internet access during a work call and is upset.',
     objective: 'De-escalate and offer a fair resolution.',
@@ -105,6 +113,7 @@ export const MOCK_ROLEPLAY_SCENARIOS: RoleplayScenario[] = [
   {
     id: 'rp-9',
     difficulty: 'Advanced',
+    category: 'Sales',
     title: 'Demanding an unauthorized discount',
     context: 'A customer insists on a discount that isn\'t available.',
     objective: 'Hold the policy professionally while staying helpful.',
@@ -117,6 +126,7 @@ export const MOCK_ROLEPLAY_SCENARIOS: RoleplayScenario[] = [
   {
     id: 'rp-10',
     difficulty: 'Advanced',
+    category: 'Retention',
     title: 'Threatening to leave a bad review',
     context: 'A customer is upset about a minor delay and threatens to post negative reviews.',
     objective: 'Stay calm and professional without over-promising.',
@@ -131,6 +141,7 @@ export const MOCK_ROLEPLAY_SCENARIOS: RoleplayScenario[] = [
   {
     id: 'rp-11',
     difficulty: 'Expert',
+    category: 'Escalation',
     title: 'Aggressive customer demanding a supervisor',
     context: 'A very upset customer refuses to talk to anyone but a manager, using harsh language.',
     objective: 'Stay professional, de-escalate, and manage the escalation properly.',
@@ -143,6 +154,7 @@ export const MOCK_ROLEPLAY_SCENARIOS: RoleplayScenario[] = [
   {
     id: 'rp-12',
     difficulty: 'Expert',
+    category: 'Escalation',
     title: 'Complex multi-issue complaint',
     context: 'A customer has several unrelated problems and is overwhelmed and upset.',
     objective: 'Organize the issues, address them one at a time, and keep control of the conversation.',
@@ -151,5 +163,33 @@ export const MOCK_ROLEPLAY_SCENARIOS: RoleplayScenario[] = [
     availableInfo: ['Wrong item: free return + replacement available', 'Billing error: refund can be issued', 'Appointment: can be rescheduled this week'],
     expectedResolution: 'Calmly organize the three issues, confirm each one, and resolve or schedule a resolution for all three.',
     openingLine: "I don't even know where to start. I got the wrong item, you overcharged me, AND you cancelled my appointment without telling me. What is going on?!",
+  },
+
+  // ---------------------------------------------------------- Cancellation & Sales ---
+  {
+    id: 'rp-13',
+    difficulty: 'Intermediate',
+    category: 'Cancellation',
+    title: 'Customer wants to cancel',
+    context: 'A customer wants to cancel their subscription entirely.',
+    objective: 'Understand why, offer alternatives, and process the cancellation respectfully if they insist.',
+    customerPersona: 'Decided, a bit impatient, doesn\'t want to be talked out of it.',
+    problem: 'Feels the service is no longer worth the cost.',
+    availableInfo: ['A 20% loyalty discount is available for 3 months', 'Cancellation takes effect at the end of the billing cycle', 'No cancellation fee'],
+    expectedResolution: 'Ask the reason, offer the loyalty discount once, and process the cancellation without pressure if declined.',
+    openingLine: "I'd like to cancel my subscription, please. I've already made up my mind.",
+  },
+  {
+    id: 'rp-14',
+    difficulty: 'Beginner',
+    category: 'Sales',
+    title: 'Customer asks about a product',
+    context: 'A potential customer is asking about a premium plan before buying.',
+    objective: 'Answer clearly and highlight the value without being pushy.',
+    customerPersona: 'Curious, comparing options, hasn\'t decided yet.',
+    problem: 'Not sure if the premium plan is worth the extra cost.',
+    availableInfo: ['Premium plan includes priority support and no ads', 'Free 14-day trial available', 'Can downgrade anytime'],
+    expectedResolution: 'Explain the premium benefits clearly and offer the free trial.',
+    openingLine: "Hi, I'm looking at your premium plan — what extra do I actually get for the higher price?",
   },
 ];

@@ -1,7 +1,7 @@
 <section class="roleplay-list">
   <header class="roleplay-list__header">
-    <h1>🎭 Customer Service Roleplay</h1>
-    <p>Simulate real calls. Start easy, work your way up to aggressive, complex customers.</p>
+    <h1>📞 Call Center Simulator</h1>
+    <p>Answer real customer calls. Start easy, work your way up to aggressive, complex customers.</p>
   </header>
 
   <div class="roleplay-list__tabs">
@@ -24,6 +24,7 @@
         <span>{{ scenario.context }}</span>
         <div class="roleplay-list__meta">
           <span class="roleplay-list__badge">{{ scenario.difficulty }}</span>
+          <span class="roleplay-list__badge">{{ scenario.category }}</span>
           @if (isCompleted(scenario.id)) {
             <app-badge-chip tone="success" icon="✓">Completed</app-badge-chip>
           }

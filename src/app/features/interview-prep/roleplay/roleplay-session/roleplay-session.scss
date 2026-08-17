@@ -20,6 +20,25 @@
   margin-bottom: 16px;
 }
 
+.rp-session__incoming {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--color-success);
+  margin-bottom: 10px;
+}
+
+.rp-session__badges {
+  display: flex;
+  gap: 8px;
+}
+
+.rp-session__badge--category {
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+}
+
 .rp-session__field {
   margin-bottom: 14px;
 
@@ -210,6 +229,36 @@
 
   strong {
     font-size: 1.1rem;
+  }
+}
+
+.rp-session__call-performance {
+  text-align: left;
+  margin-bottom: 20px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+
+  h3 {
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    margin: 0 0 8px;
+  }
+}
+
+.rp-session__call-step {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  padding: 5px 0;
+
+  &--overall {
+    border-top: 1px solid var(--color-border);
+    margin-top: 4px;
+    padding-top: 8px;
+    font-weight: 700;
   }
 }
 
