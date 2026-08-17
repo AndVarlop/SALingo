@@ -2,7 +2,6 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { UserStateService } from '../../core/services/user-state.service';
-import { MockLessonService } from '../../core/services/mock-lesson.service';
 import { CareerCoachService } from '../../core/services/career-coach.service';
 import { VocabularyService } from '../../core/services/vocabulary.service';
 import { ProgressBarComponent } from '../../shared/components/progress-bar/progress-bar';
@@ -29,7 +28,6 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 })
 export class DashboardComponent {
   protected readonly userState = inject(UserStateService);
-  protected readonly lessons = inject(MockLessonService);
   private readonly careerCoach = inject(CareerCoachService);
   protected readonly recommendedActivities = this.careerCoach.recommendedActivities;
   protected readonly jobReadyScore = this.careerCoach.jobReadyScore;
@@ -37,7 +35,18 @@ export class DashboardComponent {
   private readonly vocabularyService = inject(VocabularyService);
 
   protected readonly firstName = computed(() => this.userState.user().name.split(' ')[0]);
-  protected readonly recommendedLesson = computed(() => this.lessons.getRecommendedLesson());
+
+  /**
+   * Adaptive Learning Home: the single best next action, driven entirely by
+   * RecommendationService (spaced-repetition due count, next lesson, weakest
+   * broad skill, weakest skill *tag* pointing at a specific mini-game,
+   * interview readiness) — never a fixed/hardcoded "what to do today".
+   * Empty only when there's genuinely nothing to recommend yet (brand-new
+   * account with zero activity), never fabricated.
+   */
+  protected readonly topRecommendation = computed(() => this.recommendedActivities()[0] ?? null);
+  protected readonly moreRecommendations = computed(() => this.recommendedActivities().slice(1));
+
   /** Brand-new account: no lessons finished yet — the best moment to suggest the Placement Test, before they start at a possibly-wrong level. */
   protected readonly isNewToLearning = computed(
     () => this.languageProgress().lessonsCompleted.length === 0,

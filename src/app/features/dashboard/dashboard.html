@@ -23,23 +23,26 @@
     </a>
   }
 
-  <div class="dashboard__grid">
-    <!-- Continue learning -->
-    <article class="card card--hero">
-      <div class="card--hero__info">
-        <span class="card__eyebrow">Recommended for you</span>
-        @if (recommendedLesson(); as lesson) {
-          <h2>{{ lesson.iconEmoji }} {{ lesson.title }}</h2>
-          <p>{{ lesson.description }}</p>
-          <a class="btn btn--primary" routerLink="/lessons">Continue lesson</a>
-        } @else {
-          <h2>🎉 All lessons complete!</h2>
-          <p>You've finished every available lesson at this level.</p>
-        }
+  <!-- Adaptive Learning Home: the single best next action, real data only -->
+  @if (topRecommendation(); as rec) {
+    <article class="card dashboard__today">
+      <div class="dashboard__today-info">
+        <span class="card__eyebrow">What should I do today?</span>
+        <h2>{{ rec.iconEmoji }} {{ rec.title }}</h2>
+        <p>{{ rec.reason }}</p>
+        <a class="btn btn--primary" [routerLink]="rec.routerLink">{{ rec.actionLabel }} · {{ rec.estimatedMinutes }} min</a>
       </div>
-      <app-progress-ring [value]="userState.levelProgressPercent()" [size]="104" />
+      <app-progress-ring [value]="userState.levelProgressPercent()" [size]="96" />
     </article>
+  } @else {
+    <app-empty-state
+      icon="🌱"
+      title="Let's get started"
+      description="Complete a lesson or take the Placement Test — your first activity unlocks personalized recommendations here."
+    />
+  }
 
+  <div class="dashboard__grid dashboard__grid--quick">
     <!-- Daily goal -->
     <article class="card">
       <span class="card__eyebrow">Today's goal</span>
@@ -57,7 +60,36 @@
         [showPercent]="true"
       />
     </article>
+
+    <!-- Interview readiness -->
+    <article class="card">
+      <span class="card__eyebrow">Interview readiness</span>
+      @if (jobReadyScore().hasEnoughData) {
+        <p class="card__big-number">{{ jobReadyScore().overall }}%</p>
+        <app-progress-bar [value]="jobReadyScore().overall ?? 0" color="accent" />
+      } @else {
+        <app-empty-state icon="💼" title="Not enough data yet" [description]="jobReadyScore().missingDataHint ?? ''" />
+      }
+    </article>
   </div>
+
+  @if (moreRecommendations().length) {
+    <article class="card">
+      <span class="card__eyebrow">More ways to practice today</span>
+      <ul class="dashboard__rec-list">
+        @for (rec of moreRecommendations(); track rec.id) {
+          <li class="dashboard__rec-item">
+            <span class="dashboard__rec-icon" aria-hidden="true">{{ rec.iconEmoji }}</span>
+            <div class="dashboard__rec-body">
+              <strong>{{ rec.title }} · {{ rec.estimatedMinutes }} min</strong>
+              <span>{{ rec.reason }}</span>
+            </div>
+            <a class="btn btn--ghost" [routerLink]="rec.routerLink">{{ rec.actionLabel }}</a>
+          </li>
+        }
+      </ul>
+    </article>
+  }
 
   <!-- Stats -->
   <div class="dashboard__stats">
@@ -72,23 +104,6 @@
   </div>
 
   <div class="dashboard__grid dashboard__grid--secondary">
-    <!-- Recommendations -->
-    <article class="card">
-      <span class="card__eyebrow">Recommended for you</span>
-      <ul class="dashboard__rec-list">
-        @for (rec of recommendedActivities(); track rec.id) {
-          <li class="dashboard__rec-item">
-            <span class="dashboard__rec-icon" aria-hidden="true">{{ rec.iconEmoji }}</span>
-            <div class="dashboard__rec-body">
-              <strong>{{ rec.title }} · {{ rec.estimatedMinutes }} min</strong>
-              <span>{{ rec.reason }}</span>
-            </div>
-            <a class="btn btn--ghost" [routerLink]="rec.routerLink">{{ rec.actionLabel }}</a>
-          </li>
-        }
-      </ul>
-    </article>
-
     <!-- Activity calendar + recent log -->
     <article class="card">
       <span class="card__eyebrow">This week</span>
@@ -109,45 +124,6 @@
           icon="🌱"
           title="No activity yet"
           description="Complete a lesson to see it show up here."
-        />
-      }
-    </article>
-  </div>
-
-  <div class="dashboard__grid dashboard__grid--secondary">
-    <!-- Job Ready Score -->
-    <article class="card">
-      <span class="card__eyebrow">Job Ready Score</span>
-      @if (jobReadyScore().hasEnoughData) {
-        <p class="card__big-number">{{ jobReadyScore().overall }}%</p>
-        <ul class="dashboard__breakdown-list">
-          @if (jobReadyScore().breakdown.english !== null) {
-            <li><span>English</span><span>{{ jobReadyScore().breakdown.english }}%</span></li>
-          }
-          @if (jobReadyScore().breakdown.speaking !== null) {
-            <li><span>Speaking</span><span>{{ jobReadyScore().breakdown.speaking }}%</span></li>
-          }
-          @if (jobReadyScore().breakdown.interview !== null) {
-            <li><span>Interview</span><span>{{ jobReadyScore().breakdown.interview }}%</span></li>
-          }
-          @if (jobReadyScore().breakdown.customerService !== null) {
-            <li><span>Customer Service</span><span>{{ jobReadyScore().breakdown.customerService }}%</span></li>
-          }
-          @if (jobReadyScore().breakdown.vocabulary !== null) {
-            <li><span>Vocabulary</span><span>{{ jobReadyScore().breakdown.vocabulary }}%</span></li>
-          }
-          @if (jobReadyScore().breakdown.grammar !== null) {
-            <li><span>Grammar</span><span>{{ jobReadyScore().breakdown.grammar }}%</span></li>
-          }
-          @if (jobReadyScore().breakdown.confidence !== null) {
-            <li><span>Confidence</span><span>{{ jobReadyScore().breakdown.confidence }}%</span></li>
-          }
-        </ul>
-      } @else {
-        <app-empty-state
-          icon="💼"
-          title="Not enough data yet"
-          [description]="jobReadyScore().missingDataHint ?? ''"
         />
       }
     </article>
@@ -178,4 +154,40 @@
       }
     </article>
   </div>
+
+  <!-- Job Ready Score, full breakdown (the Quick Stats row above shows the headline number) -->
+  <article class="card">
+    <span class="card__eyebrow">Job Ready Score breakdown</span>
+    @if (jobReadyScore().hasEnoughData) {
+      <ul class="dashboard__breakdown-list">
+        @if (jobReadyScore().breakdown.english !== null) {
+          <li><span>English</span><span>{{ jobReadyScore().breakdown.english }}%</span></li>
+        }
+        @if (jobReadyScore().breakdown.speaking !== null) {
+          <li><span>Speaking</span><span>{{ jobReadyScore().breakdown.speaking }}%</span></li>
+        }
+        @if (jobReadyScore().breakdown.interview !== null) {
+          <li><span>Interview</span><span>{{ jobReadyScore().breakdown.interview }}%</span></li>
+        }
+        @if (jobReadyScore().breakdown.customerService !== null) {
+          <li><span>Customer Service</span><span>{{ jobReadyScore().breakdown.customerService }}%</span></li>
+        }
+        @if (jobReadyScore().breakdown.vocabulary !== null) {
+          <li><span>Vocabulary</span><span>{{ jobReadyScore().breakdown.vocabulary }}%</span></li>
+        }
+        @if (jobReadyScore().breakdown.grammar !== null) {
+          <li><span>Grammar</span><span>{{ jobReadyScore().breakdown.grammar }}%</span></li>
+        }
+        @if (jobReadyScore().breakdown.confidence !== null) {
+          <li><span>Confidence</span><span>{{ jobReadyScore().breakdown.confidence }}%</span></li>
+        }
+      </ul>
+    } @else {
+      <app-empty-state
+        icon="💼"
+        title="Not enough data yet"
+        [description]="jobReadyScore().missingDataHint ?? ''"
+      />
+    }
+  </article>
 </section>
