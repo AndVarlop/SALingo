@@ -106,12 +106,77 @@ export class PreparationPlanComponent {
 
   protected readonly completedDays = computed(() => this.plan().filter((d) => d.completed === true).length);
 
-  /** True when the interview is today or tomorrow — switches to the intensive plan. */
-  protected readonly isInterviewSoon = computed(() => {
+  private readonly daysUntilInterview = computed<number | null>(() => {
     const dateStr = this.interviewProgress.profile().interviewDate;
-    if (!dateStr) return false;
-    const daysUntil = Math.ceil((new Date(dateStr).getTime() - Date.now()) / (24 * 60 * 60 * 1000));
-    return daysUntil >= 0 && daysUntil <= 1;
+    if (!dateStr) return null;
+    return Math.ceil((new Date(dateStr).getTime() - Date.now()) / (24 * 60 * 60 * 1000));
+  });
+
+  /** Which plan to show: 'intensive' (today/tomorrow), 'medium' (2-5 days), or 'standard' (the default 7-day plan / no date set). */
+  protected readonly planTier = computed<'intensive' | 'medium' | 'standard'>(() => {
+    const days = this.daysUntilInterview();
+    if (days === null || days > 5) return 'standard';
+    if (days <= 1) return 'intensive';
+    return 'medium';
+  });
+
+  /** Kept for the template — true when the intensive (today/tomorrow) plan should show. */
+  protected readonly isInterviewSoon = computed(() => this.planTier() === 'intensive');
+  protected readonly isMediumTerm = computed(() => this.planTier() === 'medium');
+
+  /** For an interview 2-5 days out — more room than the intensive plan, no need to compress into one day, but no reason to spread thin over a full week either. */
+  protected readonly mediumPlan = computed<PlanDay[]>(() => {
+    const aboutYou = this.questionService.getByCategory('about-you');
+    const sessions = this.sessionService.history();
+    return [
+      {
+        day: 1,
+        title: 'Foundations',
+        description: 'Build your "Tell me about yourself" answer and review the About You questions.',
+        icon: '👋',
+        routerLink: '/interview-prep/answer-builder/iq-tell-me-about-yourself',
+        actionLabel: 'Build your answer',
+        completed:
+          this.interviewProgress.isPracticed('iq-tell-me-about-yourself') &&
+          aboutYou.every((q) => this.interviewProgress.isPracticed(q.id)),
+      },
+      {
+        day: 2,
+        title: 'Customer Service & Difficult Customers',
+        description: 'Refresh call center vocabulary and practice handling difficult situations.',
+        icon: '📞',
+        routerLink: '/interview-prep/scenarios',
+        actionLabel: 'Explore scenarios',
+        completed: this.sessionService.hasCompletedAnyScenarioSession(),
+      },
+      {
+        day: 3,
+        title: 'Roleplay Practice',
+        description: 'Simulate a couple of real customer calls.',
+        icon: '🎭',
+        routerLink: '/interview-prep/roleplay',
+        actionLabel: 'Start a call',
+        completed: this.sessionService.roleplayCount() > 0,
+      },
+      {
+        day: 4,
+        title: 'Mock Interview',
+        description: 'Take a full guided mock interview with hints and feedback.',
+        icon: '🎙️',
+        routerLink: '/interview-prep/mock-interview',
+        actionLabel: 'Start mock interview',
+        completed: sessions.length > 0,
+      },
+      {
+        day: 5,
+        title: 'Review your mistakes',
+        description: 'Go over recurring errors so they don\'t show up again in the real interview.',
+        icon: '🧠',
+        routerLink: '/interview-prep/mistakes',
+        actionLabel: 'Review mistakes',
+        completed: null,
+      },
+    ];
   });
 
   protected readonly intensivePlan = computed<PlanDay[]>(() => {

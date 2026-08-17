@@ -21,6 +21,10 @@
   &--urgent h1 {
     color: var(--color-warn);
   }
+
+  &--medium h1 {
+    color: var(--color-primary);
+  }
 }
 
 .pp__date-field {

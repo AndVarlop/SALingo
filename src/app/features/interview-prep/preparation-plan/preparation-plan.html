@@ -7,48 +7,76 @@
       [value]="interviewProgress.profile().interviewDate ?? ''"
       (change)="setInterviewDate($any($event.target).value)"
     />
-    <span class="pp__date-hint">Set this to a date within 24 hours to switch to the intensive same-day plan.</span>
+    <span class="pp__date-hint">
+      Within 24 hours switches to the intensive same-day plan. 2-5 days out switches to a focused 5-step plan.
+    </span>
   </div>
 
-  @if (isInterviewSoon()) {
-    <header class="pp__header pp__header--urgent">
-      <h1>⏰ My Interview Is Tomorrow</h1>
-      <p>An intensive same-day plan — everything you need before you walk in (or pick up the call).</p>
-    </header>
+  @switch (planTier()) {
+    @case ('intensive') {
+      <header class="pp__header pp__header--urgent">
+        <h1>⏰ My Interview Is Tomorrow</h1>
+        <p>An intensive same-day plan — everything you need before you walk in (or pick up the call).</p>
+      </header>
 
-    <ol class="pp__list">
-      @for (day of intensivePlan(); track day.day) {
-        <li class="card pp__day" [class.pp__day--done]="day.completed === true">
-          <div class="pp__day-number">
-            {{ day.completed === true ? '✓' : day.day }}
-          </div>
-          <div class="pp__day-body">
-            <strong>{{ day.icon }} {{ day.title }}</strong>
-            <span>{{ day.description }}</span>
-          </div>
-          <a class="btn btn--ghost" [routerLink]="day.routerLink">{{ day.actionLabel }}</a>
-        </li>
-      }
-    </ol>
-  } @else {
-    <header class="pp__header">
-      <h1>Your Interview Preparation Plan</h1>
-      <p>A 7-day path from "I don't know what to expect" to "I'm ready." {{ completedDays() }}/7 days done.</p>
-    </header>
+      <ol class="pp__list">
+        @for (day of intensivePlan(); track day.day) {
+          <li class="card pp__day" [class.pp__day--done]="day.completed === true">
+            <div class="pp__day-number">
+              {{ day.completed === true ? '✓' : day.day }}
+            </div>
+            <div class="pp__day-body">
+              <strong>{{ day.icon }} {{ day.title }}</strong>
+              <span>{{ day.description }}</span>
+            </div>
+            <a class="btn btn--ghost" [routerLink]="day.routerLink">{{ day.actionLabel }}</a>
+          </li>
+        }
+      </ol>
+    }
 
-    <ol class="pp__list">
-      @for (day of plan(); track day.day) {
-        <li class="card pp__day" [class.pp__day--done]="day.completed === true">
-          <div class="pp__day-number">
-            {{ day.completed === true ? '✓' : day.day }}
-          </div>
-          <div class="pp__day-body">
-            <strong>{{ day.icon }} Day {{ day.day }} — {{ day.title }}</strong>
-            <span>{{ day.description }}</span>
-          </div>
-          <a class="btn btn--ghost" [routerLink]="day.routerLink">{{ day.actionLabel }}</a>
-        </li>
-      }
-    </ol>
+    @case ('medium') {
+      <header class="pp__header pp__header--medium">
+        <h1>📅 A Few Days to Prepare</h1>
+        <p>Your interview is coming up soon — a focused 5-step plan, no need to spread it over a full week.</p>
+      </header>
+
+      <ol class="pp__list">
+        @for (day of mediumPlan(); track day.day) {
+          <li class="card pp__day" [class.pp__day--done]="day.completed === true">
+            <div class="pp__day-number">
+              {{ day.completed === true ? '✓' : day.day }}
+            </div>
+            <div class="pp__day-body">
+              <strong>{{ day.icon }} {{ day.title }}</strong>
+              <span>{{ day.description }}</span>
+            </div>
+            <a class="btn btn--ghost" [routerLink]="day.routerLink">{{ day.actionLabel }}</a>
+          </li>
+        }
+      </ol>
+    }
+
+    @default {
+      <header class="pp__header">
+        <h1>Your Interview Preparation Plan</h1>
+        <p>A 7-day path from "I don't know what to expect" to "I'm ready." {{ completedDays() }}/7 days done.</p>
+      </header>
+
+      <ol class="pp__list">
+        @for (day of plan(); track day.day) {
+          <li class="card pp__day" [class.pp__day--done]="day.completed === true">
+            <div class="pp__day-number">
+              {{ day.completed === true ? '✓' : day.day }}
+            </div>
+            <div class="pp__day-body">
+              <strong>{{ day.icon }} Day {{ day.day }} — {{ day.title }}</strong>
+              <span>{{ day.description }}</span>
+            </div>
+            <a class="btn btn--ghost" [routerLink]="day.routerLink">{{ day.actionLabel }}</a>
+          </li>
+        }
+      </ol>
+    }
   }
 </section>
