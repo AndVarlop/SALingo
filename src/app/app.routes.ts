@@ -60,6 +60,12 @@ export const routes: Routes = [
         title: 'Speaking · SALingo',
       },
       {
+        path: 'vocabulary-rush',
+        loadComponent: () =>
+          import('./features/vocabulary-rush/vocabulary-rush').then((m) => m.VocabularyRushComponent),
+        title: 'Vocabulary Rush · SALingo',
+      },
+      {
         path: 'grammar-battle',
         loadComponent: () =>
           import('./features/grammar-battle/grammar-battle').then((m) => m.GrammarBattleComponent),

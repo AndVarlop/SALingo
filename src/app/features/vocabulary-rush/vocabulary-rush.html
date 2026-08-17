@@ -1,0 +1,66 @@
+<section class="vr">
+  @switch (phase()) {
+    @case ('idle') {
+      <div class="card vr__intro">
+        <span class="vr__icon" aria-hidden="true">⚡</span>
+        <h1>Vocabulary Rush</h1>
+        <p>Match each word to its translation before the clock runs out. Build a streak for bonus XP.</p>
+        @if (hasEnoughWords()) {
+          <button type="button" class="btn btn--primary btn--block" (click)="start()">Start Rush</button>
+        } @else {
+          <p class="vr__warning">⚠️ Not enough vocabulary loaded yet — visit Vocabulary first, then come back.</p>
+          <a class="btn btn--ghost btn--block" routerLink="/vocabulary">Go to Vocabulary</a>
+        }
+      </div>
+    }
+
+    @case ('playing') {
+      @if (currentRound(); as round) {
+        <div class="vr__hud">
+          <span>{{ index() + 1 }} / {{ rounds().length }}</span>
+          <span class="vr__streak">🔥 {{ streak() }} streak</span>
+          <span class="vr__timer" [class.vr__timer--low]="timeLeft() <= 3">⏱️ {{ timeLeft() }}s</span>
+        </div>
+
+        <div class="card vr__question">
+          <span class="card__eyebrow">What does this mean?</span>
+          <h2>{{ round.word.term }}</h2>
+          <div class="vr__options">
+            @for (option of round.options; track $index) {
+              <button
+                type="button"
+                class="vr__option"
+                [class.vr__option--selected]="selectedIndex() === $index"
+                [class.vr__option--correct]="selectedIndex() !== null && $index === round.correctIndex"
+                [class.vr__option--wrong]="selectedIndex() === $index && $index !== round.correctIndex"
+                [disabled]="selectedIndex() !== null"
+                (click)="selectAnswer($index)"
+              >
+                {{ option }}
+              </button>
+            }
+          </div>
+
+          @if (feedback(); as fb) {
+            <p class="vr__feedback" [class.vr__feedback--bad]="fb !== 'correct'">
+              {{ fb === 'correct' ? '✅ Correct!' : fb === 'timeout' ? "⏰ Time's up!" : '❌ Not quite.' }}
+            </p>
+          }
+        </div>
+      }
+    }
+
+    @case ('result') {
+      <div class="card vr__result">
+        <span class="vr__icon" aria-hidden="true">{{ score() >= rounds().length / 2 ? '🏆' : '💪' }}</span>
+        <h1>{{ score() }} / {{ rounds().length }}</h1>
+        <div class="vr__result-stats">
+          <div><span>Best streak</span><strong>{{ bestStreak() }}</strong></div>
+          <div><span>XP earned</span><strong>+{{ xpEarned() }}</strong></div>
+        </div>
+        <button type="button" class="btn btn--primary btn--block" (click)="playAgain()">Play Again</button>
+        <a class="btn btn--ghost btn--block" routerLink="/dashboard">Back to Dashboard</a>
+      </div>
+    }
+  }
+</section>
