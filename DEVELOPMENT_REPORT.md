@@ -249,4 +249,14 @@ Roleplay already *was* a call simulator in disguise (12 customer-service scenari
 ### Build/verification
 `tsc --noEmit` clean, `ng build` clean (same pre-existing CSS budget warning, unrelated).
 
-**Fase 3 P2 complete (5/5): 24-Hour Interview Mode + Speaking Warm-up, Career Path, Career Tracks, Gamification 2.0, Advanced Analytics. Only P3 (PWA, performance, automated tests, ESLint, polish) remains from the original priority list.**
+**Fase 3 P2 complete (5/5): 24-Hour Interview Mode + Speaking Warm-up, Career Path, Career Tracks, Gamification 2.0, Advanced Analytics.**
+
+## 15. Fase 3 P3 — Tests, ESLint, PWA
+
+- **Tests**: 33 tests across 7 files added, prioritized per the spec (services/scoring/adaptive-learning/interview-logic/spaced-repetition first). `ng test` (Vitest via `@angular/build:unit-test`) already worked with zero extra tooling — the earlier "needs `@vitest/browser-playwright`" note in this report was stale/unnecessary. Not aiming for coverage %, aiming at the logic that's wrong-and-silent if it breaks: the Job Ready Score formula (gating, no-fabrication, weighting, monotonicity), Weakness ranking, Call Flow scoring, Mistake detection, adaptive question picking, and the spaced-repetition interval/difficulty math.
+- **ESLint**: `ng add @angular-eslint/schematics`, then fixed all 11 real findings it surfaced (3 ternary-as-statement bugs rewritten as if/else, one genuinely dead const removed, 6 `any` usages in `SpeechRecognitionService` replaced with real minimal types). `ng lint` is 0 errors on a clean run — not just configured, actually clean.
+- **PWA**: `ng add @angular/pwa` — service worker (disabled in dev mode, standard Angular default), manifest rebranded to SALingo (name, theme/background colors pulled from the real `--color-primary`/`--color-bg` tokens, not guessed). **Known gap: the app icons are the Angular CLI's generic placeholder icons** (`public/icons/*.png`) — no image-generation tool available in this session to produce real SALingo-branded icons. Swap those 8 PNGs for real branded assets before treating the "Add to Home Screen" experience as finished.
+- Not done this round: bundle-size/performance profiling (current initial bundle is ~479kB raw / ~123kB gzip, well under the 500kB budget — no evidence of a real problem to fix, and rule 37 says measure before optimizing prematurely).
+
+### Build/verification
+`tsc --noEmit` clean, `ng lint` clean (0 errors), `ng test` 33/33 passing, `ng build` clean (same pre-existing non-blocking CSS budget warning) and confirmed `ngsw-worker.js`/`ngsw.json`/`manifest.webmanifest` present in the build output.
