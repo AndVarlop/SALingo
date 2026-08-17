@@ -173,6 +173,28 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['scenario_sessions']['Row']>;
         Relationships: [];
       };
+      user_mistakes: {
+        Row: {
+          id: string;
+          user_id: string;
+          wrong_text: string;
+          correct_text: string;
+          category: string;
+          source: string;
+          first_seen_at: string;
+          last_seen_at: string;
+          occurrences: number;
+        };
+        Insert: Partial<Database['public']['Tables']['user_mistakes']['Row']> & {
+          user_id: string;
+          wrong_text: string;
+          correct_text: string;
+          category: string;
+          source: string;
+        };
+        Update: Partial<Database['public']['Tables']['user_mistakes']['Row']>;
+        Relationships: [];
+      };
       interview_sessions: {
         Row: {
           id: string;

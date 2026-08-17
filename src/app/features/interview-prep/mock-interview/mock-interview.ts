@@ -6,6 +6,8 @@ import { InterviewProgressService } from '../../../core/services/interview-progr
 import { InterviewSessionService } from '../../../core/services/interview-session.service';
 import { AiInterviewEvaluationService, InterviewAnswerEvaluation } from '../../../core/services/ai-interview-evaluation.service';
 import { AiInterviewService } from '../../../core/services/ai-interview.service';
+import { MistakeDetectionService } from '../../../core/services/mistake-detection.service';
+import { MistakeMemoryService } from '../../../core/services/mistake-memory.service';
 import { UserStateService } from '../../../core/services/user-state.service';
 import { INTERVIEW_POSITION_LABEL, InterviewPosition, InterviewQuestion } from '../../../core/models';
 
@@ -48,6 +50,8 @@ export class MockInterviewComponent implements OnDestroy {
   private readonly sessionService = inject(InterviewSessionService);
   private readonly aiEvaluation = inject(AiInterviewEvaluationService);
   private readonly aiInterview = inject(AiInterviewService);
+  private readonly mistakeDetection = inject(MistakeDetectionService);
+  private readonly mistakeMemory = inject(MistakeMemoryService);
   private readonly userState = inject(UserStateService);
   private readonly fb = inject(FormBuilder);
 
@@ -144,6 +148,9 @@ export class MockInterviewComponent implements OnDestroy {
     const evaluations = await Promise.all(this.answers().map((a) => this.aiEvaluation.evaluateAnswer(a)));
     const aggregate = this.aggregate(evaluations);
     this.result.set(aggregate);
+
+    const detected = this.answers().flatMap((a) => this.mistakeDetection.detect(a));
+    if (detected.length) await this.mistakeMemory.recordAll(detected, 'Mock Interview');
 
     const durationSeconds = Math.round((Date.now() - this.startedAt) / 1000);
     const { position, mode } = this.setupForm.getRawValue();

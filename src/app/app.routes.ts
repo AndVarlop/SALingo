@@ -171,6 +171,12 @@ export const routes: Routes = [
         title: 'Call Center English · SALingo',
       },
       {
+        path: 'interview-prep/mistakes',
+        loadComponent: () =>
+          import('./features/interview-prep/mistakes/mistakes').then((m) => m.MistakesComponent),
+        title: 'My Mistakes · SALingo',
+      },
+      {
         path: 'profile',
         loadComponent: () => import('./features/profile/profile').then((m) => m.ProfileComponent),
         title: 'Profile · SALingo',

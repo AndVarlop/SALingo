@@ -1,0 +1,42 @@
+<section class="mk">
+  <header class="mk__header">
+    <h1>🧠 My Mistakes</h1>
+    <p>Recurring language errors detected in your Mock Interviews and Roleplay calls.</p>
+  </header>
+
+  @if (mistakeMemory.totalCount() > 0) {
+    <div class="mk__stats">
+      <app-stat-card icon="🧠" label="Tracked mistakes" [value]="mistakeMemory.totalCount() + ''" />
+      <app-stat-card icon="🔁" label="Due for review" [value]="mistakeMemory.dueForReview().length + ''" />
+    </div>
+
+    @for (category of categories; track category) {
+      @if (mistakesFor(category).length) {
+        <div class="mk__group">
+          <h2>{{ categoryIcon[category] }} {{ categoryLabel[category] }}</h2>
+          <ul class="mk__list">
+            @for (mistake of mistakesFor(category); track mistake.id) {
+              <li class="card mk__item">
+                <p class="mk__wrong">❌ {{ mistake.wrong }}</p>
+                <p class="mk__correct">✅ {{ mistake.correct }}</p>
+                <div class="mk__meta">
+                  <span>{{ mistake.source }}</span>
+                  <span>Seen {{ mistake.occurrences }}× · last {{ daysAgo(mistake.lastSeenAt) }}d ago</span>
+                </div>
+                <button type="button" class="btn btn--ghost" (click)="markReviewed(mistake.id)">
+                  Mark as reviewed
+                </button>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    }
+  } @else {
+    <app-empty-state
+      icon="🧠"
+      title="No mistakes tracked yet"
+      description="Complete a Mock Interview or a Roleplay call — recurring errors will start showing up here automatically."
+    />
+  }
+</section>

@@ -5,6 +5,8 @@ import { MOCK_ROLEPLAY_SCENARIOS } from '../../../../core/services/mock-data/moc
 import { AiRoleplayService } from '../../../../core/services/ai-roleplay.service';
 import { AiInterviewEvaluationService, InterviewAnswerEvaluation } from '../../../../core/services/ai-interview-evaluation.service';
 import { CallFlowScoringService } from '../../../../core/services/call-flow-scoring.service';
+import { MistakeDetectionService } from '../../../../core/services/mistake-detection.service';
+import { MistakeMemoryService } from '../../../../core/services/mistake-memory.service';
 import { UserStateService } from '../../../../core/services/user-state.service';
 import { InterviewSessionService } from '../../../../core/services/interview-session.service';
 import { XP_RULES } from '../../../../core/constants/xp.constant';
@@ -31,6 +33,8 @@ export class RoleplaySessionComponent {
   private readonly aiRoleplay = inject(AiRoleplayService);
   private readonly aiEvaluation = inject(AiInterviewEvaluationService);
   private readonly callFlowScoring = inject(CallFlowScoringService);
+  private readonly mistakeDetection = inject(MistakeDetectionService);
+  private readonly mistakeMemory = inject(MistakeMemoryService);
   private readonly userState = inject(UserStateService);
   private readonly sessionService = inject(InterviewSessionService);
   private readonly scrollAnchor = viewChild<ElementRef<HTMLDivElement>>('scrollAnchor');
@@ -98,6 +102,8 @@ export class RoleplaySessionComponent {
     this.callPerformance.set(
       this.callFlowScoring.score(agentText, scenario.availableInfo.length > 0),
     );
+    const detected = this.mistakeDetection.detect(agentText);
+    if (detected.length) await this.mistakeMemory.recordAll(detected, `Roleplay: ${scenario.title}`);
     this.thinking.set(false);
     this.phase.set('result');
 
