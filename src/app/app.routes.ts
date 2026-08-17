@@ -80,6 +80,12 @@ export const routes: Routes = [
         title: 'Find the Mistake · SALingo',
       },
       {
+        path: 'exam/:id',
+        loadComponent: () =>
+          import('./features/exam-runner/exam-runner').then((m) => m.ExamRunnerComponent),
+        title: 'Exam · SALingo',
+      },
+      {
         path: 'pronunciation-coach',
         loadComponent: () =>
           import('./features/pronunciation-coach/pronunciation-coach').then(

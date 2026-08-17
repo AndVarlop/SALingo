@@ -20,7 +20,8 @@ export class VocabularyService {
   private readonly auth = inject(AuthService);
   private readonly userState = inject(UserStateService);
 
-  readonly loading = signal(false);
+  /** Starts true — data hasn't been fetched yet on a fresh load, not "there is no data". */
+  readonly loading = signal(true);
   private readonly rawWords = signal<Omit<VocabularyWord, 'masteryPercent' | 'isFavorite'>[]>([]);
   private readonly favoriteWordIds = signal<Set<string>>(new Set());
   /** wordId -> accuracy 0-100, derived from review_items. Also updated live by SpacedRepetitionService after each grade. */
@@ -46,6 +47,7 @@ export class VocabularyService {
         this.rawWords.set([]);
         this.favoriteWordIds.set(new Set());
         this.masteryByWordId.set({});
+        this.loading.set(false);
       }
     });
   }

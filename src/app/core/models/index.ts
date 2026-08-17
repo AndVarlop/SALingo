@@ -11,3 +11,4 @@ export * from './user-progress.model';
 export * from './ai.model';
 export * from './interview.model';
 export * from './career-coach.model';
+export * from './exam.model';

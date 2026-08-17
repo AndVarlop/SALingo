@@ -1,0 +1,99 @@
+<section class="exam">
+  @switch (phase()) {
+    @case ('loading') {
+      <div class="card exam__notfound">
+        <span aria-hidden="true">⏳</span>
+        <h1>Loading exam…</h1>
+      </div>
+    }
+
+    @case ('not-found') {
+      <div class="card exam__notfound">
+        <span aria-hidden="true">🤔</span>
+        <h1>Exam not found</h1>
+        <p>This exam doesn't exist yet, or there isn't enough content loaded to build it.</p>
+        <a class="btn btn--ghost btn--block" routerLink="/dashboard">Back to Dashboard</a>
+      </div>
+    }
+
+    @case ('playing') {
+      @if (exam(); as e) {
+        @if (currentQuestion(); as q) {
+          <header class="exam__header">
+            <h1>{{ e.icon }} {{ e.title }}</h1>
+            <span>{{ index() + 1 }} / {{ questions().length }}</span>
+          </header>
+
+          <div class="exam__progress">
+            <div class="exam__progress-fill" [style.width.%]="progressPercent()"></div>
+          </div>
+
+          <div class="card exam__question">
+            <p class="exam__prompt">{{ q.prompt }}</p>
+            <div class="exam__options">
+              @for (option of q.options; track $index) {
+                <button
+                  type="button"
+                  class="exam__option"
+                  [class.exam__option--selected]="selectedForCurrent() === $index"
+                  (click)="selectAnswer($index)"
+                >
+                  {{ option }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="exam__nav">
+            <button type="button" class="btn btn--ghost" [disabled]="index() === 0" (click)="previous()">
+              ← Previous
+            </button>
+            <button
+              type="button"
+              class="btn btn--primary"
+              [disabled]="selectedForCurrent() === null"
+              (click)="next()"
+            >
+              {{ isLastQuestion() ? 'Finish Exam' : 'Next →' }}
+            </button>
+          </div>
+        }
+      }
+    }
+
+    @case ('result') {
+      @if (result(); as r) {
+        <div class="card exam__result">
+          <span class="exam__result-icon" aria-hidden="true">{{ r.scorePercent >= 70 ? '🏆' : '💪' }}</span>
+          <h1>{{ r.scorePercent }}%</h1>
+          <p>{{ r.correctCount }} / {{ r.totalQuestions }} correct</p>
+
+          <div class="exam__sections">
+            @for (section of r.sectionResults; track section.sectionId) {
+              <div class="exam__section-row">
+                <span>{{ section.title }}</span>
+                <span class="exam__section-score">{{ section.correct }}/{{ section.total }} · {{ section.percent }}%</span>
+              </div>
+            }
+          </div>
+
+          @if (r.scorePercent < 100 && r.weakestTags.length) {
+            <div class="exam__weak">
+              <h2>Where to focus next</h2>
+              <ul>
+                @for (tag of r.weakestTags; track tag.tag) {
+                  @if (tag.percent < 100) {
+                    <li>{{ tag.tag }} — {{ tag.percent }}%</li>
+                  }
+                }
+              </ul>
+            </div>
+          }
+
+          <button type="button" class="btn btn--primary btn--block" (click)="retake()">Retake Exam</button>
+          <a class="btn btn--ghost btn--block" routerLink="/dashboard">Back to Dashboard</a>
+        </div>
+      }
+    }
+  }
+</section>

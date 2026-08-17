@@ -22,6 +22,15 @@
     <span class="grammar__battle-arrow">→</span>
   </a>
 
+  <a class="card grammar__battle-cta" routerLink="/exam/grammar-exam">
+    <span aria-hidden="true">📐</span>
+    <div>
+      <strong>Grammar Exam</strong>
+      <span>An untimed exam across every level — see exactly which topics need more work.</span>
+    </div>
+    <span class="grammar__battle-arrow">→</span>
+  </a>
+
   @for (level of levels; track level) {
     @if (topicsForLevel(level).length) {
       <div class="grammar__level">
