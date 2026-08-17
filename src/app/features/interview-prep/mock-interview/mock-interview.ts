@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { InterviewQuestionService } from '../../../core/services/interview-question.service';
 import { InterviewProgressService } from '../../../core/services/interview-progress.service';
 import { InterviewSessionService } from '../../../core/services/interview-session.service';
@@ -54,13 +54,24 @@ export class MockInterviewComponent implements OnDestroy {
   private readonly mistakeMemory = inject(MistakeMemoryService);
   private readonly userState = inject(UserStateService);
   private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
 
   protected readonly positions = Object.values(InterviewPosition);
   protected readonly positionLabel = INTERVIEW_POSITION_LABEL;
   protected readonly difficulties: Difficulty[] = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
 
+  /** Set when arriving from Company Prep's "Start Personalized Interview". */
+  private readonly personalized = (history.state as {
+    personalizedQuestions?: string[];
+    personalizedCompany?: string | null;
+    personalizedPosition?: InterviewPosition | null;
+  }) ?? {};
+  protected readonly personalizedCompany = this.personalized.personalizedCompany ?? null;
+
   protected readonly setupForm = this.fb.nonNullable.group({
-    position: this.fb.control<InterviewPosition | null>(this.interviewProgress.profile().targetPosition),
+    position: this.fb.control<InterviewPosition | null>(
+      this.personalized.personalizedPosition ?? this.interviewProgress.profile().targetPosition,
+    ),
     difficulty: this.fb.nonNullable.control<Difficulty>('Beginner'),
     mode: this.fb.nonNullable.control<Mode>('guided'),
   });
@@ -87,9 +98,25 @@ export class MockInterviewComponent implements OnDestroy {
 
   protected startInterview(): void {
     const { position, difficulty, mode } = this.setupForm.getRawValue();
-    const pool = this.questionService.forPosition(position);
+    const basePool = this.questionService.forPosition(position);
+    const personalizedPool: InterviewQuestion[] = (this.personalized.personalizedQuestions ?? []).map(
+      (question, i) => ({
+        id: `personalized-${i}`,
+        category: 'behavioral',
+        positions: [],
+        question,
+        whatInterviewerWants: 'Tailored to the job description you provided in Company Prep.',
+        structure: ['Situation', 'Action', 'Result'],
+        exampleAnswer: '',
+        spanishExplanation: '',
+        usefulVocabulary: [],
+      }),
+    );
+    const pool = [...personalizedPool, ...basePool];
     const count = QUESTION_COUNT_BY_DIFFICULTY[difficulty];
-    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    const shuffled = personalizedPool.length
+      ? [...personalizedPool, ...[...basePool].sort(() => Math.random() - 0.5)]
+      : [...pool].sort(() => Math.random() - 0.5);
 
     this.targetCount.set(Math.min(count, shuffled.length));
     this.remainingPool.set(shuffled);

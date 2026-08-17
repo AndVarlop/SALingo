@@ -33,6 +33,17 @@
   font-size: 2.4rem;
 }
 
+.mock-interview__personalized-badge {
+  display: inline-block;
+  margin: 6px 0;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
 .mock-interview__field {
   display: flex;
   flex-direction: column;

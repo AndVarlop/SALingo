@@ -37,34 +37,54 @@
     </form>
   } @else {
     <div class="card cp__result">
-      <span class="card__eyebrow">Possible questions</span>
-      <ul class="cp__list">
-        @for (q of result()!.possibleQuestions; track q) {
-          <li>💬 {{ q }}</li>
-        }
-      </ul>
+      <span class="card__eyebrow">Company profile</span>
+      <p class="cp__profile">{{ result()!.companyProfile }}</p>
 
-      <span class="card__eyebrow cp__section-gap">Relevant vocabulary</span>
-      <div class="cp__chips">
-        @for (word of result()!.relevantVocabulary; track word) {
-          <span class="cp__chip">{{ word }}</span>
-        }
-      </div>
-
-      <span class="card__eyebrow cp__section-gap">Skills to highlight</span>
+      <span class="card__eyebrow cp__section-gap">Skills they're looking for</span>
       <div class="cp__chips">
         @for (skill of result()!.skillsToHighlight; track skill) {
           <span class="cp__chip cp__chip--accent">{{ skill }}</span>
         }
       </div>
 
-      <span class="card__eyebrow cp__section-gap">Suggested preparation</span>
+      <span class="card__eyebrow cp__section-gap">Likely questions</span>
+      <ul class="cp__list">
+        @for (q of result()!.possibleQuestions; track q) {
+          <li>💬 {{ q }}</li>
+        }
+      </ul>
+
+      <span class="card__eyebrow cp__section-gap">Technical vocabulary</span>
+      <div class="cp__chips">
+        @for (word of result()!.technicalVocabulary; track word) {
+          <span class="cp__chip">{{ word }}</span>
+        }
+      </div>
+
+      <span class="card__eyebrow cp__section-gap">Customer service vocabulary</span>
+      <div class="cp__chips">
+        @for (word of result()!.customerServiceVocabulary; track word) {
+          <span class="cp__chip">{{ word }}</span>
+        }
+      </div>
+
+      <span class="card__eyebrow cp__section-gap">Interview strategy</span>
+      <ul class="cp__list">
+        @for (item of result()!.interviewStrategy; track item) {
+          <li>🎯 {{ item }}</li>
+        }
+      </ul>
+
+      <span class="card__eyebrow cp__section-gap">Questions you should prepare</span>
       <ul class="cp__list">
         @for (item of result()!.suggestedPreparation; track item) {
           <li>📌 {{ item }}</li>
         }
       </ul>
 
+      <button type="button" class="btn btn--primary btn--block cp__start" (click)="startPersonalizedInterview()">
+        🚀 Start Personalized Interview
+      </button>
       <button type="button" class="btn btn--ghost btn--block cp__reset" (click)="reset()">Analyze another posting</button>
     </div>
   }

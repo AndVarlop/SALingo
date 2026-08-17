@@ -186,8 +186,15 @@ Roleplay already *was* a call simulator in disguise (12 customer-service scenari
 - New `/pronunciation-coach` page + sidebar nav entry: reuses `MOCK_SPEAKING_EXERCISES` content (no new data file) — listen → record → see score/WPM/missed words → next sentence. Falls back gracefully with a visible warning when `SpeechRecognition` isn't supported (still allows Listen via TTS).
 - Verified live: page renders, correct sentence (1/16, confirming it reads the already-expanded Speaking set), Listen button fires with no console errors. Actual microphone recording was **not** exercised in this session (no mic in the automated browser environment, and triggering a real permission prompt risked hanging the automation) — worth a manual check in a real browser with a microphone.
 
+### Company Prep 2.0 + Personalized Interview (P1)
+- `AiJobAnalysisService.analyze()` return shape expanded per spec §23: `companyProfile`, `technicalVocabulary` + `customerServiceVocabulary` (previously one merged list), `interviewStrategy`, plus the existing `possibleQuestions`/`skillsToHighlight`/`suggestedPreparation`. Keyword detection widened (sales/technical/remote/fast-paced) so the profile text and strategy actually vary with the pasted job description.
+- Company Prep UI: added Company Profile, Interview Strategy sections; renamed "Relevant vocabulary" into its two halves.
+- **"Start Personalized Interview" now really does something**: navigates to Mock Interview passing the generated questions through Angular Router state (`personalizedQuestions`/`personalizedCompany`/`personalizedPosition`). Mock Interview merges them into its adaptive question pool (same `pickNextQuestion()` picker from the earlier P0 work — no parallel logic) and shows a "🚀 Personalized for {company}" badge on the setup screen.
+- Still not persisted: a generated analysis is lost on refresh (pre-existing gap, called out in the original report — still true, not addressed this round).
+- Verified live end-to-end: pasted a technical/remote/fast-paced job description for "Acme Support Co.", got a correctly-tailored profile ("technical support / SaaS-style", "Working under pressure" skill chip, remote-focused question), clicked Start Personalized Interview, saw the badge on setup, started the interview and got a real question pulled from the merged pool — no console errors.
+
 ### Build/verification
-`tsc --noEmit` clean, `ng build` clean (one non-blocking CSS budget warning on `roleplay-session.scss`, 116 bytes over 4kB — cosmetic, not fixed this round). Dashboard, adaptive Mock Interview, Call Center Simulator, My Mistakes, and Pronunciation Coach (except live mic capture) all checked live in Chrome against the real Supabase-backed test account.
+`tsc --noEmit` clean, `ng build` clean (one non-blocking CSS budget warning on `roleplay-session.scss`, 116 bytes over 4kB — cosmetic, not fixed this round). Dashboard, adaptive Mock Interview, Call Center Simulator, My Mistakes, Pronunciation Coach (except live mic capture), and Company Prep 2.0 → Personalized Interview all checked live in Chrome against the real Supabase-backed test account.
 
 **Action needed from you:**
 1. Run `supabase/mistakes.sql` in the SQL Editor to persist mistakes across sessions (works today without it, just doesn't survive a reload).

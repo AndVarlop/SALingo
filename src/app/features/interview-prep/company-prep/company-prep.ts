@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AiJobAnalysisService, JobAnalysisResult } from '../../../core/services/ai-job-analysis.service';
 import { INTERVIEW_POSITION_LABEL, InterviewPosition } from '../../../core/models';
 
@@ -14,6 +15,7 @@ import { INTERVIEW_POSITION_LABEL, InterviewPosition } from '../../../core/model
 export class CompanyPrepComponent {
   private readonly aiJobAnalysis = inject(AiJobAnalysisService);
   private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
 
   protected readonly positions = Object.values(InterviewPosition);
   protected readonly positionLabel = INTERVIEW_POSITION_LABEL;
@@ -42,5 +44,21 @@ export class CompanyPrepComponent {
 
   protected reset(): void {
     this.result.set(null);
+  }
+
+  /** Hands the generated questions to Mock Interview via router state — a real
+   * personalized session, not just a link back to the generic setup screen. */
+  protected startPersonalizedInterview(): void {
+    const result = this.result();
+    const { company, position } = this.form.getRawValue();
+    if (!result) return;
+
+    this.router.navigateByUrl('/interview-prep/mock-interview', {
+      state: {
+        personalizedQuestions: result.possibleQuestions,
+        personalizedCompany: company || null,
+        personalizedPosition: position,
+      },
+    });
   }
 }

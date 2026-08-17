@@ -4,6 +4,9 @@
       <div class="card mock-interview__setup">
         <span class="mock-interview__icon" aria-hidden="true">🎙️</span>
         <h1>Start Mock Interview</h1>
+        @if (personalizedCompany) {
+          <span class="mock-interview__personalized-badge">🚀 Personalized for {{ personalizedCompany }}</span>
+        }
         <p>10-15 real questions, one at a time. We'll score your answers and give you feedback at the end.</p>
 
         <form [formGroup]="setupForm" (ngSubmit)="startInterview()">
