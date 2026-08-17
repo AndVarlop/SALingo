@@ -38,6 +38,10 @@ export class DashboardComponent {
 
   protected readonly firstName = computed(() => this.userState.user().name.split(' ')[0]);
   protected readonly recommendedLesson = computed(() => this.lessons.getRecommendedLesson());
+  /** Brand-new account: no lessons finished yet — the best moment to suggest the Placement Test, before they start at a possibly-wrong level. */
+  protected readonly isNewToLearning = computed(
+    () => this.languageProgress().lessonsCompleted.length === 0,
+  );
   protected readonly languageProgress = this.userState.currentLanguageProgress;
   /** Real count — languageProgress().wordsLearned is never written to, so it always reads 0. */
   protected readonly wordsLearnedCount = computed(

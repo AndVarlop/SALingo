@@ -4,7 +4,7 @@ import { UserStateService } from '../../core/services/user-state.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { AchievementService } from '../../core/services/achievement.service';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card';
 import { AvatarComponent } from '../../shared/components/avatar/avatar';
 import { BadgeChipComponent } from '../../shared/components/badge-chip/badge-chip';
@@ -12,7 +12,7 @@ import { BadgeChipComponent } from '../../shared/components/badge-chip/badge-chi
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [ReactiveFormsModule, StatCardComponent, AvatarComponent, BadgeChipComponent],
+  imports: [ReactiveFormsModule, RouterLink, StatCardComponent, AvatarComponent, BadgeChipComponent],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

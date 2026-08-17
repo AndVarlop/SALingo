@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MOCK_WRITING_PROMPTS, WritingPrompt } from '../../core/services/mock-data/mock-writing.data';
 import { AiEvaluationService } from '../../core/services/ai-evaluation.service';
+import { MistakeMemoryService } from '../../core/services/mistake-memory.service';
 import { UserStateService } from '../../core/services/user-state.service';
 import { WritingEvaluation } from '../../core/models';
 
@@ -15,6 +16,7 @@ type Phase = 'selecting' | 'writing' | 'result';
 })
 export class WritingComponent {
   private readonly aiEvaluation = inject(AiEvaluationService);
+  private readonly mistakeMemory = inject(MistakeMemoryService);
   private readonly userState = inject(UserStateService);
 
   protected readonly prompts = MOCK_WRITING_PROMPTS;
@@ -44,6 +46,10 @@ export class WritingComponent {
     try {
       const result = await this.aiEvaluation.evaluateWriting(this.text());
       this.evaluation.set(result);
+
+      if (result.grammarMistakes.length) {
+        await this.mistakeMemory.recordAll(result.grammarMistakes, `Writing: ${prompt.title}`);
+      }
 
       const xp = Math.round(15 + result.overallScore * 0.2);
       this.userState.recordActivity({

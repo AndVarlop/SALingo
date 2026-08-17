@@ -12,6 +12,17 @@
     </div>
   </header>
 
+  @if (isNewToLearning()) {
+    <a class="card dashboard__placement-banner" routerLink="/placement-test">
+      <span aria-hidden="true">🧭</span>
+      <div>
+        <strong>Not sure where to start?</strong>
+        <span>Take the Placement Test to find your real English level in a few minutes.</span>
+      </div>
+      <span class="dashboard__placement-cta">Start test →</span>
+    </a>
+  }
+
   <div class="dashboard__grid">
     <!-- Continue learning -->
     <article class="card card--hero">

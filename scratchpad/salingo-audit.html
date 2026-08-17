@@ -1,0 +1,542 @@
+<title>SALingo Audit</title>
+<style>
+  :root {
+    --paper: #f5f3ee;
+    --paper-raised: #fbfaf6;
+    --ink: #1b1f27;
+    --ink-soft: #4a4740;
+    --muted: #857f72;
+    --rule: #ddd7c8;
+    --accent: #2f5d8a;
+    --accent-soft: #e4edf5;
+    --good: #1f7a4d;
+    --good-bg: #e3f3e9;
+    --warn: #93650a;
+    --warn-bg: #faf0d9;
+    --bad: #a63324;
+    --bad-bg: #fbe7e2;
+    --mock: #6a4c93;
+    --mock-bg: #ece5f5;
+    --none-c: #6b6f76;
+    --none-bg: #eceeef;
+    --code-bg: #eee9db;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14151b;
+      --paper-raised: #1b1d25;
+      --ink: #e9e6dd;
+      --ink-soft: #c3bfb3;
+      --muted: #8b8a83;
+      --rule: #2e2f38;
+      --accent: #7fa8d4;
+      --accent-soft: #1e2a36;
+      --good: #5cc990;
+      --good-bg: #16281f;
+      --warn: #e0b64a;
+      --warn-bg: #2c2410;
+      --bad: #e8735f;
+      --bad-bg: #2c1815;
+      --mock: #b79ce0;
+      --mock-bg: #241d33;
+      --none-c: #9a9da3;
+      --none-bg: #23252b;
+      --code-bg: #22232b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #14151b;
+    --paper-raised: #1b1d25;
+    --ink: #e9e6dd;
+    --ink-soft: #c3bfb3;
+    --muted: #8b8a83;
+    --rule: #2e2f38;
+    --accent: #7fa8d4;
+    --accent-soft: #1e2a36;
+    --good: #5cc990;
+    --good-bg: #16281f;
+    --warn: #e0b64a;
+    --warn-bg: #2c2410;
+    --bad: #e8735f;
+    --bad-bg: #2c1815;
+    --mock: #b79ce0;
+    --mock-bg: #241d33;
+    --none-c: #9a9da3;
+    --none-bg: #23252b;
+    --code-bg: #22232b;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    font-size: 16px;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 56px 24px 120px;
+  }
+  h1, h2, h3 {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    text-wrap: balance;
+    color: var(--ink);
+    font-weight: 600;
+  }
+  h1 { font-size: 2.15rem; line-height: 1.15; margin: 0 0 6px; }
+  .subtitle { color: var(--muted); font-size: 1.05rem; margin: 0 0 8px; }
+  .meta { color: var(--muted); font-size: 0.85rem; margin: 0 0 40px; }
+  h2 {
+    font-size: 1.5rem;
+    margin: 64px 0 6px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+  h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: 10px; }
+  h3 { font-size: 1.15rem; margin: 32px 0 10px; }
+  p { margin: 14px 0; color: var(--ink-soft); }
+  strong { color: var(--ink); }
+  a { color: var(--accent); }
+  code, .code {
+    font-family: "SF Mono", Consolas, "Liberation Mono", monospace;
+    font-size: 0.86em;
+    background: var(--code-bg);
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    color: var(--ink);
+  }
+  ul, ol { color: var(--ink-soft); padding-left: 22px; }
+  li { margin: 6px 0; }
+  li::marker { color: var(--muted); }
+
+  .verdict {
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--accent);
+    border-radius: 6px;
+    padding: 22px 26px;
+    margin: 24px 0;
+  }
+  .verdict p:first-child { margin-top: 0; }
+  .verdict p:last-child { margin-bottom: 0; }
+
+  .toc {
+    columns: 2;
+    column-gap: 32px;
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 20px 28px;
+    margin: 32px 0;
+  }
+  .toc a { display: block; font-size: 0.92rem; padding: 3px 0; text-decoration: none; color: var(--ink-soft); break-inside: avoid; }
+  .toc a:hover { color: var(--accent); }
+  .toc span { color: var(--muted); font-variant-numeric: tabular-nums; margin-right: 8px; }
+
+  .table-wrap { overflow-x: auto; margin: 20px 0; border: 1px solid var(--rule); border-radius: 6px; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.87rem; background: var(--paper-raised); }
+  th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th { background: var(--accent-soft); color: var(--ink); font-weight: 600; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  td.small, th.small { font-size: 0.82rem; }
+
+  .pill {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 3px 9px;
+    border-radius: 99px;
+    white-space: nowrap;
+  }
+  .pill-good { background: var(--good-bg); color: var(--good); }
+  .pill-warn { background: var(--warn-bg); color: var(--warn); }
+  .pill-bad  { background: var(--bad-bg);  color: var(--bad); }
+  .pill-mock { background: var(--mock-bg); color: var(--mock); }
+  .pill-none { background: var(--none-bg); color: var(--none-c); }
+
+  .finding {
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 16px 20px;
+    margin: 16px 0;
+    background: var(--paper-raised);
+  }
+  .finding h4 {
+    margin: 0 0 8px;
+    font-size: 0.98rem;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .finding .loc { font-family: "SF Mono", Consolas, monospace; font-size: 0.78rem; color: var(--muted); font-weight: 400; }
+  .finding dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 10px 0 0; font-size: 0.88rem; }
+  .finding dt { color: var(--muted); font-weight: 600; }
+  .finding dd { margin: 0; color: var(--ink-soft); }
+
+  .persona {
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 18px 22px;
+    margin: 18px 0;
+    background: var(--paper-raised);
+  }
+  .persona h3 { margin: 0 0 4px; }
+  .persona .tag { color: var(--muted); font-size: 0.85rem; margin-bottom: 12px; }
+  .persona dl { display: grid; grid-template-columns: 130px 1fr; gap: 8px 16px; font-size: 0.9rem; }
+  .persona dt { color: var(--accent); font-weight: 600; }
+  .persona dd { margin: 0; color: var(--ink-soft); }
+
+  blockquote {
+    margin: 20px 0;
+    padding: 4px 0 4px 20px;
+    border-left: 3px solid var(--accent);
+    color: var(--ink-soft);
+    font-style: italic;
+  }
+
+  .flow {
+    font-family: "SF Mono", Consolas, monospace;
+    font-size: 0.85rem;
+    background: var(--code-bg);
+    border-radius: 6px;
+    padding: 20px 24px;
+    line-height: 2;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  .divider { height: 1px; background: var(--rule); margin: 56px 0; border: none; }
+  .footer-note { color: var(--muted); font-size: 0.85rem; margin-top: 60px; }
+</style>
+
+<h1>SALingo — Auditoría profunda del producto</h1>
+<p class="subtitle">Product · Architecture · UX · AI · Employability · Production Readiness</p>
+<p class="meta">Auditoría técnica y de producto sobre el estado real del código, no sobre lo que las pantallas sugieren. Ningún archivo fue modificado para producir este diagnóstico.</p>
+
+<div class="verdict">
+<p><strong>Veredicto en una frase:</strong> SALingo es un prototipo funcional inusualmente completo — persistencia real, arquitectura limpia, 33 tests, lint limpio — construido sobre una capa de IA que es 100% simulada. No hay una sola llamada a un LLM en todo el repositorio. Todo lo que "parece IA" es heurística determinística o texto con plantillas.</p>
+<p>Eso no es necesariamente un problema de producto — es el problema correcto de resolver ahora, con una base sólida debajo. Pero significa que "casi listo para vender" es una lectura equivocada del estado actual: el <em>diferencial</em> prometido (coaching adaptativo, entrevistador IA, evaluación real) todavía no existe donde el usuario lo necesita.</p>
+</div>
+
+<div class="toc">
+<a href="#s1"><span>1</span>Inventario de módulos</a>
+<a href="#s2"><span>2</span>Matriz de funcionalidad real</a>
+<a href="#s3"><span>3</span>Fake / Mock / Placeholder</a>
+<a href="#s4"><span>4</span>Arquitectura</a>
+<a href="#s5"><span>5</span>Seguridad</a>
+<a href="#s6"><span>6</span>Flujos de usuario (6 personas)</a>
+<a href="#s7"><span>7</span>El mayor problema</a>
+<a href="#s8"><span>8</span>Diferenciación</a>
+<a href="#s9"><span>9</span>Auditoría de IA</a>
+<a href="#s10"><span>10</span>Adaptive Learning</a>
+<a href="#s11"><span>11</span>Job Ready Engine</a>
+<a href="#s12"><span>12</span>Call Center Simulator</a>
+<a href="#s13"><span>13</span>Recomendación final</a>
+</div>
+
+<h2 id="s1"><span class="num">1</span>Inventario completo de módulos</h2>
+<p>Estado verificado leyendo la implementación, no el nombre de la pantalla. <span class="pill pill-good">COMPLETO</span> significa: UI + lógica + persistencia real + sin bugs conocidos. <span class="pill pill-warn">PARCIAL</span> significa que funciona pero con un hueco real (dato no persistido, alcance limitado, fórmula cuestionable). <span class="pill pill-mock">MOCK</span> significa que la lógica central es simulada a propósito (documentado en el código como tal).</p>
+
+<div class="table-wrap">
+<table>
+<tr><th>Módulo</th><th>Estado</th><th class="small">Funciona</th><th class="small">Persistencia</th><th class="small">IA real</th><th class="small">Calidad</th></tr>
+<tr><td>Dashboard</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Sí (Supabase)</td><td>No aplica</td><td>Alta — todo derivado de datos reales, gating "not enough data" correcto</td></tr>
+<tr><td>Lessons (9 lecciones)</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Sí</td><td>No aplica</td><td>Alta</td></tr>
+<tr><td>Vocabulary</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Sí</td><td>No aplica</td><td>Alta</td></tr>
+<tr><td>Grammar (45 temas)</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Sí</td><td>No aplica</td><td>Alta</td></tr>
+<tr><td>Listening (20 ejercicios)</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Sí</td><td>No aplica</td><td>Buena — contenido correcto, sin audio real (TTS del navegador)</td></tr>
+<tr><td>Speaking (16 ejercicios)</td><td><span class="pill pill-warn">PARCIAL</span></td><td>Sí</td><td>Sí</td><td>No</td><td>Media — scoring es solapamiento de palabras, no fonética</td></tr>
+<tr><td>Writing (12 prompts)</td><td><span class="pill pill-warn">PARCIAL</span></td><td>Sí</td><td>Sí</td><td>No</td><td>Baja en la fórmula — ver §3, grammarScore está invertido</td></tr>
+<tr><td>Review (spaced repetition)</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Sí</td><td>No aplica</td><td>Alta — algoritmo probado con tests unitarios</td></tr>
+<tr><td>Progress + Weekly Report</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Sí</td><td>No aplica</td><td>Alta</td></tr>
+<tr><td>Placement Test</td><td><span class="pill pill-warn">PARCIAL</span></td><td>Sí (funciona perfecto)</td><td>Solo el nivel final</td><td>No aplica</td><td>Lógica sólida, <strong>pero es una ruta huérfana — cero enlaces en toda la app</strong></td></tr>
+<tr><td>AI Tutor (chat)</td><td><span class="pill pill-mock">MOCK</span></td><td>Visualmente sí</td><td>No (chat no se guarda)</td><td>No — 100% plantillas</td><td>Baja — ignora el contenido real del mensaje del usuario</td></tr>
+<tr><td>Profile</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Sí</td><td>No aplica</td><td>Alta</td></tr>
+<tr><td>Achievements (21)</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Sí</td><td>No aplica</td><td>Alta</td></tr>
+<tr><td>Interview Prep (hub)</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Sí</td><td>No aplica</td><td>Alta</td></tr>
+<tr><td>Interview Questions (23)</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Sí</td><td>No aplica</td><td>Alta</td></tr>
+<tr><td>Answer Builder</td><td><span class="pill pill-mock">MOCK + PARCIAL</span></td><td>Sí</td><td>Sí</td><td>No — plantillas</td><td>Media — solo cubre 1 de 23 preguntas</td></tr>
+<tr><td>Call Center Vocabulary (55)</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Sí</td><td>No aplica</td><td>Alta</td></tr>
+<tr><td>Customer Scenarios</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Sí</td><td>No aplica</td><td>Buena — es un quiz, no simulación</td></tr>
+<tr><td>Roleplay / Call Simulator (14)</td><td><span class="pill pill-warn">PARCIAL grave</span></td><td>Sí</td><td>Sí</td><td>No</td><td>Media — ver §3: el cliente responde igual en todos los escenarios</td></tr>
+<tr><td>Mock Interview</td><td><span class="pill pill-warn">PARCIAL</span></td><td>Sí</td><td>Sí</td><td>No — heurística</td><td>Buena arquitectura, evaluación superficial</td></tr>
+<tr><td>Interview History</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Sí (lectura)</td><td>No aplica</td><td>Alta</td></tr>
+<tr><td>Preparation Plan (7d / 24h)</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Sí</td><td>No aplica</td><td>Alta</td></tr>
+<tr><td>Company Prep 2.0</td><td><span class="pill pill-warn">PARCIAL</span></td><td>Sí</td><td>No (se pierde al refrescar)</td><td>No — keywords</td><td>Media</td></tr>
+<tr><td>Interview Tips</td><td><span class="pill pill-warn">PARCIAL</span></td><td>Sí</td><td>Checklist no persiste</td><td>No aplica</td><td>Buena</td></tr>
+<tr><td>Career Path</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Derivado, sin duplicar datos</td><td>No aplica</td><td>Alta</td></tr>
+<tr><td>Career Tracks</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Sí</td><td>No aplica</td><td>Alta</td></tr>
+<tr><td>My Mistakes</td><td><span class="pill pill-warn">PARCIAL</span></td><td>Sí</td><td>Sí</td><td>No — 20 regex</td><td>Cobertura muy baja de errores reales — ver §3</td></tr>
+<tr><td>Pronunciation Coach</td><td><span class="pill pill-warn">PARCIAL</span></td><td>Sí (no probado con mic real)</td><td>Sí</td><td>No</td><td>Honesto sobre sus límites, pero limitado de verdad</td></tr>
+<tr><td>Job Ready Score</td><td><span class="pill pill-good">COMPLETO</span></td><td>Sí</td><td>Derivado</td><td>No — fórmula fija</td><td>Alta — nunca fabrica datos, ver §11</td></tr>
+</table>
+</div>
+
+<h2 id="s2"><span class="num">2</span>Matriz de funcionalidad real</h2>
+<p>Los 6 módulos donde la brecha entre "se ve terminado" y "está terminado" es más grande:</p>
+
+<div class="table-wrap">
+<table>
+<tr><th>Funcionalidad</th><th class="small">UI</th><th class="small">Lógica</th><th class="small">Datos reales</th><th class="small">Persistencia</th><th class="small">Integración</th><th class="small">IA</th><th class="small">Error handling</th></tr>
+<tr><td>AI Tutor</td><td>✅</td><td>⚠️ plantilla fija</td><td>❌ ignora input</td><td>❌</td><td>⚠️ aislado</td><td>❌ mock</td><td>⚠️ sin manejo de fallo de red (no aplica, no hay red)</td></tr>
+<tr><td>Roleplay / Call Simulator</td><td>✅</td><td>⚠️ scoring real, diálogo scripted</td><td>✅ (transcript real del usuario)</td><td>✅</td><td>✅ (Mistakes, Achievements, Career Path)</td><td>❌ mock</td><td>✅</td></tr>
+<tr><td>Mock Interview</td><td>✅</td><td>✅ selección adaptativa real</td><td>✅</td><td>✅</td><td>✅</td><td>❌ heurística</td><td>✅</td></tr>
+<tr><td>Writing evaluation</td><td>✅</td><td>🐛 fórmula invertida</td><td>✅</td><td>✅</td><td>✅</td><td>❌ mock</td><td>✅</td></tr>
+<tr><td>My Mistakes</td><td>✅</td><td>⚠️ 20 reglas regex</td><td>✅</td><td>✅ (confirmado corriendo el SQL)</td><td>✅</td><td>❌ reglas</td><td>✅</td></tr>
+<tr><td>Company Prep</td><td>✅</td><td>⚠️ keywords</td><td>✅ (input del usuario)</td><td>❌</td><td>✅ (alimenta Mock Interview)</td><td>❌ mock</td><td>✅</td></tr>
+</table>
+</div>
+<p style="font-size:0.85rem;color:var(--muted)">Mobile: solo 8 de 52 archivos <code>.scss</code> del proyecto tienen <code>@media</code> queries. La regla del spec original ("mobile-first, revisar especialmente Interview/Roleplay/Speaking") no se aplicó de forma sistemática — la mayoría de las pantallas dependen de que el layout flex/grid se comporte razonablemente en pantallas chicas, sin ajustes deliberados.</p>
+
+<h2 id="s3"><span class="num">3</span>Fake / Mock / Placeholder Features</h2>
+<p>Ordenadas por qué tan engañosas son para el usuario final (la etiqueta en la UI promete más de lo que la lógica entrega).</p>
+
+<div class="finding">
+<h4>AI Tutor responde genéricamente, sin importar lo que el usuario escriba <span class="loc">core/services/ai-tutor.service.ts:39-42</span></h4>
+<dl>
+<dt>Qué hace hoy</dt><dd><code>mockReply()</code> devuelve siempre el mismo texto: <em>"Got it: '{lo que escribiste}'. That's a great sentence! Here's a small tip..."</em> — literalmente cualquier input recibe la misma respuesta positiva, incluso una oración con errores graves o texto sin sentido.</dd>
+<dt>Qué debería hacer</dt><dd>El topic "correction" promete explícitamente en su propio texto de apertura: <em>"Paste a sentence and I'll point out what could be improved."</em> Hoy eso es falso — nunca señala nada.</dd>
+<dt>Falta para producción</dt><dd>Una llamada real a un LLM detrás de un backend (§9). Es el único módulo de la app donde la brecha entre lo que la UI promete textualmente y lo que el código hace es una contradicción directa, no solo una simplificación.</dd>
+</dl>
+</div>
+
+<div class="finding">
+<h4>El "Call Simulator" responde igual sin importar el escenario <span class="loc">core/services/ai-roleplay.service.ts:8-38</span></h4>
+<dl>
+<dt>Qué hace hoy</dt><dd><code>FOLLOW_UPS</code> y <code>CLOSINGS</code> son dos arrays fijos de 3 frases genéricas ("Okay... but what does that actually mean for me?", "I see. And how long will that take?"...). Se usan <strong>idénticos en los 14 escenarios</strong> — el cliente furioso de "Aggressive customer demanding a supervisor" y el cliente calmado de "Asking about business hours" dicen exactamente las mismas 3 frases de seguimiento después de la línea de apertura.</dd>
+<dt>Qué debería hacer</dt><dd>La respuesta del cliente debería reaccionar al <code>problem</code>/<code>customerPersona</code>/<code>difficulty</code> del escenario, y idealmente a lo que el agente (usuario) acaba de escribir — hoy <code>getCustomerReply()</code> ni siquiera recibe el texto del agente como parámetro relevante para la respuesta, solo <code>turnIndex</code>.</dd>
+<dt>Falta para producción</dt><dd>Esta es la brecha más grande entre "nombre del producto" (Call Center Simulator) y "lo que realmente simula" en toda la app — ver diseño conceptual en §12.</dd>
+</dl>
+</div>
+
+<div class="finding">
+<h4>Writing: el "grammarScore" penaliza escribir más, no los errores de gramática <span class="loc">core/services/ai-evaluation.service.ts:23</span></h4>
+<dl>
+<dt>Qué hace hoy</dt><dd><code>grammarScore = Math.max(40, 100 - Math.round(words.length / 40))</code> — un texto de 200 palabras <em>perfecto</em> saca menos "grammar score" que uno de 10 palabras con errores, porque la fórmula nunca mira gramática: solo resta puntos por longitud. Esto no es una simplificación honesta, es un bug de diseño: el nombre del campo miente sobre lo que mide.</dd>
+<dt>Qué debería hacer</dt><dd>O bien no llamarse "grammarScore" (renombrar a algo honesto como "conciseness" no tiene sentido tampoco), o medir gramática real.</dd>
+<dt>Falta para producción</dt><dd>Un chequeo gramatical real (LLM o librería tipo LanguageTool). Mientras tanto, es el finding de mayor prioridad de arreglo porque activamente <strong>desinforma</strong> al usuario sobre su nivel de gramática — peor que no mostrar nada.</dd>
+</dl>
+</div>
+
+<div class="finding">
+<h4>My Mistakes: red de captura extremadamente angosta <span class="loc">core/services/mistake-detection.service.ts:16-119</span></h4>
+<dl>
+<dt>Qué hace hoy</dt><dd>20 reglas regex fijas ("I have X years working", "I am agree", "peoples"...). Cualquier error que no calce textualmente con esos patrones pasa invisible.</dd>
+<dt>Qué debería hacer</dt><dd>El problema de producto real: un usuario que comete errores <em>distintos</em> a esos 20 ve "0 mistakes" y lee eso como "mi inglés está limpio" — falsa confianza, el peor tipo de fallo silencioso en un producto educativo.</dd>
+<dt>Falta para producción</dt><dd>Detección real vía LLM, o al menos ampliar el set de reglas y comunicar explícitamente en la UI "detectamos patrones comunes, no es un corrector completo" — hoy la pantalla no aclara esa limitación.</dd>
+</dl>
+</div>
+
+<div class="finding">
+<h4>Answer Builder cubre 1 de 23 preguntas <span class="loc">core/services/ai-answer-builder.service.ts:19-40</span></h4>
+<dl>
+<dt>Qué hace hoy</dt><dd><code>buildTellMeAboutYourself()</code> — el nombre del método ya delata el alcance. Es honesto en el código (comentario lo dice), pero la UI del hub ("🛠️ Build Your Answer") no comunica que solo funciona para una pregunta.</dd>
+<dt>Falta para producción</dt><dd>Generalizar a las 23 preguntas del banco, o limitar visualmente el acceso a las que sí están cubiertas.</dd>
+</dl>
+</div>
+
+<div class="finding">
+<h4>Placement Test: funciona perfecto, pero es invisible <span class="loc">app.routes.ts:87 · nav.constant.ts</span></h4>
+<dl>
+<dt>Qué hace hoy</dt><dd>Confirmado por grep: cero <code>routerLink</code> en toda la app apunta a <code>/placement-test</code>. No está en <code>NAV_ITEMS</code>, ni en el Dashboard, ni en ningún hub. Solo es alcanzable escribiendo la URL a mano.</dd>
+<dt>Qué debería hacer</dt><dd>Ser el primer paso del onboarding de un usuario nuevo (Usuario A en §6) — hoy ese usuario nunca lo ve.</dd>
+<dt>Falta para producción</dt><dd>Un enlace. Literalmente el fix más barato de todo este informe y probablemente el de mayor impacto en activación de usuarios nuevos.</dd>
+</dl>
+</div>
+
+<div class="finding">
+<h4>Company Prep e Interview Tips checklist no persisten <span class="loc">features/interview-prep/company-prep/company-prep.ts · features/interview-prep/tips/tips.ts:26</span></h4>
+<dl>
+<dt>Qué hace hoy</dt><dd>El análisis de Company Prep vive en un <code>signal</code> local; recargar la página lo borra. El checklist de Interview Tips (<code>checkedItems = signal(new Set())</code>) tampoco toca Supabase.</dd>
+<dt>Falta para producción</dt><dd>Dos tablas chicas más (o reutilizar el patrón de <code>user_mistakes</code>). Bajo esfuerzo, honestamente documentado como gap conocido en <code>DEVELOPMENT_REPORT.md</code>.</dd>
+</dl>
+</div>
+
+<h2 id="s4"><span class="num">4</span>Arquitectura</h2>
+
+<h3>¿Escala la arquitectura actual?</h3>
+<p>Para el tamaño actual (≈150 archivos, un solo tenant/rol de usuario), sí. El patrón es consistente en todo el código: contenido estático en <code>core/services/mock-data/*.ts</code>, estado por-usuario en servicios <code>@Injectable({providedIn:'root'})</code> con <code>signal</code>/<code>computed</code> que sincronizan contra Supabase mediante <code>effect()</code> reactivo a <code>auth.userId()</code>. Standalone components, lazy loading en cada ruta, <code>ChangeDetectionStrategy.OnPush</code> en todos lados. No hay NgRx ni un store centralizado — y para este tamaño de app esa ausencia es correcta, no una carencia.</p>
+<p>Donde <strong>no</strong> escala: no hay backend propio. Cada servicio de IA (§9) llama directo desde Angular a lo que hoy son heurísticas locales; el día que una de esas llamadas sea a un LLM real, tiene que pasar por un backend (Supabase Edge Function o similar) para no exponer API keys — y hoy no existe ni el esqueleto de esa capa. No es difícil de agregar, pero es cero, no parcial.</p>
+
+<h3>Acoplamiento — <code>UserStateService</code> es el servicio dios de la app</h3>
+<p><code>core/services/user-state.service.ts</code> (452 líneas, el archivo de lógica más grande del repo) es inyectado en <strong>26 archivos</strong> — casi todos los feature components más 10 servicios core. Es el fan-in más alto de la app por lejos (el segundo, <code>AuthService</code>, tiene 13). Consecuencia práctica: cualquier cambio en la forma de <code>UserProgress</code>/<code>LanguageProgress</code> obliga a revisar dos docenas de archivos. Hoy funciona porque el servicio es disciplinado (solo signals + computed, sin lógica de negocio ajena), pero es el candidato número uno a partirse si el equipo crece — por ejemplo separando "identidad/settings" de "activity log/streak" en dos servicios con una interfaz compartida.</p>
+
+<h3>Duplicación real encontrada</h3>
+<p>Poca — el patrón de "ternario usado como statement" (<code>isKnown ? next.delete(id) : next.add(id)</code>) apareció repetido en 3 archivos (<code>interview-progress.service.ts</code>, <code>vocabulary.service.ts</code>, <code>features/interview-prep/tips/tips.ts</code>) — ya corregido a if/else durante este trabajo, pero es evidencia de que ese patrón de "toggle en un Set" se copió a mano en vez de extraerse a un helper compartido (<code>toggleInSet(set, id)</code> en <code>shared/utils</code> sería la extracción obvia si aparece una cuarta vez).</p>
+
+<h3>Servicios que hacen demasiado</h3>
+<p><code>InterviewProgressService</code> (216 líneas) mezcla tres responsabilidades que podrían separarse: perfil de onboarding, respuestas guardadas del Answer Builder, y vocabulario conocido. Funciona hoy porque las tres comparten el mismo ciclo de vida (mismo <code>effect()</code> de carga), pero conceptualmente son 3 dominios.</p>
+
+<h3>Componentes grandes</h3>
+<p><code>features/interview-prep/mock-interview/mock-interview.ts</code> (238 líneas) es el componente de features más grande — mezcla control de fase (setup/interviewing/evaluating/result), timer de "Real Interview Mode", selección adaptativa de preguntas, agregación de evaluación y guardado de sesión+mistakes en un solo archivo. No es inmanejable todavía, pero es el primer candidato a extraer un <code>MockInterviewSessionService</code> si se le agrega más lógica (por ejemplo IA real de evaluación).</p>
+
+<h3>Sin capa de abstracción para IA</h3>
+<p>Cada uno de los 8 servicios <code>Ai*Service</code> es independiente — bien, en el sentido de que cambiar uno no rompe otro. Mal, en el sentido de que no existe un <code>AiGatewayService</code> ni un patrón compartido de manejo de errores/timeout/fallback entre ellos. Cuando llegue la IA real, cada uno necesitará individualmente: manejo de rate-limit, timeout, mensaje de fallback ("AI evaluation unavailable"), y eso hoy se repetiría 8 veces en vez de una.</p>
+
+<h2 id="s5"><span class="num">5</span>Seguridad</h2>
+<p>Mejor de lo esperado para un proyecto de este tamaño:</p>
+<ul>
+<li><strong>RLS 1:1</strong> — 19 tablas creadas, 19 <code>enable row level security</code>. Ninguna tabla de usuario quedó sin proteger.</li>
+<li><strong><code>vocabulary_words</code></strong> tiene política de solo-lectura pública, sin política de escritura — el cliente físicamente no puede mutar contenido compartido aunque quisiera.</li>
+<li>La <code>supabaseAnonKey</code> hardcodeada en <code>environment.ts</code> (prefijo <code>sb_publishable_</code>) es la clave pública nueva de Supabase, diseñada para exponerse — no es una fuga de secreto real, la protección real es la RLS de arriba.</li>
+<li>Auth delegado 100% al SDK de Supabase — no hay manejo manual de JWT ni tokens en <code>localStorage</code> propio.</li>
+<li><strong>Gap real:</strong> no hay separación de entornos más allá de <code>environment.development.ts</code> vs <code>environment.ts</code> apuntando al mismo proyecto de Supabase — no hay un proyecto de staging distinto, y no hay CI/secret-scanning.</li>
+<li><code>supabase.types.ts</code> está <strong>escrito a mano</strong> (el propio comentario del archivo lo dice), no generado con <code>supabase gen types</code> — riesgo real de drift silencioso si alguien cambia una columna en el SQL Editor y olvida actualizar el tipo TS correspondiente.</li>
+</ul>
+
+<h2 id="s6"><span class="num">6</span>Flujos de usuario — 6 personas</h2>
+
+<div class="persona">
+<h3>Usuario A — nunca usó SALingo, quiere aprender inglés</h3>
+<dl>
+<dt>Entra por</dt><dd>Registro → Dashboard vacío ("Not enough data yet" en Job Ready Score, correcto)</dd>
+<dt>Qué debería pasar</dt><dd>Placement Test para ubicarlo en un nivel CEFR real antes de empezar</dd>
+<dt>Qué pasa hoy</dt><dd><strong>Nunca ve el Placement Test</strong> — no hay enlace (§3). Arranca en A1 por defecto sin importar su nivel real.</dd>
+<dt>Se pierde en</dt><dd>Nada crítico — el Dashboard recomienda la lección 1 correctamente. Pero un usuario B1 real pierde tiempo en contenido A1.</dd>
+</dl>
+</div>
+
+<div class="persona">
+<h3>Usuario B — nivel A2, quiere trabajo en call center</h3>
+<dl>
+<dt>Entra por</dt><dd>Onboarding de Interview Prep (posición, experiencia, nivel)</dd>
+<dt>Qué debería pasar</dt><dd>Career Tracks lo dirige a "Customer Service", el Career Path le muestra la ruta completa</dd>
+<dt>Qué pasa hoy</dt><dd>Funciona bien — Career Path/Tracks/Dashboard están conectados y muestran progreso real</dd>
+<dt>Falta</dt><dd>El Call Simulator (Roleplay) no reacciona a lo que escribe (§3) — la parte más importante de su preparación es la más simulada</dd>
+</dl>
+</div>
+
+<div class="persona">
+<h3>Usuario C — entrevista en 3 días</h3>
+<dl>
+<dt>Entra por</dt><dd>Preparation Plan → plan de 7 días</dd>
+<dt>Qué pasa hoy</dt><dd>El plan de 7 días asume una semana completa; con solo 3 días disponibles no hay una versión "3-day plan" — solo existe el modo de 7 días o el modo de 24 horas (mañana). El usuario tiene que comprimir manualmente 7 días de contenido en 3.</dd>
+<dt>Gap</dt><dd>Falta un tercer tramo intermedio (2-5 días) entre el plan largo y el modo de emergencia.</dd>
+</dl>
+</div>
+
+<div class="persona">
+<h3>Usuario D — entrevista mañana</h3>
+<dl>
+<dt>Entra por</dt><dd>Preparation Plan, fija la fecha de entrevista</dd>
+<dt>Qué pasa hoy</dt><dd>Bien resuelto — el plan cambia automáticamente a modo intensivo, termina en Speaking Warm-up → Mock Interview. Verificado en vivo esta sesión.</dd>
+<dt>Único hueco</dt><dd>El campo de fecha vive solo en la página de Plan — un usuario que ya pasó el onboarding sin poner fecha tiene que saber que existe ese campo ahí específicamente.</dd>
+</dl>
+</div>
+
+<div class="persona">
+<h3>Usuario E — ya trabaja en customer service, quiere mejorar</h3>
+<dl>
+<dt>Qué necesita</dt><dd>Contenido avanzado, no básico — refinamiento de un profesional en ejercicio</dd>
+<dt>Qué pasa hoy</dt><dd>My Mistakes y Advanced Analytics son exactamente lo que este usuario necesita (seguimiento de errores recurrentes, tendencia semana a semana) — pero My Mistakes solo detecta 20 patrones (§3), y este usuario probablemente ya no comete esos errores básicos. Su progreso real quedaría invisible.</dd>
+</dl>
+</div>
+
+<div class="persona">
+<h3>Usuario F — quiere aplicar a una vacante específica</h3>
+<dl>
+<dt>Entra por</dt><dd>Company Prep 2.0 → pega la descripción del puesto</dd>
+<dt>Qué pasa hoy</dt><dd>Genera perfil/vocabulario/estrategia y puede lanzar una "Personalized Interview" — funciona de punta a punta, verificado en vivo</dd>
+<dt>Gap</dt><dd>Si vuelve mañana a preparar la misma vacante, el análisis desapareció (no persiste, §3) — tiene que pegar la descripción de nuevo</dd>
+</dl>
+</div>
+
+<h2 id="s7"><span class="num">7</span>El mayor problema del producto</h2>
+<blockquote>No es falta de funcionalidades. Es que la funcionalidad que más vende la propuesta de valor — "practica una llamada real, prepárate para una entrevista real" — es exactamente la que menos IA real tiene detrás.</blockquote>
+<p>SALingo tiene <em>más</em> superficie de producto que la mayoría de MVPs educativos: 8 skills de aprendizaje, spaced repetition probado, un módulo de entrevistas con 12+ subpáginas, gamificación con 21 logros, analítica semanal. Eso no es el problema — es una base inusualmente sólida para un proyecto de este tamaño.</p>
+<p>El problema es de secuenciación: se construyó primero el andamiaje completo (rutas, persistencia, UI, gamificación) y se dejó la parte más difícil — hacer que el "cliente" del Call Simulator y el "AI Tutor" reaccionen de verdad a lo que el usuario dice — como el último 20%. Ese último 20% es exactamente el que hace que la promesa central del producto ("vas a llegar preparado a tu llamada real") sea verdad o no. Hoy, practicar el mismo escenario de Roleplay dos veces con respuestas completamente distintas del agente produce <strong>la misma conversación</strong> del lado del cliente.</p>
+
+<h2 id="s8"><span class="num">8</span>Diferenciación</h2>
+<p>La hipótesis del usuario — <em>"Learn English specifically to get a job"</em> — sí tiene sentido para lo que existe, y es más defendible que competir de frente con Duolingo (gamificación de vocabulario genérico) o YouTube (contenido pasivo, sin scoring ni seguimiento). Frente a ChatGPT suelto, la ventaja real y verificable de SALingo es <strong>estructura + seguimiento</strong>: un Career Path que sabe en qué punto exacto estás, un Job Ready Score que no inventa números, un banco de 23 preguntas de entrevista con estructura STAR, y persistencia de todo lo anterior — cosas que un chat genérico no ofrece por diseño.</p>
+<p>Pero esa ventaja se sostiene <strong>solo si el simulador de llamadas y el entrevistador se sienten más reales que pedirle lo mismo a ChatGPT directamente</strong> — y hoy, para un usuario que ya usa ChatGPT, practicar una llamada ahí (donde el "cliente" sí responde a lo que dice) es objetivamente más útil que el Roleplay actual de SALingo. La propuesta de valor es correcta; la implementación de la pieza que la sostiene todavía no la respalda.</p>
+
+<h2 id="s9"><span class="num">9</span>Auditoría de IA</h2>
+<p><strong>Hallazgo central: cero llamadas a un proveedor de IA externo en todo el repositorio.</strong> Los 8 servicios <code>Ai*Service</code> son heurísticas o plantillas, cada uno con un comentario JSDoc honesto explicando que así es a propósito y documentando la forma de retorno esperada para cuando se conecte un LLM real.</p>
+
+<div class="table-wrap">
+<table>
+<tr><th>Funcionalidad</th><th class="small">Estado actual</th><th class="small">Necesita IA real</th><th class="small">Prioridad</th></tr>
+<tr><td>AI Interviewer (siguiente pregunta)</td><td>Reglas por keyword</td><td>Sí — para ramificar de verdad según contexto</td><td>Alta</td></tr>
+<tr><td>Interview Evaluation</td><td>Heurística (conteo de palabras, filler words)</td><td>Sí — evaluar contenido, no solo forma</td><td>Alta</td></tr>
+<tr><td>Roleplay / Call Simulator</td><td>3 frases fijas por turno, iguales en todo escenario</td><td>Sí — es el gap más visible del producto</td><td>Crítica</td></tr>
+<tr><td>AI Tutor</td><td>Plantilla fija que ignora el input</td><td>Sí, o remover la promesa de "correction"</td><td>Alta</td></tr>
+<tr><td>Writing/Speaking evaluation</td><td>Heurística de conteo</td><td>Sí, especialmente Writing (fórmula rota)</td><td>Alta</td></tr>
+<tr><td>Resume Analyzer</td><td>No implementado</td><td>Sí, ítem P1/P2 pendiente</td><td>Media</td></tr>
+<tr><td>Job Description Analyzer (Company Prep)</td><td>Keywords regex</td><td>Sí — hoy genera 2-3 variantes fijas de output</td><td>Media</td></tr>
+<tr><td>Personalized Learning / Recommendation Engine</td><td>Reglas sobre datos reales (no fabrica números)</td><td>Parcial — la lógica de "qué recomendar" ya es sólida; falta que el <em>contenido</em> de la recomendación sea generado</td><td>Baja-Media</td></tr>
+<tr><td>Weakness Detection</td><td>Reglas sobre datos reales, ranking correcto</td><td>No urgente — ya funciona bien sin LLM</td><td>Baja</td></tr>
+<tr><td>Speaking Coach / Pronunciation</td><td>Web Speech API + word-overlap</td><td>Sí, para evaluación fonética real</td><td>Media</td></tr>
+<tr><td>My Mistakes</td><td>20 reglas regex</td><td>Sí — cobertura hoy es muy baja</td><td>Alta</td></tr>
+</table>
+</div>
+
+<h3>Seguridad y costos de la futura integración</h3>
+<ul>
+<li><strong>Nunca</strong> hay una API key de IA en el código Angular hoy — correcto, y documentado como regla explícita en cada servicio mock.</li>
+<li>No existe todavía ningún backend propio (Edge Function, servidor) — es el prerrequisito de infraestructura antes de conectar cualquier LLM real, y hoy no hay ni el esqueleto.</li>
+<li>Costo: sin capa de rate-limiting ni cacheo de respuestas, conectar 8 servicios a un LLM en paralelo (cada pregunta de Mock Interview, cada turno de Roleplay) puede escalar costo por usuario rápido si no se diseña con límites desde el día uno (ej. cap de turnos por sesión, ya existe implícitamente vía <code>QUESTION_COUNT_BY_DIFFICULTY</code>).</li>
+</ul>
+
+<h2 id="s10"><span class="num">10</span>Adaptive Learning — ¿aprende o solo muestra contenido?</h2>
+<p><strong>Respuesta corta: hoy adapta recomendaciones y mide debilidades sobre datos reales, pero no adapta el contenido en sí.</strong> Es un sistema de <em>recomendación</em>, no de <em>aprendizaje adaptativo</em> en el sentido estricto (no ajusta dificultad ni genera contenido nuevo según el desempeño).</p>
+<p>Lo que sí existe y es real: <code>CareerCoachService.weaknesses</code> rankea skills por mastery real derivado del <code>activityLog</code>; <code>MistakeMemoryService</code> hace resurfacing de errores no revisados en 3+ días; <code>AiInterviewService.pickNextQuestion</code> rama la siguiente pregunta según keywords detectadas en la respuesta anterior. Ninguno de los tres fabrica datos — todos están gateados correctamente en "sin datos suficientes".</p>
+<p>Lo que falta para ser un verdadero motor adaptativo:</p>
+<div class="flow">Hoy:        desempeño → ranking de debilidad → link a practicar (contenido fijo)
+Adaptativo: desempeño → detección de patrón de error específico
+                       → selección/generación de EJERCICIO dirigido a ESE error
+                       → re-test del mismo concepto en 2-3 días (spaced, no genérico)
+                       → ajuste de dificultad dentro de la misma skill</div>
+<p>El salto de "hoy" a "adaptativo" no requiere IA necesariamente — se puede lograr etiquetando cada ejercicio existente con los conceptos gramaticales/vocabulario que cubre (hoy no existe esa taxonomía) y filtrando por eso antes de necesitar generación de contenido nueva.</p>
+
+<h2 id="s11"><span class="num">11</span>Job Ready Engine</h2>
+<p>Ya existe y es honesto (<code>core/services/career-coach.service.ts</code>): 6 dimensiones (English, Speaking, Interview, Customer Service, Vocabulary, Confidence), pesos documentados en el código (20/20/20/15/15/10), promedio ponderado que <strong>renormaliza cuando faltan dimensiones</strong> en vez de tratarlas como 0, y un gate de "no hay suficiente actividad" antes de mostrar cualquier número. Probado con tests unitarios que verifican monotonicidad (una mejor entrevista nunca baja el score).</p>
+<p>Qué falta:</p>
+<ul>
+<li><strong>Grammar</strong> no está en la fórmula pese a tener su propio módulo con 45 temas y progreso real — es una dimensión con datos disponibles que hoy no se usa.</li>
+<li><strong>Confidence</strong> es un promedio de Interview+Speaking, no una señal propia — es la dimensión más débil conceptualmente, honestamente documentada como tal en el código.</li>
+<li>Los pesos son fijos, no calibrados contra ningún dato real de qué predice mejor "consiguió el trabajo" — imposible de calibrar sin datos de resultado reales, que la app no captura (no hay forma de que un usuario marque "conseguí el trabajo").</li>
+</ul>
+<p>Fórmula inicial que ya está implementada es razonable como punto de partida; el siguiente paso conceptual no es más IA sino capturar la señal de resultado (¿consiguió la entrevista? ¿el trabajo?) para poder validar si el score correlaciona con algo real.</p>
+
+<h2 id="s12"><span class="num">12</span>Call Center Simulator — diseño conceptual (sin implementar)</h2>
+<p>Lo que existe hoy (<code>roleplay-session.ts</code> + <code>call-flow-scoring.service.ts</code>) ya tiene la mitad correcta: 14 escenarios categorizados, scoring real del flujo de llamada (greeting → verification → empathy → solution → closing) contra el transcript real del usuario, persistencia, integración con Mistakes y Achievements. La mitad que falta es la única que importa para que se sienta como una llamada real:</p>
+<div class="flow">Call Scenario (ya existe: persona, problema, dificultad, info disponible)
+      ↓
+Customer opening line (ya existe, por escenario)
+      ↓
+User responde ─────────────┐
+      ↓                    │  hoy: se ignora el contenido,
+Customer reply              │  se devuelve una de 3 frases fijas
+      │                    │  iguales en TODOS los escenarios
+      ↓                    ┘
+   [debería ser: reacción a si el user
+    saludó / verificó / mostró empatía /
+    ofreció una solución que coincide con
+    availableInfo del escenario]
+      ↓
+User responde de nuevo
+      ↓
+Customer reacciona a si la solución ofrecida
+resuelve su problema específico (ya existe expectedResolution
+en el modelo de datos — hoy no se usa para nada en el diálogo)
+      ↓
+Resolution / Escalation (rama según si el user escaló
+correctamente en escenarios que lo requieren, ej. rp-11)
+      ↓
+Evaluation (ya existe: CallFlowScore + InterviewAnswerEvaluation)</div>
+<p>Lo notable: <strong>el modelo de datos ya tiene todo lo necesario</strong> (<code>customerPersona</code>, <code>problem</code>, <code>availableInfo</code>, <code>expectedResolution</code>) — hoy <code>AiRoleplayService.getCustomerReply()</code> ni siquiera recibe esos campos, solo <code>openingLine</code> y <code>turnIndex</code>. El primer paso barato (sin IA) es hacer que las 3 respuestas fijas por dificultad varíen según si la respuesta del usuario contiene palabras del <code>expectedResolution</code> del escenario — el mismo patrón de keyword-matching que ya se usa en <code>AiInterviewService.pickNextQuestion</code>, aplicado aquí. El salto a IA real vendría después, para generar la reacción del cliente en lenguaje natural en vez de elegir entre 3 frases fijas.</p>
+
+<h2 id="s13"><span class="num">13</span>Recomendación final — orden sugerido, no una decisión tomada</h2>
+<p>Sin implementar nada todavía, el orden que este diagnóstico sugiere, de mayor a menor impacto por esfuerzo:</p>
+<ol>
+<li><strong>Enlazar Placement Test</strong> en el onboarding — un <code>routerLink</code>, impacto alto en activación.</li>
+<li><strong>Arreglar la fórmula de <code>grammarScore</code></strong> en Writing — está activamente mal, no solo incompleto.</li>
+<li><strong>Hacer que Roleplay reaccione al <code>expectedResolution</code></strong> del escenario con keyword-matching (mismo patrón ya usado en Mock Interview) — sin IA todavía, cierra la brecha más visible del producto con esfuerzo bajo.</li>
+<li><strong>Persistir Company Prep y el checklist de Tips</strong> — gaps chicos y ya conocidos.</li>
+<li><strong>Decidir la estrategia de backend para IA real</strong> (Edge Function propuesta) antes de tocar ningún <code>Ai*Service</code> — es la decisión de arquitectura que desbloquea todo lo demás en §9.</li>
+</ol>
+
+<hr class="divider" />
+<p class="footer-note">Auditoría basada en lectura directa de código a fecha de hoy. Ningún archivo fue modificado. Referencias de archivo/línea corresponden al estado del repo al momento de esta auditoría.</p>

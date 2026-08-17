@@ -14,6 +14,14 @@
     <app-stat-card icon="📅" label="Learning since" [value]="userState.user().startedAt" />
   </div>
 
+  <a class="card profile__placement-link" routerLink="/placement-test">
+    <span aria-hidden="true">🧭</span>
+    <div>
+      <strong>Not sure your level is right?</strong>
+      <span>Retake the Placement Test — it only takes a few minutes.</span>
+    </div>
+  </a>
+
   <section class="card profile__achievements">
     <span class="card__eyebrow">Achievements ({{ achievementService.unlockedCount() }}/{{ achievementService.achievements().length }})</span>
     <div class="profile__achievements-grid">

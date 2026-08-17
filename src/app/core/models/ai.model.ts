@@ -1,4 +1,5 @@
 /** Contracts for the future AI integration. Implementations are mock today. */
+import { MistakeCategory } from './career-coach.model';
 
 export interface AiChatMessage {
   id: string;
@@ -16,6 +17,8 @@ export interface WritingEvaluation {
   coherenceScore: number; // 0-100
   overallScore: number; // 0-100
   suggestions: string[];
+  /** Grammar mistakes actually found in the text (same detector as My Mistakes). */
+  grammarMistakes: { wrong: string; correct: string; category: MistakeCategory }[];
 }
 
 export interface SpeakingEvaluation {
