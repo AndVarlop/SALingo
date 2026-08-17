@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import {
   CANDIDATE_QUESTIONS,
   NO_EXPERIENCE_SOURCES,
   PRE_INTERVIEW_CHECKLIST,
   STAR_STEPS,
 } from '../../../core/services/mock-data/mock-interview-tips.data';
+import { InterviewTipsService } from '../../../core/services/interview-tips.service';
 
 type Tab = 'star' | 'no-experience' | 'checklist' | 'ask-them';
 
@@ -16,24 +17,19 @@ type Tab = 'star' | 'no-experience' | 'checklist' | 'ask-them';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InterviewTipsComponent {
+  private readonly tipsService = inject(InterviewTipsService);
+
   protected readonly tab = signal<Tab>('star');
   protected readonly starSteps = STAR_STEPS;
   protected readonly noExperienceSources = NO_EXPERIENCE_SOURCES;
   protected readonly checklist = PRE_INTERVIEW_CHECKLIST;
   protected readonly candidateQuestions = CANDIDATE_QUESTIONS;
 
-  protected readonly checkedItems = signal<Set<number>>(new Set());
-
   protected toggleChecklistItem(index: number): void {
-    this.checkedItems.update((set) => {
-      const next = new Set(set);
-      if (next.has(index)) next.delete(index);
-      else next.add(index);
-      return next;
-    });
+    this.tipsService.toggle(index);
   }
 
   protected isChecked(index: number): boolean {
-    return this.checkedItems().has(index);
+    return this.tipsService.checkedIndices().has(index);
   }
 }

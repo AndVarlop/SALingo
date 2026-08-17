@@ -195,6 +195,32 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['user_mistakes']['Row']>;
         Relationships: [];
       };
+      company_prep_analyses: {
+        Row: {
+          id: string;
+          user_id: string;
+          company: string;
+          position: string | null;
+          job_description: string;
+          result: unknown;
+          created_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['company_prep_analyses']['Row']> & {
+          user_id: string;
+          job_description: string;
+          result: unknown;
+        };
+        Update: Partial<Database['public']['Tables']['company_prep_analyses']['Row']>;
+        Relationships: [];
+      };
+      interview_tips_checklist: {
+        Row: { user_id: string; checked_indices: unknown; updated_at: string };
+        Insert: Partial<Database['public']['Tables']['interview_tips_checklist']['Row']> & {
+          user_id: string;
+        };
+        Update: Partial<Database['public']['Tables']['interview_tips_checklist']['Row']>;
+        Relationships: [];
+      };
       interview_sessions: {
         Row: {
           id: string;

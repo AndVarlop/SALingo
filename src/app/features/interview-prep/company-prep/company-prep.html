@@ -35,6 +35,22 @@
         {{ analyzing() ? 'Analyzing…' : 'Generate my prep plan' }}
       </button>
     </form>
+
+    @if (companyPrepHistory.history().length) {
+      <div class="card cp__history">
+        <span class="card__eyebrow">Your past analyses</span>
+        <ul class="cp__history-list">
+          @for (entry of companyPrepHistory.history(); track entry.id) {
+            <li>
+              <button type="button" class="cp__history-item" (click)="viewPastAnalysis(entry)">
+                <strong>{{ entry.company || 'Untitled company' }}</strong>
+                <span>{{ entry.position ? positionLabel[entry.position] : 'Any position' }} · {{ entry.createdAt | date: 'MMM d' }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      </div>
+    }
   } @else {
     <div class="card cp__result">
       <span class="card__eyebrow">Company profile</span>
