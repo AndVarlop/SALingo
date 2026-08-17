@@ -120,6 +120,35 @@ const RULES: MistakeRule[] = [
   },
 ];
 
+/**
+ * One full sentence per rule above, each written to trigger that rule when
+ * run through `detect()`. This is the content bank for the "Find the
+ * Mistake" mini-game — zero new mistake logic, just real sentences that
+ * surface the rules that already exist.
+ */
+export const MISTAKE_EXAMPLE_SENTENCES: string[] = [
+  'I have 5 years working in customer service.',
+  'I am agree with the new schedule.',
+  'I am agreed to help you today.',
+  'There are many peoples waiting in the queue.',
+  'I have 28 years old and I love this job.',
+  'I have worked here since 3 years.',
+  'I am agreed with you about the refund.',
+  "Please don't make a mistake in the invoice.",
+  'I did a mistake when I processed the order.',
+  'It depends of the situation.',
+  'I am boring during this meeting.',
+  'Can you explain me the policy again?',
+  'I am agree that the price is too high.',
+  'Actually, actually, I think we should escalate this.',
+  'I will to call you back later.',
+  'I can to help you with that.',
+  'I am here since 9 AM.',
+  'I am busy in the moment, please wait.',
+  'I will call you back in a moment.',
+  "For me it's very difficult to understand.",
+];
+
 @Injectable({ providedIn: 'root' })
 export class MistakeDetectionService {
   detect(text: string): DetectedMistake[] {

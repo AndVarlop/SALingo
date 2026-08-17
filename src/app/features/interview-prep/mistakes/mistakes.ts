@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { MistakeMemoryService } from '../../../core/services/mistake-memory.service';
 import { MistakeCategory } from '../../../core/models';
 import { StatCardComponent } from '../../../shared/components/stat-card/stat-card';
@@ -23,7 +24,7 @@ const CATEGORY_ICON: Record<MistakeCategory, string> = {
 @Component({
   selector: 'app-mistakes',
   standalone: true,
-  imports: [StatCardComponent, EmptyStateComponent],
+  imports: [RouterLink, StatCardComponent, EmptyStateComponent],
   templateUrl: './mistakes.html',
   styleUrl: './mistakes.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

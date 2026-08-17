@@ -13,6 +13,15 @@
     <span class="grammar__battle-arrow">→</span>
   </a>
 
+  <a class="card grammar__battle-cta" routerLink="/find-the-mistake">
+    <span aria-hidden="true">🕵️</span>
+    <div>
+      <strong>Find the Mistake</strong>
+      <span>Spot real ESL mistakes before the clock runs out — the same rules that power your corrections.</span>
+    </div>
+    <span class="grammar__battle-arrow">→</span>
+  </a>
+
   @for (level of levels; track level) {
     @if (topicsForLevel(level).length) {
       <div class="grammar__level">

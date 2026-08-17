@@ -1,8 +1,17 @@
 <section class="mk">
   <header class="mk__header">
     <h1>🧠 My Mistakes</h1>
-    <p>Recurring language errors detected in your Mock Interviews and Roleplay calls.</p>
+    <p>Recurring language errors detected across Mock Interviews, Roleplay, Writing, AI Tutor and Find the Mistake.</p>
   </header>
+
+  <a class="card mk__practice-cta" routerLink="/find-the-mistake">
+    <span aria-hidden="true">🕵️</span>
+    <div>
+      <strong>Practice: Find the Mistake</strong>
+      <span>Spot these same kinds of errors against the clock.</span>
+    </div>
+    <span class="mk__practice-arrow">→</span>
+  </a>
 
   @if (mistakeMemory.totalCount() > 0) {
     <div class="mk__stats">

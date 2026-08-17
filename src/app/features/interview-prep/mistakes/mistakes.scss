@@ -19,6 +19,37 @@
   }
 }
 
+.mk__practice-cta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  color: inherit;
+  background: linear-gradient(135deg, var(--color-primary-soft), var(--color-surface));
+
+  span[aria-hidden] {
+    font-size: 1.6rem;
+  }
+
+  strong {
+    display: block;
+    font-size: 0.92rem;
+  }
+
+  div span:not([aria-hidden]) {
+    display: block;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+    margin-top: 2px;
+  }
+}
+
+.mk__practice-arrow {
+  margin-left: auto;
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
 .mk__stats {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

@@ -1,0 +1,78 @@
+<section class="ftm">
+  @switch (phase()) {
+    @case ('idle') {
+      <div class="card ftm__intro">
+        <span class="ftm__icon" aria-hidden="true">🕵️</span>
+        <h1>Find the Mistake</h1>
+        <p>Read each sentence and decide: is it correct, or does it have a mistake?</p>
+        <button type="button" class="btn btn--primary btn--block" (click)="start()">Start</button>
+      </div>
+    }
+
+    @case ('playing') {
+      @if (currentRound(); as round) {
+        <div class="ftm__hud">
+          <span>{{ index() + 1 }} / {{ rounds().length }}</span>
+          <span class="ftm__streak">🔥 {{ streak() }} streak</span>
+          <span class="ftm__timer" [class.ftm__timer--low]="timeLeft() <= 3">⏱️ {{ timeLeft() }}s</span>
+        </div>
+
+        <div class="card ftm__question">
+          <span class="card__eyebrow">Correct or has a mistake?</span>
+          <p class="ftm__sentence">“{{ round.text }}”</p>
+
+          <div class="ftm__options">
+            <button
+              type="button"
+              class="ftm__option ftm__option--correct-choice"
+              [class.ftm__option--right]="answered() !== null && round.isCorrect"
+              [class.ftm__option--wrong]="answered() === 'correct' && !round.isCorrect"
+              [disabled]="answered() !== null"
+              (click)="answer('correct')"
+            >
+              ✅ It's correct
+            </button>
+            <button
+              type="button"
+              class="ftm__option ftm__option--mistake-choice"
+              [class.ftm__option--right]="answered() !== null && !round.isCorrect"
+              [class.ftm__option--wrong]="answered() === 'has-mistake' && round.isCorrect"
+              [disabled]="answered() !== null"
+              (click)="answer('has-mistake')"
+            >
+              ❌ Has a mistake
+            </button>
+          </div>
+
+          @if (feedback(); as fb) {
+            <p class="ftm__feedback" [class.ftm__feedback--bad]="fb !== 'correct'">
+              @if (fb === 'timeout') {
+                ⏰ Time's up!
+              } @else if (fb === 'correct') {
+                ✅ Correct!
+              } @else {
+                ❌ Not quite.
+              }
+              @if (!round.isCorrect) {
+                <span class="ftm__correction">Should be: “{{ round.corrected }}”</span>
+              }
+            </p>
+          }
+        </div>
+      }
+    }
+
+    @case ('result') {
+      <div class="card ftm__result">
+        <span class="ftm__icon" aria-hidden="true">{{ score() >= rounds().length / 2 ? '🏆' : '💪' }}</span>
+        <h1>{{ score() }} / {{ rounds().length }}</h1>
+        <div class="ftm__result-stats">
+          <div><span>Best streak</span><strong>{{ bestStreak() }}</strong></div>
+          <div><span>XP earned</span><strong>+{{ xpEarned() }}</strong></div>
+        </div>
+        <button type="button" class="btn btn--primary btn--block" (click)="playAgain()">Play Again</button>
+        <a class="btn btn--ghost btn--block" routerLink="/dashboard">Back to Dashboard</a>
+      </div>
+    }
+  }
+</section>

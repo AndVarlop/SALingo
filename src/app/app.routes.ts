@@ -72,6 +72,14 @@ export const routes: Routes = [
         title: 'Grammar Battle · SALingo',
       },
       {
+        path: 'find-the-mistake',
+        loadComponent: () =>
+          import('./features/find-the-mistake/find-the-mistake').then(
+            (m) => m.FindTheMistakeComponent,
+          ),
+        title: 'Find the Mistake · SALingo',
+      },
+      {
         path: 'pronunciation-coach',
         loadComponent: () =>
           import('./features/pronunciation-coach/pronunciation-coach').then(

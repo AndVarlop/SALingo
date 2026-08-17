@@ -1,0 +1,144 @@
+.ftm {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.ftm__intro,
+.ftm__result {
+  text-align: center;
+  padding: 40px 28px;
+}
+
+.ftm__icon {
+  font-size: 2.4rem;
+}
+
+.ftm__intro h1,
+.ftm__result h1 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin: 10px 0;
+}
+
+.ftm__intro p {
+  color: var(--color-text-muted);
+  font-size: 0.88rem;
+  margin-bottom: 10px;
+}
+
+.ftm__intro > .btn {
+  margin-top: 16px;
+}
+
+.ftm__hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0 4px;
+  margin-bottom: 10px;
+}
+
+.ftm__streak {
+  color: var(--color-warn);
+}
+
+.ftm__timer--low {
+  color: var(--color-danger);
+}
+
+.ftm__sentence {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.ftm__options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ftm__option {
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+  font-size: 0.92rem;
+  font-weight: 700;
+  font-family: inherit;
+  text-align: center;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-primary);
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+
+  &--right {
+    background: color-mix(in srgb, var(--color-success) 18%, var(--color-surface-alt));
+    border-color: var(--color-success);
+  }
+
+  &--wrong {
+    background: color-mix(in srgb, var(--color-danger) 18%, var(--color-surface-alt));
+    border-color: var(--color-danger);
+  }
+}
+
+.ftm__feedback {
+  text-align: center;
+  margin-top: 14px;
+  font-weight: 700;
+  color: var(--color-success);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  &--bad {
+    color: var(--color-danger);
+  }
+}
+
+.ftm__correction {
+  font-weight: 500;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.ftm__result-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 16px 0 20px;
+
+  div {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-alt);
+  }
+
+  span {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  strong {
+    font-size: 1.1rem;
+  }
+}
+
+.ftm__result > .btn {
+  margin-top: 10px;
+}
