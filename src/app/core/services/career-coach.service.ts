@@ -4,6 +4,7 @@ import { VocabularyService } from './vocabulary.service';
 import { InterviewSessionService } from './interview-session.service';
 import { InterviewProgressService } from './interview-progress.service';
 import { RecommendationService } from './recommendation.service';
+import { GrammarService } from './grammar.service';
 import { CEFR_LEVEL_ORDER, JobReadyScore, RecommendedActivity, Skill, Weakness } from '../models';
 import { SKILL_ICON, SKILL_LABEL } from '../models/skill.model';
 
@@ -39,6 +40,7 @@ export class CareerCoachService {
   private readonly interviewSessions = inject(InterviewSessionService);
   private readonly interviewProgress = inject(InterviewProgressService);
   private readonly recommendationService = inject(RecommendationService);
+  private readonly grammarService = inject(GrammarService);
 
   /** english: CEFR level position on a 6-band scale (A1=~17 .. C2=100). */
   private readonly englishScore = computed<number | null>(() => {
@@ -70,6 +72,16 @@ export class CareerCoachService {
     return Math.round(studied.reduce((sum, w) => sum + w.masteryPercent, 0) / studied.length);
   });
 
+  /** grammar: average bestScore across attempted grammar topics — 0/untouched topics don't count against the user. */
+  private readonly grammarScore = computed<number | null>(() => {
+    const topics = this.grammarService.topics;
+    const attempted = topics
+      .map((t) => this.grammarService.progressFor(t.id))
+      .filter((p) => p.attempts > 0);
+    if (!attempted.length) return null;
+    return Math.round(attempted.reduce((sum, p) => sum + p.bestScore, 0) / attempted.length);
+  });
+
   /** Confidence has no dedicated instrument yet — approximated from interview + speaking performance. */
   private readonly confidenceScore = computed<number | null>(() => {
     const parts = [this.interviewScore(), this.speakingScore()].filter(
@@ -80,13 +92,16 @@ export class CareerCoachService {
   });
 
   /**
-   * Job Ready Score = weighted average of six dimensions. Missing
+   * Job Ready Score = weighted average of seven dimensions. Missing
    * dimensions are excluded and the remaining weights renormalized, so
    * early users aren't punished for not having tried a feature yet —
    * they just see fewer dimensions until they do.
    *
-   * Weights: english 20%, speaking 20%, interview 20%, customerService 15%,
-   * vocabulary 15%, confidence 10%.
+   * Weights: english 18%, speaking 18%, interview 18%, customerService 12%,
+   * vocabulary 12%, grammar 12%, confidence 10%. (Grammar has real tracked
+   * data — 45 topics with per-user attempts/bestScore — that used to be
+   * ignored by this formula for no reason; it's now weighted the same as
+   * vocabulary/customerService.)
    */
   readonly jobReadyScore = computed<JobReadyScore>(() => {
     const breakdown = {
@@ -95,14 +110,16 @@ export class CareerCoachService {
       interview: this.interviewScore(),
       customerService: this.customerServiceScore(),
       vocabulary: this.vocabularyScore(),
+      grammar: this.grammarScore(),
       confidence: this.confidenceScore(),
     };
     const weights: Record<keyof typeof breakdown, number> = {
-      english: 20,
-      speaking: 20,
-      interview: 20,
-      customerService: 15,
-      vocabulary: 15,
+      english: 18,
+      speaking: 18,
+      interview: 18,
+      customerService: 12,
+      vocabulary: 12,
+      grammar: 12,
       confidence: 10,
     };
 

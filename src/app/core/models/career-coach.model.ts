@@ -10,6 +10,7 @@ export interface JobReadyBreakdown {
   interview: number | null;
   customerService: number | null;
   vocabulary: number | null;
+  grammar: number | null;
   confidence: number | null;
 }
 

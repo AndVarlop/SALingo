@@ -5,6 +5,7 @@ import { VocabularyService } from './vocabulary.service';
 import { InterviewSessionService } from './interview-session.service';
 import { InterviewProgressService } from './interview-progress.service';
 import { RecommendationService } from './recommendation.service';
+import { GrammarService } from './grammar.service';
 import { CefrLevel, Skill } from '../models';
 
 /** Builds a CareerCoachService with fully controllable fake dependencies —
@@ -18,6 +19,7 @@ function setup(overrides: {
   interviewSessionCount?: number;
   interviewAverageScore?: number;
   readinessOverall?: number;
+  grammarAttempts?: { attempts: number; bestScore: number }[];
 }) {
   const {
     level = CefrLevel.A1,
@@ -27,6 +29,7 @@ function setup(overrides: {
     interviewSessionCount = 0,
     interviewAverageScore = 0,
     readinessOverall = 0,
+    grammarAttempts = [],
   } = overrides;
 
   TestBed.resetTestingModule();
@@ -47,6 +50,13 @@ function setup(overrides: {
       },
       { provide: InterviewProgressService, useValue: { readiness: () => ({ overall: readinessOverall }) } },
       { provide: RecommendationService, useValue: { recommendations: () => [] } },
+      {
+        provide: GrammarService,
+        useValue: {
+          topics: grammarAttempts.map((_, i) => ({ id: `topic-${i}` })),
+          progressFor: (id: string) => grammarAttempts[Number(id.split('-')[1])],
+        },
+      },
     ],
   });
 
@@ -85,6 +95,19 @@ describe('CareerCoachService.jobReadyScore', () => {
     // should land strictly between the lowest and highest contributing dimension.
     expect(result.overall as number).toBeGreaterThan(60);
     expect(result.overall as number).toBeLessThan(100);
+  });
+
+  it('includes grammar in the breakdown once at least one topic has been attempted', () => {
+    const untouched = setup({ activityLogLength: 5, grammarAttempts: [] });
+    expect(untouched.jobReadyScore().breakdown.grammar).toBeNull();
+
+    const attempted = setup({
+      activityLogLength: 5,
+      level: CefrLevel.C2,
+      skillMastery: [{ skill: Skill.Speaking, masteryPercent: 80 }],
+      grammarAttempts: [{ attempts: 2, bestScore: 90 }],
+    });
+    expect(attempted.jobReadyScore().breakdown.grammar).toBe(90);
   });
 
   it('is monotonic: a strictly better interview score never lowers the overall score', () => {

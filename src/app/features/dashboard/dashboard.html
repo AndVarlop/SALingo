@@ -136,6 +136,9 @@
           @if (jobReadyScore().breakdown.vocabulary !== null) {
             <li><span>Vocabulary</span><span>{{ jobReadyScore().breakdown.vocabulary }}%</span></li>
           }
+          @if (jobReadyScore().breakdown.grammar !== null) {
+            <li><span>Grammar</span><span>{{ jobReadyScore().breakdown.grammar }}%</span></li>
+          }
           @if (jobReadyScore().breakdown.confidence !== null) {
             <li><span>Confidence</span><span>{{ jobReadyScore().breakdown.confidence }}%</span></li>
           }
