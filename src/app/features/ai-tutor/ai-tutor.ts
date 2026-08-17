@@ -40,8 +40,10 @@ export class AiTutorComponent {
   ]);
   protected readonly draft = signal('');
   protected readonly thinking = signal(false);
+  protected readonly activeTopic = signal<AiTutorTopic | null>(null);
 
   protected async pickTopic(topic: AiTutorTopic): Promise<void> {
+    this.activeTopic.set(topic);
     this.thinking.set(true);
     try {
       const reply = await this.aiTutor.startTopic(topic);
@@ -72,7 +74,7 @@ export class AiTutorComponent {
     this.scrollToBottom();
 
     try {
-      const reply = await this.aiTutor.sendMessage(this.messages(), text);
+      const reply = await this.aiTutor.sendMessage(this.messages(), text, this.activeTopic() ?? undefined);
       this.messages.update((m) => [...m, reply]);
     } finally {
       this.thinking.set(false);

@@ -87,6 +87,7 @@
   background: var(--color-surface-alt);
   font-size: 0.88rem;
   line-height: 1.5;
+  white-space: pre-line;
 
   .ai-tutor__message--user & {
     background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
