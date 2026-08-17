@@ -16,6 +16,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Pronunciation Coach', icon: '🗣️', routerLink: '/pronunciation-coach' },
   { label: 'Writing', icon: '📝', routerLink: '/writing' },
   { label: 'Progress', icon: '📊', routerLink: '/progress' },
+  { label: 'Career Path', icon: '🗺️', routerLink: '/career-path' },
   { label: 'Interview Prep', icon: '📞', routerLink: '/interview-prep' },
   { label: 'AI Tutor', icon: '🤖', routerLink: '/ai-tutor' },
   { label: 'Profile', icon: '👤', routerLink: '/profile' },
@@ -27,5 +28,5 @@ export const MOBILE_NAV_ITEMS: NavItem[] = [
   NAV_ITEMS[1], // Learn
   NAV_ITEMS[2], // Review
   NAV_ITEMS[3], // Vocabulary
-  NAV_ITEMS[12], // Profile
+  NAV_ITEMS[13], // Profile
 ];

@@ -85,6 +85,25 @@ export interface RecommendedActivity {
   routerLink: string[];
 }
 
+export type CareerPathStageId =
+  | 'english'
+  | 'call-center-english'
+  | 'customer-service'
+  | 'interview-prep'
+  | 'roleplay'
+  | 'mock-interview'
+  | 'job-ready';
+
+export interface CareerPathStage {
+  id: CareerPathStageId;
+  label: string;
+  iconEmoji: string;
+  percent: number; // 0-100
+  completed: boolean;
+  requirement: string;
+  routerLink: string[];
+}
+
 export interface CandidateProfile {
   position: string | null;
   hasExperience: boolean | null;

@@ -190,6 +190,11 @@ export const routes: Routes = [
         title: 'Speaking Warm-up · SALingo',
       },
       {
+        path: 'career-path',
+        loadComponent: () => import('./features/career-path/career-path').then((m) => m.CareerPathComponent),
+        title: 'Career Path · SALingo',
+      },
+      {
         path: 'profile',
         loadComponent: () => import('./features/profile/profile').then((m) => m.ProfileComponent),
         title: 'Profile · SALingo',

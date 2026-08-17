@@ -1,0 +1,67 @@
+.career-path {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.career-path__header {
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 800;
+  }
+
+  p {
+    color: var(--color-text-muted);
+    margin-top: 4px;
+    font-size: 0.82rem;
+  }
+}
+
+.career-path__list {
+  display: flex;
+  flex-direction: column;
+}
+
+.career-path__stage {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  opacity: 0.6;
+
+  &--done {
+    opacity: 1;
+    border-color: var(--color-success);
+  }
+
+  &--current {
+    opacity: 1;
+    border-color: var(--color-primary);
+  }
+}
+
+.career-path__stage-icon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.career-path__stage-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+
+  span {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+  }
+}
+
+.career-path__connector {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  padding: 2px 0;
+}

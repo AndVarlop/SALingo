@@ -211,3 +211,12 @@ Roleplay already *was* a call simulator in disguise (12 customer-service scenari
 
 ### Build/verification
 `tsc --noEmit` clean, `ng build` clean (same pre-existing CSS budget warning, unrelated).
+
+## 11. Fase 3 P2 — Career Path
+
+- New `CareerPathService` (spec §27): 7 stages (English → Call Center English → Customer Service → Interview Prep → Roleplay → Mock Interview → Job Ready), each with a real `percent`/`completed` derived from data already tracked elsewhere — lesson completion, interview vocab/question practice counts, `InterviewProgressService.readiness()`, `InterviewSessionService` counts, and `CareerCoachService.jobReadyScore()`. No new state, no invented numbers. Goal thresholds (5 roleplays, 3 mock interviews, 75% Job Ready) are documented constants at the top of the service, easy to retune.
+- New `/career-path` page + sidebar nav entry: vertical stepper, current stage highlighted (first incomplete stage), each with a progress bar and a "Continue"/"Review" link into the right feature.
+- Verified live: real percentages rendered correctly for the test account (English lesson progress, Mock Interview already ✓ from earlier testing since it had 3+ sessions, Job Ready bar matching the Dashboard's number), no console errors.
+
+### Build/verification
+`tsc --noEmit` clean, `ng build` clean (same pre-existing CSS budget warning, unrelated).
