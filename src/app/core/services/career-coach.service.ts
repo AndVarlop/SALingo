@@ -7,6 +7,7 @@ import { RecommendationService } from './recommendation.service';
 import { GrammarService } from './grammar.service';
 import { CEFR_LEVEL_ORDER, JobReadyScore, RecommendedActivity, Skill, Weakness } from '../models';
 import { SKILL_ICON, SKILL_LABEL } from '../models/skill.model';
+import { humanizeSkillTag } from '../utils/skill-tag.util';
 
 /** Not every skill has its own practice route yet. */
 const SKILL_ROUTE: Partial<Record<Skill, string>> = {
@@ -190,16 +191,11 @@ export class CareerCoachService {
   readonly weakestSkillTags = computed<{ tag: string; label: string; percent: number }[]>(() => {
     const byTag = this.userState.masteryByTag();
     return Object.entries(byTag)
-      .map(([tag, percent]) => ({ tag, percent, label: this.humanizeTag(tag) }))
+      .map(([tag, percent]) => ({ tag, percent, label: humanizeSkillTag(tag) }))
       .sort((a, b) => a.percent - b.percent)
       .slice(0, 5);
   });
 
-  private humanizeTag(tag: string): string {
-    const [, slug] = tag.split(':');
-    const words = (slug ?? tag).split('-').filter(Boolean);
-    return words.map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-  }
 
   /** RecommendationService's picks, reframed as timed activities, plus interview-specific ones. */
   readonly recommendedActivities = computed<RecommendedActivity[]>(() => {
@@ -245,6 +241,7 @@ export class CareerCoachService {
     if (recId === 'rec-review') return 'review';
     if (recId === 'rec-lesson') return 'grammar';
     if (recId === 'rec-skill') return 'speaking';
+    if (recId === 'rec-weak-tag') return 'grammar';
     return 'review';
   }
 
@@ -252,6 +249,7 @@ export class CareerCoachService {
     if (recId === 'rec-review') return 8;
     if (recId === 'rec-lesson') return 10;
     if (recId === 'rec-skill') return 10;
+    if (recId === 'rec-weak-tag') return 5;
     return 10;
   }
 }
