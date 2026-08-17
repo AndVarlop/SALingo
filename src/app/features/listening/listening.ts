@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { MOCK_LISTENING_EXERCISES } from '../../core/services/mock-data/mock-listening.data';
 import { UserStateService } from '../../core/services/user-state.service';
 import { ExerciseResult } from '../../core/models';
@@ -9,7 +10,7 @@ type Phase = 'idle' | 'playing' | 'summary';
 @Component({
   selector: 'app-listening',
   standalone: true,
-  imports: [ExercisePlayerComponent],
+  imports: [RouterLink, ExercisePlayerComponent],
   templateUrl: './listening.html',
   styleUrl: './listening.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
