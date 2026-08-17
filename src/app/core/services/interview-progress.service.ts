@@ -33,6 +33,7 @@ export class InterviewProgressService {
   private readonly knownWordIds = signal<Set<string>>(new Set());
 
   readonly practicedCount = computed(() => Object.keys(this.answersByQuestion()).length);
+  readonly knownWordCount = computed(() => this.knownWordIds().size);
   readonly totalQuestions = MOCK_INTERVIEW_QUESTIONS.length;
   readonly totalVocabulary = MOCK_INTERVIEW_VOCABULARY.length;
 

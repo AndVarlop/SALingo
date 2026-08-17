@@ -27,6 +27,42 @@
   gap: 12px;
 }
 
+.profile__achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.profile__achievement {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  padding: 14px 10px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+
+  strong {
+    font-size: 0.82rem;
+  }
+
+  &--locked {
+    opacity: 0.55;
+    filter: grayscale(0.5);
+  }
+}
+
+.profile__achievement-icon {
+  font-size: 1.6rem;
+}
+
+.profile__achievement-desc {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+}
+
 .profile__settings {
   display: flex;
   flex-direction: column;

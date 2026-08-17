@@ -14,6 +14,22 @@
     <app-stat-card icon="📅" label="Learning since" [value]="userState.user().startedAt" />
   </div>
 
+  <section class="card profile__achievements">
+    <span class="card__eyebrow">Achievements ({{ achievementService.unlockedCount() }}/{{ achievementService.achievements().length }})</span>
+    <div class="profile__achievements-grid">
+      @for (achievement of achievementService.achievements(); track achievement.id) {
+        <div class="profile__achievement" [class.profile__achievement--locked]="!achievement.unlockedAt">
+          <span class="profile__achievement-icon" aria-hidden="true">{{ achievement.iconEmoji }}</span>
+          <strong>{{ achievement.title }}</strong>
+          <span class="profile__achievement-desc">{{ achievement.description }}</span>
+          @if (!achievement.unlockedAt) {
+            <app-badge-chip tone="neutral" icon="🔒" [locked]="true">Locked</app-badge-chip>
+          }
+        </div>
+      }
+    </div>
+  </section>
+
   <form class="card profile__settings" [formGroup]="settingsForm" (ngSubmit)="saveSettings()">
     <span class="card__eyebrow">Settings</span>
 

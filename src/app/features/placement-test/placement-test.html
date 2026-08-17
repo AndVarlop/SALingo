@@ -1,0 +1,30 @@
+<section class="placement-test">
+  @switch (phase()) {
+    @case ('idle') {
+      <div class="card placement-test__idle">
+        <span class="placement-test__icon" aria-hidden="true">🧭</span>
+        <h1>Placement Test</h1>
+        <p>Answer {{ questions.length }} quick questions, from beginner to advanced, and we'll estimate your English level.</p>
+        <button type="button" class="btn btn--primary" (click)="start()">Start test</button>
+      </div>
+    }
+
+    @case ('testing') {
+      <app-exercise-player [exercises]="exercises" (finished)="onFinished($event)" />
+    }
+
+    @case ('result') {
+      <div class="card placement-test__result">
+        <span class="card__eyebrow">Your estimated level</span>
+        <h1>{{ resultLevel() }} — {{ levelLabel[resultLevel()!] }}</h1>
+        <p class="placement-test__score">{{ resultScore() }}% correct</p>
+        <p class="placement-test__advice">{{ resultAdvice() }}</p>
+
+        <div class="placement-test__actions">
+          <button type="button" class="btn btn--ghost" (click)="retake()">Retake test</button>
+          <button type="button" class="btn btn--primary" (click)="applyLevel()">Set this as my level</button>
+        </div>
+      </div>
+    }
+  }
+</section>

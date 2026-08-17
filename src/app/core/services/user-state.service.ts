@@ -77,6 +77,18 @@ export class UserStateService {
   readonly streak = computed(() => this.progress().currentStreak);
   readonly longestStreak = computed(() => this.progress().longestStreak);
 
+  /**
+   * Rolling average accuracy from the activity log. Computed here rather than
+   * trusting `language_progress.average_accuracy` — nothing keeps that stored
+   * column in sync, so it would always read 0.
+   */
+  readonly averageAccuracy = computed(() => {
+    const entries = this.progress().activityLog.filter((e) => e.accuracy !== undefined);
+    if (!entries.length) return 0;
+    const sum = entries.reduce((total, e) => total + (e.accuracy ?? 0), 0);
+    return Math.round(sum / entries.length);
+  });
+
   readonly todayActivity = computed(() => {
     const today = todayIso();
     return this.progress().activityByDate.find((a) => a.date === today) ?? null;
@@ -232,6 +244,29 @@ export class UserStateService {
       .from('lesson_completions')
       .insert({ user_id: userId, lesson_id: lessonId })
       .then(({ error }) => error && console.error('[UserState] markLessonCompleted failed', error));
+  }
+
+  /** Sets the user's CEFR level for the current language — e.g. after a placement test. */
+  updateLevel(level: CefrLevel): void {
+    const lang = this.currentLanguage();
+    const langProgress = this.progress().languages[lang] ?? this.emptyLanguageProgress(lang);
+
+    this.progress.update((progress) => ({
+      ...progress,
+      languages: { ...progress.languages, [lang]: { ...langProgress, level } },
+    }));
+    this.user.update((u) => ({ ...u, level }));
+
+    const userId = this.auth.userId();
+    if (!userId) return;
+
+    Promise.all([
+      this.supabase.from('language_progress').update({ level }).eq('user_id', userId).eq('language', lang),
+      this.supabase.from('profiles').update({ level }).eq('id', userId),
+    ]).then((results) => {
+      const failed = results.find((r) => r.error);
+      if (failed?.error) console.error('[UserState] updateLevel failed', failed.error);
+    });
   }
 
   /** Loads profile, settings, streak and per-language progress for the signed-in user. */

@@ -50,13 +50,13 @@
 
   <!-- Stats -->
   <div class="dashboard__stats">
-    <app-stat-card icon="📚" label="Words learned" [value]="languageProgress().wordsLearned + ''" />
+    <app-stat-card icon="📚" label="Words learned" [value]="wordsLearnedCount() + ''" />
     <app-stat-card
       icon="⏱️"
       label="Time studied"
       [value]="(languageProgress().totalStudyMinutes / 60 | number: '1.0-1') + ' h'"
     />
-    <app-stat-card icon="🎯" label="Avg. accuracy" [value]="languageProgress().averageAccuracy + '%'" />
+    <app-stat-card icon="🎯" label="Avg. accuracy" [value]="userState.averageAccuracy() + '%'" />
     <app-stat-card icon="🏆" label="Longest streak" [value]="userState.longestStreak() + ' days'" />
   </div>
 

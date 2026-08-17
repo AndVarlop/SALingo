@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { UserStateService } from '../../core/services/user-state.service';
 import { MockLessonService } from '../../core/services/mock-lesson.service';
 import { RecommendationService } from '../../core/services/recommendation.service';
+import { VocabularyService } from '../../core/services/vocabulary.service';
 import { ProgressBarComponent } from '../../shared/components/progress-bar/progress-bar';
 import { ProgressRingComponent } from '../../shared/components/progress-ring/progress-ring';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card';
@@ -30,10 +31,15 @@ export class DashboardComponent {
   protected readonly userState = inject(UserStateService);
   protected readonly lessons = inject(MockLessonService);
   protected readonly recommendations = inject(RecommendationService).recommendations;
+  private readonly vocabularyService = inject(VocabularyService);
 
   protected readonly firstName = computed(() => this.userState.user().name.split(' ')[0]);
   protected readonly recommendedLesson = computed(() => this.lessons.getRecommendedLesson());
   protected readonly languageProgress = this.userState.currentLanguageProgress;
+  /** Real count — languageProgress().wordsLearned is never written to, so it always reads 0. */
+  protected readonly wordsLearnedCount = computed(
+    () => this.vocabularyService.words().filter((w) => w.masteryPercent >= 60).length,
+  );
   protected readonly recentActivity = computed(() =>
     this.userState.progress().activityLog.slice(0, 5),
   );

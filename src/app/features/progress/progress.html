@@ -1,0 +1,57 @@
+<section class="progress-page">
+  <header class="progress-page__header">
+    <h1>Progress</h1>
+    <p>Your learning stats for English, all in one place.</p>
+  </header>
+
+  @if (!hasAnyActivity()) {
+    <app-empty-state
+      icon="📊"
+      title="No activity yet"
+      description="Complete a lesson, review some words, or practice grammar to see your stats here."
+    />
+  } @else {
+    <div class="progress-page__stats">
+      <app-stat-card icon="⭐" label="Total XP" [value]="languageProgress().xp + ''" />
+      <app-stat-card
+        icon="⏱️"
+        label="Time studied"
+        [value]="(languageProgress().totalStudyMinutes / 60 | number: '1.0-1') + ' h'"
+      />
+      <app-stat-card icon="📚" label="Words learned" [value]="wordsLearnedCount() + ''" />
+      <app-stat-card icon="🎯" label="Avg. accuracy" [value]="userState.averageAccuracy() + '%'" />
+      <app-stat-card icon="✅" label="Lessons completed" [value]="languageProgress().lessonsCompleted.length + ''" />
+      <app-stat-card icon="🔥" label="Current streak" [value]="userState.streak() + ' days'" />
+    </div>
+
+    <article class="card progress-page__chart-card">
+      <span class="card__eyebrow">XP earned — last 14 days ({{ totalXpLast14Days() }} XP total)</span>
+      <div class="progress-page__chart" role="img" aria-label="Bar chart of XP earned per day over the last 14 days">
+        @for (day of xpByDay(); track $index) {
+          <div class="progress-page__bar-col">
+            <div
+              class="progress-page__bar"
+              [class.progress-page__bar--today]="day.isToday"
+              [style.height.%]="day.heightPercent"
+              [attr.title]="day.xp + ' XP'"
+            ></div>
+            <span class="progress-page__bar-label">{{ day.label }}</span>
+          </div>
+        }
+      </div>
+    </article>
+
+    <article class="card progress-page__skills">
+      <span class="card__eyebrow">Skills breakdown</span>
+      <div class="progress-page__skills-grid">
+        @for (skill of languageProgress().skills; track skill.skill) {
+          <app-progress-bar
+            [value]="skill.masteryPercent"
+            [label]="skillIcon[skill.skill] + ' ' + skillLabel[skill.skill]"
+            [showPercent]="true"
+          />
+        }
+      </div>
+    </article>
+  }
+</section>

@@ -1,0 +1,54 @@
+<section class="ai-tutor">
+  <header class="ai-tutor__header">
+    <span class="ai-tutor__avatar" aria-hidden="true">🤖</span>
+    <div>
+      <h1>AI Tutor</h1>
+      <p>Practice grammar, vocabulary, speaking or conversation anytime.</p>
+    </div>
+  </header>
+
+  <div class="card ai-tutor__chat">
+    <div class="ai-tutor__messages">
+      @for (message of messages(); track message.id) {
+        <div class="ai-tutor__message" [class.ai-tutor__message--user]="message.role === 'user'">
+          @if (message.role === 'assistant') {
+            <span class="ai-tutor__bubble-avatar" aria-hidden="true">🤖</span>
+          }
+          <div class="ai-tutor__bubble">{{ message.text }}</div>
+        </div>
+      }
+
+      @if (thinking()) {
+        <div class="ai-tutor__message">
+          <span class="ai-tutor__bubble-avatar" aria-hidden="true">🤖</span>
+          <div class="ai-tutor__bubble ai-tutor__bubble--typing">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      }
+
+      @if (messages().length === 1) {
+        <div class="ai-tutor__quick-replies">
+          @for (option of topics; track option.topic) {
+            <button type="button" class="ai-tutor__quick-reply" (click)="pickTopic(option.topic)">
+              {{ option.icon }} {{ option.label }}
+            </button>
+          }
+        </div>
+      }
+
+      <div #scrollAnchor></div>
+    </div>
+
+    <form class="ai-tutor__composer" (ngSubmit)="send()">
+      <input
+        type="text"
+        placeholder="Type a message…"
+        [value]="draft()"
+        (input)="setDraft($any($event.target).value)"
+        [disabled]="thinking()"
+      />
+      <button type="submit" class="btn btn--primary" [disabled]="!draft().trim() || thinking()">Send</button>
+    </form>
+  </div>
+</section>
