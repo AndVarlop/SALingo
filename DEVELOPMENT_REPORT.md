@@ -1,8 +1,9 @@
 # SALingo — Development Report
 
-**Session type:** Autonomous continuous work session (no check-ins).
-**Starting point:** Fase 1-5 of the Learning Platform + Fase 1-4 of Interview Prep, already built and verified in prior sessions.
-**This session added:** the rest of the Learning Platform (Progress, Placement Test, AI Tutor, Achievements) and the rest of Interview Prep (Scenarios, Difficult Customers, Roleplay, Mock Interview, History, Preparation Plan), plus a full audit pass that found and fixed 5 real bugs.
+**Session type:** Autonomous continuous work session (no check-ins), across two rounds.
+**Starting point (round 1):** Fase 1-5 of the Learning Platform + Fase 1-4 of Interview Prep, already built and verified in prior sessions.
+**Round 1 added:** the rest of the Learning Platform (Progress, Placement Test, AI Tutor, Achievements) and Interview Prep phases 5-9 (Scenarios, Difficult Customers, Roleplay, Mock Interview, History, Preparation Plan), plus a full audit pass that found and fixed 5 real bugs.
+**Round 2 added** (after you ran `interview-sessions.sql`): closed the persistence gap for Roleplay/Scenario completions, plus the remaining Interview Prep spec sections — STAR method, "no experience" guidance, pre-interview checklist, candidate questions, and Company-Specific Preparation.
 
 Everything below was tested by actually running the app in Chrome with a real Supabase-backed account (not just "it compiles") — every flow described as "working" was exercised end-to-end, including checking that XP/scores/persistence matched the expected math.
 
@@ -33,6 +34,22 @@ Everything below was tested by actually running the app in Chrome with a real Su
 
 ---
 
+## 1b. Round 2: closing gaps + remaining spec sections
+
+Confirmed first: **Mock Interview history now survives a full page reload** — ran an 8-question interview, hard-reloaded (full navigation, not HMR), and the session showed up in History from Supabase with the correct score. The `interview-sessions.sql` migration works as intended.
+
+Then, from the "Known Gaps" list in round 1:
+
+- **Roleplay and Scenario completions now persist.** New tables (`roleplay_sessions`, `scenario_sessions` — `supabase/interview-practice-log.sql`, **not yet run**). `InterviewSessionService` now owns all three kinds of practice-session logs. The Preparation Plan's Day 4 (Scenarios) and Day 5 (Roleplay) checkmarks are now real instead of permanently `null`, the Roleplay list shows a "Completed" badge per scenario, and 2 new achievements (First Roleplay, 7 Roleplays Practiced) are wired to real counts.
+- Verified live that the app **degrades gracefully without the new migration**: completed a fresh roleplay, XP and evaluation worked correctly (415 XP awarded, scored 89/100), and the console showed exactly one caught error (`saveRoleplayCompletion failed`) — no crash, no broken UI, just that one completion won't show as "Completed" until the table exists.
+
+New spec sections built (originally scoped out of both rounds' priority list, now added):
+
+- **Interview Tips** (`/interview-prep/tips`) — 4-tab reference page: STAR method (with a fully worked example tied to the existing behavioral question bank), "I have no experience" guidance (non-job experience sources + example answer), an interactive pre-interview checklist (session-only, intentionally not persisted — it's a day-of reminder list, not a progress metric), and candidate questions to ask (good vs. to avoid).
+- **Company-Specific Preparation** (`/interview-prep/company-prep`) — paste a company/position/job description, get tailored questions/vocabulary/skills via `AiJobAnalysisService` (previously stubbed but unused by any UI). Tested both of its keyword-detection branches (sales-flavored and technical-flavored job descriptions each produced different, correct output).
+
+---
+
 ## 2. Bugs found and fixed (real, user-facing)
 
 These weren't style nits — every one of them made a feature silently not work, and every fix was verified live in the browser afterward.
@@ -58,8 +75,9 @@ All four were caught by actually clicking through the app as a user would, not b
 
 ## 4. Known gaps / what's NOT done
 
-- **`supabase/interview-sessions.sql` needs to be run.** Mock Interview results currently save locally in-memory only — verified: they show correctly on the results screen and in History *within the same session*, but a real page reload loses them (confirmed live: the console logs `[InterviewSession] saveSession failed` because the table doesn't exist yet). Nothing crashes — the app degrades gracefully — but History won't persist across visits until this migration runs.
-- **Roleplay and Scenario completions aren't persisted.** They award XP and log to `activity_log` (so Dashboard/Progress reflect them), but there's no `roleplay_completions` or `scenario_completions` table, so the Preparation Plan can't check them off and Achievements can't count "roleplays completed." Adding this would mean two more small tables following the exact same pattern as `interview_answers`.
+- ~~`supabase/interview-sessions.sql` needs to be run~~ **Done — run and verified live** in round 2.
+- **`supabase/interview-practice-log.sql` needs to be run** (new in round 2). Roleplay and Scenario completions currently award XP and log to `activity_log` correctly, but the dedicated `roleplay_sessions`/`scenario_sessions` tables don't exist yet, so: the Preparation Plan's Day 4/5 checkmarks stay unchecked, the Roleplay list's "Completed" badges won't show, and the 2 new roleplay-related achievements can't unlock. Confirmed the app doesn't crash without it (graceful degradation, same as the interview_sessions gap before it was closed).
+- **Company-Specific Preparation's analysis isn't saved anywhere.** Each paste-and-analyze is a one-off — there's no history of past company analyses. Not clearly needed by the spec (section 26 doesn't ask for it), so left as-is.
 - **No automated test runner.** `ng test` needs `@vitest/browser-playwright` (or similar) installed for Angular 21's Vitest-based unit-test builder to run headless — it's not currently installed, and installing/configuring it was deprioritized behind shipping features per your stated priority order (functionality > errors > UX > design). All validation this session was `tsc --noEmit` + `ng build` + real browser testing.
 - **No ESLint configuration exists in the project.** Same trade-off as above.
 - **Responsive layout could not be visually verified this session.** The browser automation's `resize_window` call reported success but the tab's `window.innerWidth` stayed at full desktop width regardless — a tooling limitation in this environment, not something in the app. Verified instead by code review: every new page in this session uses `max-width` containers and `repeat(auto-fit/auto-fill, minmax(...))` grids (no fixed pixel widths anywhere), consistent with the mobile-first sidebar→bottom-nav pattern already verified working in the app's foundational phase.
@@ -94,6 +112,8 @@ Both passed clean after every feature batch this session (checked incrementally,
 fbb15f9 feat: complete Learning Platform modules (Progress, Placement Test, AI Tutor, Achievements)
 b3cc0c7 feat: complete Interview Prep phases 5-9 (scenarios, roleplay, mock interview, history, plan)
 196dba4 fix: three more silently-broken real-data bugs found during final audit
+0565df7 docs: add DEVELOPMENT_REPORT.md for autonomous work session
+6e87423 feat: close remaining Interview Prep gaps + spec sections 21/23-26
 ```
 
 All commits are local only — nothing was pushed to a remote (none is configured).
@@ -102,7 +122,7 @@ All commits are local only — nothing was pushed to a remote (none is configure
 
 ## 8. What to do next (your call, not urgent)
 
-1. Run `supabase/interview-sessions.sql` in the SQL Editor so Mock Interview history survives across sessions.
-2. Consider two small tables (`roleplay_completions`, `scenario_completions`) if you want the Preparation Plan's Day 4/5 checkmarks and richer achievements — same pattern as everything else, ~20 minutes of work.
-3. `npm install --save-dev @vitest/browser-playwright` (or drop the Vitest browser runner in favor of `karma` if preferred) if you want `ng test` working again.
-4. Everything else in the original 42-section Interview Prep spec not mentioned above (company-specific job-description analysis UI, STAR-method educational section, "no experience" guided section, pre-interview checklist) is designed-for but not yet built — the `AiJobAnalysisService` stub and the question bank's existing behavioral/STAR-tagged questions are ready to build on top of.
+1. **Run `supabase/interview-practice-log.sql`** in the SQL Editor — same routine as the two migrations before it, adds `roleplay_sessions` and `scenario_sessions` so Roleplay/Scenario completions persist like everything else.
+2. `npm install --save-dev @vitest/browser-playwright` (or drop the Vitest browser runner in favor of `karma` if preferred) if you want `ng test` working again.
+3. Remaining original-spec items not built in either round: sections around AI-driven answer/response *generation* beyond the current templating (`AiAnswerBuilderService` is still pure templating, not LLM-backed), and persisting Company-Specific Preparation results if you decide you want a history of them after all.
+4. When you're ready to connect real AI, every `Ai*Service` is already isolated behind one method per capability — see section 5 above for the pattern to follow.
