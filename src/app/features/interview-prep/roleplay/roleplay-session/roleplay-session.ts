@@ -58,7 +58,13 @@ export class RoleplaySessionComponent {
     if (!scenario) return;
     this.phase.set('chatting');
     this.thinking.set(true);
-    const reply = await this.aiRoleplay.getCustomerReply(scenario.openingLine, this.turnIndex);
+    const reply = await this.aiRoleplay.getCustomerReply({
+      openingLine: scenario.openingLine,
+      expectedResolution: scenario.expectedResolution,
+      difficulty: scenario.difficulty,
+      turnIndex: this.turnIndex,
+      agentText: '',
+    });
     this.turnIndex += 1;
     this.messages.set([{ role: 'customer', text: reply.text }]);
     this.thinking.set(false);
@@ -79,7 +85,13 @@ export class RoleplaySessionComponent {
     this.thinking.set(true);
     this.scrollToBottom();
 
-    const reply = await this.aiRoleplay.getCustomerReply(scenario.openingLine, this.turnIndex);
+    const reply = await this.aiRoleplay.getCustomerReply({
+      openingLine: scenario.openingLine,
+      expectedResolution: scenario.expectedResolution,
+      difficulty: scenario.difficulty,
+      turnIndex: this.turnIndex,
+      agentText: text,
+    });
     this.turnIndex += 1;
     this.messages.update((m) => [...m, { role: 'customer', text: reply.text }]);
     this.thinking.set(false);
