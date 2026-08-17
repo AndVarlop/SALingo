@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { UserStateService } from '../../core/services/user-state.service';
 import { CareerCoachService } from '../../core/services/career-coach.service';
 import { VocabularyService } from '../../core/services/vocabulary.service';
+import { DailyChallengeService } from '../../core/services/daily-challenge.service';
 import { ProgressBarComponent } from '../../shared/components/progress-bar/progress-bar';
 import { ProgressRingComponent } from '../../shared/components/progress-ring/progress-ring';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card';
@@ -32,6 +33,7 @@ export class DashboardComponent {
   protected readonly recommendedActivities = this.careerCoach.recommendedActivities;
   protected readonly jobReadyScore = this.careerCoach.jobReadyScore;
   protected readonly weaknesses = this.careerCoach.weaknesses;
+  protected readonly dailyChallenge = inject(DailyChallengeService);
   private readonly vocabularyService = inject(VocabularyService);
 
   protected readonly firstName = computed(() => this.userState.user().name.split(' ')[0]);
@@ -45,7 +47,6 @@ export class DashboardComponent {
    * account with zero activity), never fabricated.
    */
   protected readonly topRecommendation = computed(() => this.recommendedActivities()[0] ?? null);
-  protected readonly moreRecommendations = computed(() => this.recommendedActivities().slice(1));
 
   /** Brand-new account: no lessons finished yet — the best moment to suggest the Placement Test, before they start at a possibly-wrong level. */
   protected readonly isNewToLearning = computed(

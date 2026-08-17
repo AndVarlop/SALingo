@@ -73,21 +73,26 @@
     </article>
   </div>
 
-  @if (moreRecommendations().length) {
-    <article class="card">
-      <span class="card__eyebrow">More ways to practice today</span>
+  @if (dailyChallenge.items().length) {
+    <article class="card dashboard__challenge">
+      <span class="card__eyebrow">Today's Challenge</span>
       <ul class="dashboard__rec-list">
-        @for (rec of moreRecommendations(); track rec.id) {
-          <li class="dashboard__rec-item">
-            <span class="dashboard__rec-icon" aria-hidden="true">{{ rec.iconEmoji }}</span>
+        @for (item of dailyChallenge.items(); track item.id) {
+          <li class="dashboard__rec-item" [class.dashboard__rec-item--done]="item.completedToday">
+            <span class="dashboard__rec-icon" aria-hidden="true">{{ item.completedToday ? '✅' : item.iconEmoji }}</span>
             <div class="dashboard__rec-body">
-              <strong>{{ rec.title }} · {{ rec.estimatedMinutes }} min</strong>
-              <span>{{ rec.reason }}</span>
+              <strong>{{ item.title }}</strong>
+              <span>{{ item.reason }}</span>
             </div>
-            <a class="btn btn--ghost" [routerLink]="rec.routerLink">{{ rec.actionLabel }}</a>
+            @if (!item.completedToday) {
+              <a class="btn btn--ghost" [routerLink]="item.routerLink">{{ item.actionLabel }}</a>
+            }
           </li>
         }
       </ul>
+      @if (dailyChallenge.allCompleted()) {
+        <p class="dashboard__challenge-done">🎉 Challenge complete — bonus XP awarded!</p>
+      }
     </article>
   }
 

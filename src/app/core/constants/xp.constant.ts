@@ -6,6 +6,7 @@ export const XP_RULES = {
   reviewCorrect: 5,
   streakDayBonus: 15,
   perfectLessonBonus: 20, // 100% accuracy
+  dailyChallengeBonus: 30, // awarded once per day when every Daily Challenge item is completed
 } as const;
 
 /** XP required to go from level N to N+1. Simple linear curve, easy to swap later. */
