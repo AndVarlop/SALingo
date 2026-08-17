@@ -220,3 +220,13 @@ Roleplay already *was* a call simulator in disguise (12 customer-service scenari
 
 ### Build/verification
 `tsc --noEmit` clean, `ng build` clean (same pre-existing CSS budget warning, unrelated).
+
+## 12. Fase 3 P2 — Career Tracks
+
+- Spec §28: `CAREER_TRACKS` config (`core/services/mock-data/career-tracks.data.ts`) — 6 tracks (Customer Service, Technical Support, Sales, Collections, Chat Support, Back Office), each just a thin config on top of what already exists: an `InterviewPosition` (drives question filtering via the existing `InterviewQuestionService.forPosition()`) and a set of `CallCategory` values (drives roleplay scenario filtering against the existing `MOCK_ROLEPLAY_SCENARIOS`). No parallel content system — adding a 7th track is one array entry.
+- `InterviewProgressService.updateTargetPosition()` (new, mirrors `updateInterviewDate`) lets a user change their track after onboarding, not just once during it.
+- New `/interview-prep/tracks` page + hub tile: a grid of track cards, each showing real counts (`X questions`, `Y calls`) pulled live from the existing content, "✓ Current track" badge, "Choose this track" writes the position and returns to the Interview Prep hub.
+- **Verified live end-to-end**: switched the test account from Customer Service to Technical Support, confirmed the Interview Prep hub badge and readiness numbers recalculated correctly against the new position filter (question counts and progress % changed), then switched back to Customer Service to leave the account clean. No console errors.
+
+### Build/verification
+`tsc --noEmit` clean, `ng build` clean (same pre-existing CSS budget warning, unrelated).

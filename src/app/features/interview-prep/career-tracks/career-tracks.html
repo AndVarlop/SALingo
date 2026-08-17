@@ -1,0 +1,28 @@
+<section class="ct">
+  <header class="ct__header">
+    <h1>🧭 Career Tracks</h1>
+    <p>Pick the role you're aiming for. We'll focus your questions, vocabulary, and roleplay calls around it.</p>
+  </header>
+
+  <div class="ct__grid">
+    @for (track of tracks; track track.id) {
+      <div class="card ct__card" [class.ct__card--active]="currentPosition() === track.position">
+        <span class="ct__icon" aria-hidden="true">{{ track.iconEmoji }}</span>
+        <strong>{{ track.label }}</strong>
+        <p>{{ track.description }}</p>
+        <div class="ct__meta">
+          <span>🎯 {{ track.recommendedLevel }}+</span>
+          <span>💬 {{ questionCountFor(track) }} questions</span>
+          <span>📞 {{ roleplayCountFor(track) }} calls</span>
+        </div>
+        @if (currentPosition() === track.position) {
+          <span class="ct__badge">✓ Current track</span>
+        } @else {
+          <button type="button" class="btn btn--primary btn--block" (click)="chooseTrack(track)">
+            Choose this track
+          </button>
+        }
+      </div>
+    }
+  </div>
+</section>

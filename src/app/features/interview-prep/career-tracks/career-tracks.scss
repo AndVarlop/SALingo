@@ -1,0 +1,65 @@
+.ct {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.ct__header {
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 800;
+  }
+
+  p {
+    color: var(--color-text-muted);
+    margin-top: 4px;
+    font-size: 0.9rem;
+  }
+}
+
+.ct__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.ct__card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &--active {
+    border-color: var(--color-success);
+  }
+
+  p {
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+    flex: 1;
+  }
+}
+
+.ct__icon {
+  font-size: 1.8rem;
+}
+
+.ct__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  margin: 6px 0 10px;
+}
+
+.ct__badge {
+  text-align: center;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-success) 16%, transparent);
+  color: var(--color-success);
+  font-size: 0.8rem;
+  font-weight: 700;
+}

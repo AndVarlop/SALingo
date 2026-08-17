@@ -119,6 +119,18 @@ export class InterviewProgressService {
       .then(({ error }) => error && console.error('[InterviewProgress] saveAnswer failed', error));
   }
 
+  /** Lets a user pick/change their target position after onboarding — drives Career Tracks. */
+  async updateTargetPosition(targetPosition: InterviewPosition): Promise<void> {
+    const userId = this.auth.userId();
+    this.profile.update((p) => ({ ...p, targetPosition, onboarded: true }));
+    if (!userId) return;
+
+    const { error } = await this.supabase
+      .from('interview_profile')
+      .upsert({ user_id: userId, target_position: targetPosition, onboarded: true });
+    if (error) console.error('[InterviewProgress] updateTargetPosition failed', error);
+  }
+
   /** Lets a user set/change their interview date after onboarding (e.g. once it gets scheduled) — drives 24-Hour Interview Mode. */
   async updateInterviewDate(interviewDate: string | null): Promise<void> {
     const userId = this.auth.userId();
