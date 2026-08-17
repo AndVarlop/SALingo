@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, inject, signal, viewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { AiTutorService } from '../../core/services/ai-tutor.service';
 import { AiChatMessage, AiTutorTopic } from '../../core/models';
 
@@ -19,6 +20,7 @@ const TOPICS: TopicOption[] = [
 @Component({
   selector: 'app-ai-tutor',
   standalone: true,
+  imports: [FormsModule],
   templateUrl: './ai-tutor.html',
   styleUrl: './ai-tutor.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

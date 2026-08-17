@@ -44,7 +44,7 @@
     <article class="card progress-page__skills">
       <span class="card__eyebrow">Skills breakdown</span>
       <div class="progress-page__skills-grid">
-        @for (skill of languageProgress().skills; track skill.skill) {
+        @for (skill of userState.skillMastery(); track skill.skill) {
           <app-progress-bar
             [value]="skill.masteryPercent"
             [label]="skillIcon[skill.skill] + ' ' + skillLabel[skill.skill]"

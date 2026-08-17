@@ -1,6 +1,7 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { UserStateService } from './user-state.service';
 import { MockLessonService } from './mock-lesson.service';
+import { SpacedRepetitionService } from './spaced-repetition.service';
 import { Skill, StudyRecommendation } from '../models';
 import { SKILL_ICON, SKILL_LABEL } from '../models/skill.model';
 
@@ -23,18 +24,16 @@ const SKILL_ROUTE: Partial<Record<Skill, string>> = {
 export class RecommendationService {
   private readonly userState = inject(UserStateService);
   private readonly lessons = inject(MockLessonService);
-
-  /** Mock count of vocabulary words due today — replaced by SpacedRepetitionService in Phase 4. */
-  private readonly wordsDueForReview = computed(() => 12);
+  private readonly spacedRepetition = inject(SpacedRepetitionService);
 
   readonly recommendations = computed<StudyRecommendation[]>(() => {
     const items: StudyRecommendation[] = [];
-    const dueCount = this.wordsDueForReview();
+    const dueCount = this.spacedRepetition.dueCount();
 
     if (dueCount > 0) {
       items.push({
         id: 'rec-review',
-        title: `Review ${dueCount} vocabulary words`,
+        title: `Review ${dueCount} vocabulary word${dueCount === 1 ? '' : 's'}`,
         description: 'Keep your memory fresh with spaced repetition.',
         iconEmoji: '🧠',
         actionLabel: 'Start review',
@@ -54,7 +53,7 @@ export class RecommendationService {
       });
     }
 
-    const weakestSkill = [...this.userState.currentLanguageProgress().skills]
+    const weakestSkill = [...this.userState.skillMastery()]
       .filter((s) => SKILL_ROUTE[s.skill])
       .sort((a, b) => a.masteryPercent - b.masteryPercent)[0];
     if (weakestSkill) {

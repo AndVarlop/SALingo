@@ -9,6 +9,8 @@ import {
   DEFAULT_USER_SETTINGS,
   LanguageCode,
   LanguageProgress,
+  Skill,
+  SkillProgress,
   UserProgress,
   UserSettings,
 } from '../models';
@@ -87,6 +89,30 @@ export class UserStateService {
     if (!entries.length) return 0;
     const sum = entries.reduce((total, e) => total + (e.accuracy ?? 0), 0);
     return Math.round(sum / entries.length);
+  });
+
+  /**
+   * Per-skill mastery derived from the activity log, since nothing writes to
+   * `language_progress.skills` either — it would otherwise always be `[]`.
+   * Reading has no dedicated activity type yet (it's embedded inside lessons),
+   * so it stays 0 until a standalone Reading feature logs its own entries.
+   */
+  readonly skillMastery = computed<SkillProgress[]>(() => {
+    const log = this.progress().activityLog;
+    const masteryFor = (types: ActivityLogEntry['type'][]) => {
+      const entries = log.filter((e) => types.includes(e.type) && e.accuracy !== undefined);
+      if (!entries.length) return 0;
+      return Math.round(entries.reduce((sum, e) => sum + (e.accuracy ?? 0), 0) / entries.length);
+    };
+
+    return [
+      { skill: Skill.Vocabulary, masteryPercent: masteryFor(['review']) },
+      { skill: Skill.Grammar, masteryPercent: masteryFor(['grammar', 'lesson']) },
+      { skill: Skill.Listening, masteryPercent: masteryFor(['listening']) },
+      { skill: Skill.Speaking, masteryPercent: masteryFor(['speaking']) },
+      { skill: Skill.Reading, masteryPercent: 0 },
+      { skill: Skill.Writing, masteryPercent: masteryFor(['writing']) },
+    ];
   });
 
   readonly todayActivity = computed(() => {

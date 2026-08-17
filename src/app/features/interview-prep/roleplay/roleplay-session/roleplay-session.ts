@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, signal, viewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MOCK_ROLEPLAY_SCENARIOS } from '../../../../core/services/mock-data/mock-roleplay.data';
 import { AiRoleplayService } from '../../../../core/services/ai-roleplay.service';
@@ -17,7 +18,7 @@ type Phase = 'intro' | 'chatting' | 'result';
 @Component({
   selector: 'app-roleplay-session',
   standalone: true,
-  imports: [RouterLink, EmptyStateComponent],
+  imports: [RouterLink, FormsModule, EmptyStateComponent],
   templateUrl: './roleplay-session.html',
   styleUrl: './roleplay-session.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
