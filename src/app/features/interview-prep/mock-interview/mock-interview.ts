@@ -198,6 +198,7 @@ export class MockInterviewComponent implements OnDestroy {
       type: 'interview',
       title: 'Completed a Mock Interview',
       accuracy: aggregate.overallScore,
+      skillTag: `interview:${position ?? 'general'}`,
     });
 
     this.phase.set('result');

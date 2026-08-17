@@ -20,6 +20,7 @@ function setup(overrides: {
   interviewAverageScore?: number;
   readinessOverall?: number;
   grammarAttempts?: { attempts: number; bestScore: number }[];
+  masteryByTag?: Record<string, number>;
 }) {
   const {
     level = CefrLevel.A1,
@@ -30,6 +31,7 @@ function setup(overrides: {
     interviewAverageScore = 0,
     readinessOverall = 0,
     grammarAttempts = [],
+    masteryByTag = {},
   } = overrides;
 
   TestBed.resetTestingModule();
@@ -41,6 +43,7 @@ function setup(overrides: {
           currentLanguageProgress: () => ({ level }),
           skillMastery: () => skillMastery,
           progress: () => ({ activityLog: Array(activityLogLength).fill({}) }),
+          masteryByTag: () => masteryByTag,
         },
       },
       { provide: VocabularyService, useValue: { words: () => words } },
@@ -128,6 +131,22 @@ describe('CareerCoachService.jobReadyScore', () => {
     }).jobReadyScore().overall as number;
 
     expect(improved).toBeGreaterThan(base);
+  });
+});
+
+describe('CareerCoachService.weakestSkillTags', () => {
+  it('ranks tags lowest-first and humanizes the label', () => {
+    const service = setup({
+      masteryByTag: { 'grammar:past-simple': 61, 'vocab:customer-service': 88 },
+    });
+    const tags = service.weakestSkillTags();
+    expect(tags[0]).toEqual({ tag: 'grammar:past-simple', percent: 61, label: 'Past Simple' });
+    expect(tags[1].label).toBe('Customer Service');
+  });
+
+  it('is empty when no tagged activity exists yet — never fabricates a tag', () => {
+    const service = setup({});
+    expect(service.weakestSkillTags()).toEqual([]);
   });
 });
 

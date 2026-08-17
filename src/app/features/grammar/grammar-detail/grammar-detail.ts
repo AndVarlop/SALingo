@@ -54,6 +54,7 @@ export class GrammarDetailComponent {
       type: 'grammar',
       title: `Completed "${topic.title}" grammar test`,
       accuracy: score,
+      skillTag: `grammar:${topic.id}`,
     });
 
     this.lastScore.set(score);

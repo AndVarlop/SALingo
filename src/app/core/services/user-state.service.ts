@@ -115,6 +115,29 @@ export class UserStateService {
     ];
   });
 
+  /**
+   * Skill Engine foundation: average accuracy per `skillTag` (e.g.
+   * "grammar:past-simple"), not just per broad category. Only tags that
+   * have at least one real accuracy-bearing entry appear — never a
+   * fabricated 0 for an untouched tag. This is what lets the app say
+   * "you're struggling with Past Simple" instead of just "Grammar".
+   */
+  readonly masteryByTag = computed<Record<string, number>>(() => {
+    const totals: Record<string, { sum: number; count: number }> = {};
+    for (const entry of this.progress().activityLog) {
+      if (!entry.skillTag || entry.accuracy === undefined) continue;
+      const bucket = totals[entry.skillTag] ?? { sum: 0, count: 0 };
+      bucket.sum += entry.accuracy;
+      bucket.count += 1;
+      totals[entry.skillTag] = bucket;
+    }
+    const result: Record<string, number> = {};
+    for (const [tag, { sum, count }] of Object.entries(totals)) {
+      result[tag] = Math.round(sum / count);
+    }
+    return result;
+  });
+
   readonly todayActivity = computed(() => {
     const today = todayIso();
     return this.progress().activityByDate.find((a) => a.date === today) ?? null;
@@ -167,6 +190,8 @@ export class UserStateService {
     type: ActivityLogEntry['type'];
     title: string;
     accuracy?: number;
+    /** Sub-skill this activity fed, e.g. "grammar:past-simple". Optional — see ActivityLogEntry. */
+    skillTag?: string;
   }): void {
     const userId = this.auth.userId();
     const today = todayIso();
@@ -189,6 +214,7 @@ export class UserStateService {
       title: entry.title,
       xpEarned: entry.xp,
       accuracy: entry.accuracy,
+      skillTag: entry.skillTag,
     };
     const langProgress = prevProgress.languages[lang] ?? this.emptyLanguageProgress(lang);
     const updatedLangProgress: LanguageProgress = {
@@ -228,6 +254,7 @@ export class UserStateService {
         title: entry.title,
         xp_earned: entry.xp,
         accuracy: entry.accuracy ?? null,
+        skill_tag: entry.skillTag ?? null,
       }),
       this.supabase
         .from('user_streak')
@@ -399,6 +426,7 @@ export class UserStateService {
           title: row.title,
           xpEarned: row.xp_earned,
           accuracy: row.accuracy ?? undefined,
+          skillTag: row.skill_tag ?? undefined,
         })),
         languages,
       });

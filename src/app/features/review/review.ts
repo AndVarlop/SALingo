@@ -83,9 +83,21 @@ export class ReviewComponent {
       type: 'review',
       title: `Reviewed ${total} vocabulary word${total === 1 ? '' : 's'}`,
       accuracy,
+      skillTag: this.dominantCategoryTag(),
     });
 
     this.phase.set('complete');
+  }
+
+  /** Tags the session with whichever vocabulary category made up most of the queue —
+   * a mixed-category session still gives the Skill Engine a useful signal. */
+  private dominantCategoryTag(): string | undefined {
+    const counts: Record<string, number> = {};
+    for (const word of this.queue()) counts[word.category] = (counts[word.category] ?? 0) + 1;
+    const entries = Object.entries(counts);
+    if (!entries.length) return undefined;
+    const [dominant] = entries.sort((a, b) => b[1] - a[1]);
+    return `vocab:${dominant[0]}`;
   }
 
   protected reviewAgain(): void {

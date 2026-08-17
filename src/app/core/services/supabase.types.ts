@@ -94,6 +94,7 @@ export interface Database {
           title: string;
           xp_earned: number;
           accuracy: number | null;
+          skill_tag: string | null;
         };
         Insert: Partial<Database['public']['Tables']['activity_log']['Row']> & {
           user_id: string;

@@ -15,6 +15,9 @@ export interface ActivityLogEntry {
   title: string;
   xpEarned: number;
   accuracy?: number;
+  /** Sub-skill this activity fed, e.g. "grammar:past-simple", "vocab:customer-service".
+   * Optional — the Skill Engine falls back to the broad `type` when absent. */
+  skillTag?: string;
 }
 
 export interface SkillProgress {

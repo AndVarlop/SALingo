@@ -125,6 +125,7 @@ export class RoleplaySessionComponent {
       type: 'interview',
       title: `Completed roleplay: ${scenario.title}`,
       accuracy: result.overallScore,
+      skillTag: `customer-service:${scenario.category.toLowerCase().replace(/\s+/g, '-')}`,
     });
     await this.sessionService.saveRoleplayCompletion(scenario.id, result.overallScore);
   }

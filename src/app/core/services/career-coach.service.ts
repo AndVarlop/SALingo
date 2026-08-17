@@ -180,6 +180,27 @@ export class CareerCoachService {
     return list.sort((a, b) => a.percent - b.percent).slice(0, 4);
   });
 
+  /**
+   * Skill Engine, sub-skill level: the lowest-scoring `skillTag`s with real
+   * data (e.g. "grammar:past-simple"), not just the broad skill category.
+   * This is what powers "you're struggling with Past Simple" instead of
+   * just "Grammar" — and what Grammar Battle/Vocabulary Rush use to pick
+   * which topic to open with by default.
+   */
+  readonly weakestSkillTags = computed<{ tag: string; label: string; percent: number }[]>(() => {
+    const byTag = this.userState.masteryByTag();
+    return Object.entries(byTag)
+      .map(([tag, percent]) => ({ tag, percent, label: this.humanizeTag(tag) }))
+      .sort((a, b) => a.percent - b.percent)
+      .slice(0, 5);
+  });
+
+  private humanizeTag(tag: string): string {
+    const [, slug] = tag.split(':');
+    const words = (slug ?? tag).split('-').filter(Boolean);
+    return words.map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  }
+
   /** RecommendationService's picks, reframed as timed activities, plus interview-specific ones. */
   readonly recommendedActivities = computed<RecommendedActivity[]>(() => {
     const base: RecommendedActivity[] = this.recommendationService.recommendations().map((r) => ({
