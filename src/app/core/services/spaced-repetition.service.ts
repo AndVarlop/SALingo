@@ -9,7 +9,8 @@ import { ReviewGrade, ReviewItem, VocabularyWord } from '../models';
  * intentionally so, per the product spec — but it converges: easy answers
  * push the next review further out, "again" resets it to tomorrow.
  */
-function nextIntervalDays(current: number, grade: ReviewGrade): number {
+/** Exported for unit testing — see spaced-repetition.service.spec.ts. */
+export function nextIntervalDays(current: number, grade: ReviewGrade): number {
   switch (grade) {
     case 'again':
       return 1;
@@ -22,7 +23,7 @@ function nextIntervalDays(current: number, grade: ReviewGrade): number {
   }
 }
 
-function nextDifficulty(current: number, grade: ReviewGrade): number {
+export function nextDifficulty(current: number, grade: ReviewGrade): number {
   if (grade === 'easy') return Math.max(1, current - 1);
   if (grade === 'again' || grade === 'hard') return Math.min(5, current + 1);
   return current;
