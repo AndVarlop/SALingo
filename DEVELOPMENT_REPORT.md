@@ -126,3 +126,44 @@ All commits are local only — nothing was pushed to a remote (none is configure
 2. `npm install --save-dev @vitest/browser-playwright` (or drop the Vitest browser runner in favor of `karma` if preferred) if you want `ng test` working again.
 3. Remaining original-spec items not built in either round: sections around AI-driven answer/response *generation* beyond the current templating (`AiAnswerBuilderService` is still pure templating, not LLM-backed), and persisting Company-Specific Preparation results if you decide you want a history of them after all.
 4. When you're ready to connect real AI, every `Ai*Service` is already isolated behind one method per capability — see section 5 above for the pattern to follow.
+
+---
+
+## 9. Fase 3 — AI Career & Interview Coach (P0 slice)
+
+Repertoire expansion first: **Listening 5→20, Speaking 4→16, Writing 4→12, Lessons 3→9** (new A1 Pronouns/Articles, A2 Future/Comparatives, B1 Conditionals/Passive Voice — rechained into a linear `order`/`requiresLessonIds` progression). Zero component changes needed since those pages consume their data arrays directly.
+
+Then the P0 "coach" layer — turning existing signals into job-readiness guidance instead of adding new pages:
+
+### New files
+- `core/models/career-coach.model.ts` — `JobReadyScore`/`JobReadyBreakdown`, `Weakness`, `RecommendedActivity`, `MistakeRecord` (defined, not yet wired to a UI — see gaps below), `InterviewEvaluation` (full 9-dimension shape per the spec, ready for a real evaluator to populate; `AiInterviewEvaluationService` still only fills a subset), `CandidateProfile`.
+- `core/services/career-coach.service.ts` — the engine. Reuses `UserStateService`, `VocabularyService`, `InterviewSessionService`, `InterviewProgressService` and `RecommendationService` rather than duplicating their state.
+
+### Job Ready Score formula
+Weighted average of six dimensions, each `null` until real data exists (never fabricated):
+
+| Dimension | Weight | Source |
+|---|---|---|
+| English | 20% | CEFR level position on the 6-band scale (A1≈17% … C2=100%) |
+| Speaking | 20% | `skillMastery()` for Speaking (from activity log accuracy) |
+| Interview | 20% | `InterviewSessionService.averageScore()` |
+| Customer Service | 15% | `InterviewProgressService.readiness()` (questions practiced + vocab known) |
+| Vocabulary | 15% | Average mastery of studied words (`VocabularyService`) |
+| Confidence | 10% | Average of Interview + Speaking (no dedicated instrument yet — documented approximation) |
+
+Missing dimensions are excluded and remaining weights renormalized. The score only renders once ≥2 dimensions have data **and** the activity log has ≥3 entries; otherwise the UI shows "Not enough data yet" with a hint of what to do next (dashboard, `jobReadyScore().missingDataHint`).
+
+### Weakness Engine
+`careerCoach.weaknesses` ranks the lowest-scoring skills (from `skillMastery()`, excluding ones with no data) plus "Interview Confidence" when an interview average exists, ascending, top 4 — each with a direct practice link. Verified live: correctly surfaced `Interview Confidence 62% → Speaking 75% → Writing 80% → Grammar 92%` for the test account.
+
+### Recommended activities
+`careerCoach.recommendedActivities` wraps `RecommendationService.recommendations()` (not duplicated) with estimated minutes, then appends one interview-specific suggestion: "Complete your first Mock Interview" if none exist yet, or "Handle an Angry Customer" (roleplay) if the interview average is below 70%. Dashboard now renders this instead of the old bare recommendation list, plus new "Job Ready Score" and "Your biggest weaknesses" cards — verified live with a real account (screenshot-checked, no console errors).
+
+### Adaptive Mock Interview (rule-based, AI-ready)
+`AiInterviewService.pickNextQuestion(pool, previousAnswerText, profile?)` replaces the old "shuffle once and slice" approach. `MockInterviewComponent` now keeps a `remainingPool` signal and asks the picker for one question at a time; the picker scans the previous answer for keywords (sales, no-experience, teamwork, conflict, leadership) and prefers a pool question matching that topic, falling back to random. This is intentionally simple (keyword rules, not an LLM) but the method signature is the one a real adaptive-question backend would implement, so swapping the body later requires no caller changes. Verified live: interview starts, asks question 1/8, accepting an answer mentioning "sales" advances correctly to question 2/8 with no console errors.
+
+### Known gaps in this slice (explicitly deferred, not forgotten)
+Per the phased-rollout rule ("don't build everything at once"), P0 items **not yet built**: Call Center Simulator, Pronunciation Coach, Resume Analyzer, Company Preparation 2.0, "Am I Ready?" assessment, My Mistakes (the `MistakeRecord` model exists but nothing writes to it yet — no error-capture hook wired into Mock Interview/Roleplay evaluation), Career Path/Tracks visualization, 24-Hour Interview Mode. These are the next slice — each can reuse `career-coach.service.ts` and the existing session/evaluation services rather than needing new infrastructure.
+
+### Build/verification
+`tsc --noEmit` clean, `ng build` clean, dashboard + adaptive Mock Interview flow checked live in Chrome against the real Supabase-backed test account with no console errors.

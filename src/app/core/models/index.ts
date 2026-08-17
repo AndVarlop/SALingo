@@ -10,3 +10,4 @@ export * from './achievement.model';
 export * from './user-progress.model';
 export * from './ai.model';
 export * from './interview.model';
+export * from './career-coach.model';

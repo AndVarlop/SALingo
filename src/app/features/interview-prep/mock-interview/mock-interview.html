@@ -85,7 +85,7 @@
           ></textarea>
 
           <button type="button" class="btn btn--primary btn--block" (click)="nextQuestion()">
-            {{ currentIndex() + 1 === questions().length ? 'Finish interview' : 'Next question' }}
+            {{ currentIndex() + 1 === targetCount() ? 'Finish interview' : 'Next question' }}
           </button>
         </div>
       }

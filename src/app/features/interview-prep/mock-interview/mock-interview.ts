@@ -5,6 +5,7 @@ import { InterviewQuestionService } from '../../../core/services/interview-quest
 import { InterviewProgressService } from '../../../core/services/interview-progress.service';
 import { InterviewSessionService } from '../../../core/services/interview-session.service';
 import { AiInterviewEvaluationService, InterviewAnswerEvaluation } from '../../../core/services/ai-interview-evaluation.service';
+import { AiInterviewService } from '../../../core/services/ai-interview.service';
 import { UserStateService } from '../../../core/services/user-state.service';
 import { INTERVIEW_POSITION_LABEL, InterviewPosition, InterviewQuestion } from '../../../core/models';
 
@@ -46,6 +47,7 @@ export class MockInterviewComponent implements OnDestroy {
   private readonly interviewProgress = inject(InterviewProgressService);
   private readonly sessionService = inject(InterviewSessionService);
   private readonly aiEvaluation = inject(AiInterviewEvaluationService);
+  private readonly aiInterview = inject(AiInterviewService);
   private readonly userState = inject(UserStateService);
   private readonly fb = inject(FormBuilder);
 
@@ -66,11 +68,14 @@ export class MockInterviewComponent implements OnDestroy {
   protected readonly draft = signal('');
   protected readonly timeLeft = signal(REAL_MODE_SECONDS_PER_QUESTION);
   protected readonly result = signal<AggregateResult | null>(null);
+  /** Adaptive: not every question is picked up-front — the pool the next pick comes from. */
+  private readonly remainingPool = signal<InterviewQuestion[]>([]);
+  protected readonly targetCount = signal(0);
 
   protected readonly currentQuestion = computed(() => this.questions()[this.currentIndex()] ?? null);
   protected readonly isRealMode = computed(() => this.setupForm.controls.mode.value === 'real');
   protected readonly progressLabel = computed(
-    () => `${this.currentIndex() + 1} / ${this.questions().length}`,
+    () => `${this.currentIndex() + 1} / ${this.targetCount()}`,
   );
 
   private timerHandle: ReturnType<typeof setInterval> | null = null;
@@ -82,7 +87,13 @@ export class MockInterviewComponent implements OnDestroy {
     const count = QUESTION_COUNT_BY_DIFFICULTY[difficulty];
     const shuffled = [...pool].sort(() => Math.random() - 0.5);
 
-    this.questions.set(shuffled.slice(0, Math.min(count, shuffled.length)));
+    this.targetCount.set(Math.min(count, shuffled.length));
+    this.remainingPool.set(shuffled);
+    // Adaptive picker chooses the opening question too (no previous answer yet, so it's random).
+    const first = this.aiInterview.pickNextQuestion(this.remainingPool(), '');
+    this.remainingPool.update((pool) => pool.filter((q) => q.id !== first?.id));
+    this.questions.set(first ? [first] : []);
+
     this.answers.set([]);
     this.currentIndex.set(0);
     this.draft.set('');
@@ -98,12 +109,16 @@ export class MockInterviewComponent implements OnDestroy {
 
   protected nextQuestion(): void {
     this.stopTimer();
-    this.answers.update((a) => [...a, this.draft().trim() || '(no answer given)']);
+    const answerText = this.draft().trim() || '(no answer given)';
+    this.answers.update((a) => [...a, answerText]);
     this.draft.set('');
 
-    if (this.currentIndex() + 1 >= this.questions().length) {
+    if (this.currentIndex() + 1 >= this.targetCount() || !this.remainingPool().length) {
       this.finishInterview();
     } else {
+      const next = this.aiInterview.pickNextQuestion(this.remainingPool(), answerText);
+      this.remainingPool.update((pool) => pool.filter((q) => q.id !== next?.id));
+      if (next) this.questions.update((q) => [...q, next]);
       this.currentIndex.update((i) => i + 1);
       if (this.isRealMode()) this.startTimer();
     }

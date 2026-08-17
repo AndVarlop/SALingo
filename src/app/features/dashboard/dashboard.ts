@@ -3,7 +3,7 @@ import { DecimalPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { UserStateService } from '../../core/services/user-state.service';
 import { MockLessonService } from '../../core/services/mock-lesson.service';
-import { RecommendationService } from '../../core/services/recommendation.service';
+import { CareerCoachService } from '../../core/services/career-coach.service';
 import { VocabularyService } from '../../core/services/vocabulary.service';
 import { ProgressBarComponent } from '../../shared/components/progress-bar/progress-bar';
 import { ProgressRingComponent } from '../../shared/components/progress-ring/progress-ring';
@@ -30,7 +30,10 @@ import { EmptyStateComponent } from '../../shared/components/empty-state/empty-s
 export class DashboardComponent {
   protected readonly userState = inject(UserStateService);
   protected readonly lessons = inject(MockLessonService);
-  protected readonly recommendations = inject(RecommendationService).recommendations;
+  private readonly careerCoach = inject(CareerCoachService);
+  protected readonly recommendedActivities = this.careerCoach.recommendedActivities;
+  protected readonly jobReadyScore = this.careerCoach.jobReadyScore;
+  protected readonly weaknesses = this.careerCoach.weaknesses;
   private readonly vocabularyService = inject(VocabularyService);
 
   protected readonly firstName = computed(() => this.userState.user().name.split(' ')[0]);

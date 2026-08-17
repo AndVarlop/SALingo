@@ -65,12 +65,12 @@
     <article class="card">
       <span class="card__eyebrow">Recommended for you</span>
       <ul class="dashboard__rec-list">
-        @for (rec of recommendations(); track rec.id) {
+        @for (rec of recommendedActivities(); track rec.id) {
           <li class="dashboard__rec-item">
             <span class="dashboard__rec-icon" aria-hidden="true">{{ rec.iconEmoji }}</span>
             <div class="dashboard__rec-body">
-              <strong>{{ rec.title }}</strong>
-              <span>{{ rec.description }}</span>
+              <strong>{{ rec.title }} · {{ rec.estimatedMinutes }} min</strong>
+              <span>{{ rec.reason }}</span>
             </div>
             <a class="btn btn--ghost" [routerLink]="rec.routerLink">{{ rec.actionLabel }}</a>
           </li>
@@ -98,6 +98,68 @@
           icon="🌱"
           title="No activity yet"
           description="Complete a lesson to see it show up here."
+        />
+      }
+    </article>
+  </div>
+
+  <div class="dashboard__grid dashboard__grid--secondary">
+    <!-- Job Ready Score -->
+    <article class="card">
+      <span class="card__eyebrow">Job Ready Score</span>
+      @if (jobReadyScore().hasEnoughData) {
+        <p class="card__big-number">{{ jobReadyScore().overall }}%</p>
+        <ul class="dashboard__breakdown-list">
+          @if (jobReadyScore().breakdown.english !== null) {
+            <li><span>English</span><span>{{ jobReadyScore().breakdown.english }}%</span></li>
+          }
+          @if (jobReadyScore().breakdown.speaking !== null) {
+            <li><span>Speaking</span><span>{{ jobReadyScore().breakdown.speaking }}%</span></li>
+          }
+          @if (jobReadyScore().breakdown.interview !== null) {
+            <li><span>Interview</span><span>{{ jobReadyScore().breakdown.interview }}%</span></li>
+          }
+          @if (jobReadyScore().breakdown.customerService !== null) {
+            <li><span>Customer Service</span><span>{{ jobReadyScore().breakdown.customerService }}%</span></li>
+          }
+          @if (jobReadyScore().breakdown.vocabulary !== null) {
+            <li><span>Vocabulary</span><span>{{ jobReadyScore().breakdown.vocabulary }}%</span></li>
+          }
+          @if (jobReadyScore().breakdown.confidence !== null) {
+            <li><span>Confidence</span><span>{{ jobReadyScore().breakdown.confidence }}%</span></li>
+          }
+        </ul>
+      } @else {
+        <app-empty-state
+          icon="💼"
+          title="Not enough data yet"
+          [description]="jobReadyScore().missingDataHint ?? ''"
+        />
+      }
+    </article>
+
+    <!-- Weaknesses -->
+    <article class="card">
+      <span class="card__eyebrow">Your biggest weaknesses</span>
+      @if (weaknesses().length) {
+        <ul class="dashboard__rec-list">
+          @for (w of weaknesses(); track w.id) {
+            <li class="dashboard__rec-item">
+              <span class="dashboard__rec-icon" aria-hidden="true">{{ w.iconEmoji }}</span>
+              <div class="dashboard__rec-body">
+                <strong>{{ w.label }}</strong>
+                <span>{{ w.percent }}%</span>
+              </div>
+              <a class="btn btn--ghost" [routerLink]="w.routerLink">{{ w.actionLabel }}</a>
+            </li>
+          }
+        </ul>
+        <p class="dashboard__subtitle">These are the areas that will have the biggest impact on your interview performance.</p>
+      } @else {
+        <app-empty-state
+          icon="🎯"
+          title="Not enough data yet"
+          description="Practice a few skills to see where you should focus."
         />
       }
     </article>
