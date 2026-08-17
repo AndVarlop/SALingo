@@ -1,0 +1,116 @@
+@if (scenario(); as scenario) {
+  <div class="rp-session">
+    @switch (phase()) {
+      @case ('intro') {
+        <div class="card rp-session__intro">
+          <span class="rp-session__badge">{{ scenario.difficulty }}</span>
+          <h1>{{ scenario.title }}</h1>
+
+          <div class="rp-session__field">
+            <span>Context</span>
+            <p>{{ scenario.context }}</p>
+          </div>
+          <div class="rp-session__field">
+            <span>Your objective</span>
+            <p>{{ scenario.objective }}</p>
+          </div>
+          <div class="rp-session__field">
+            <span>Customer</span>
+            <p>{{ scenario.customerPersona }}</p>
+          </div>
+          <div class="rp-session__field">
+            <span>Problem</span>
+            <p>{{ scenario.problem }}</p>
+          </div>
+          <div class="rp-session__field">
+            <span>Information available to you</span>
+            <ul>
+              @for (info of scenario.availableInfo; track info) {
+                <li>{{ info }}</li>
+              }
+            </ul>
+          </div>
+
+          <button type="button" class="btn btn--primary btn--block" (click)="startRoleplay()">
+            📞 Answer the call
+          </button>
+        </div>
+      }
+
+      @case ('chatting') {
+        <div class="card rp-session__chat">
+          <div class="rp-session__chat-header">
+            <strong>{{ scenario.title }}</strong>
+            <span>{{ scenario.difficulty }}</span>
+          </div>
+
+          <div class="rp-session__messages">
+            @for (message of messages(); track $index) {
+              <div class="rp-session__message" [class.rp-session__message--agent]="message.role === 'agent'">
+                <span class="rp-session__avatar" aria-hidden="true">{{ message.role === 'customer' ? '🙋' : '🎧' }}</span>
+                <div class="rp-session__bubble">{{ message.text }}</div>
+              </div>
+            }
+            @if (thinking()) {
+              <div class="rp-session__message">
+                <span class="rp-session__avatar" aria-hidden="true">🙋</span>
+                <div class="rp-session__bubble rp-session__bubble--typing"><span></span><span></span><span></span></div>
+              </div>
+            }
+            <div #scrollAnchor></div>
+          </div>
+
+          @if (resolved()) {
+            <button type="button" class="btn btn--primary btn--block" (click)="finishRoleplay()">
+              End roleplay &amp; get feedback
+            </button>
+          } @else {
+            <form class="rp-session__composer" (ngSubmit)="sendReply()">
+              <input
+                type="text"
+                placeholder="Type your response as the agent…"
+                [value]="draft()"
+                (input)="setDraft($any($event.target).value)"
+                [disabled]="thinking()"
+              />
+              <button type="submit" class="btn btn--primary" [disabled]="!draft().trim() || thinking()">Send</button>
+            </form>
+          }
+        </div>
+      }
+
+      @case ('result') {
+        @if (evaluation(); as evaluation) {
+          <div class="card rp-session__result">
+            <span class="rp-session__result-icon" aria-hidden="true">{{ evaluation.overallScore >= 70 ? '🎉' : '💼' }}</span>
+            <h1>{{ evaluation.overallScore }}/100</h1>
+
+            <div class="rp-session__scores">
+              <div><span>Confidence</span><strong>{{ evaluation.confidence }}%</strong></div>
+              <div><span>Professionalism</span><strong>{{ evaluation.professionalism }}%</strong></div>
+              <div><span>Clarity</span><strong>{{ evaluation.clarity }}%</strong></div>
+              <div><span>Relevance</span><strong>{{ evaluation.relevance }}%</strong></div>
+            </div>
+
+            <div class="rp-session__feedback">
+              <h3>What you did well</h3>
+              @for (item of evaluation.strengths; track item) {
+                <p>✅ {{ item }}</p>
+              }
+              <h3>Improve</h3>
+              @for (item of evaluation.improvements; track item) {
+                <p>⚠️ {{ item }}</p>
+              }
+            </div>
+
+            <a class="btn btn--primary btn--block" routerLink="/interview-prep/roleplay">Back to Roleplay</a>
+          </div>
+        }
+      }
+    }
+  </div>
+} @else {
+  <app-empty-state icon="🔍" title="Scenario not found" description="This roleplay scenario doesn't exist.">
+    <a class="btn btn--primary" routerLink="/interview-prep/roleplay">Back to Roleplay</a>
+  </app-empty-state>
+}

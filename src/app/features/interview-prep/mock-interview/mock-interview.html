@@ -1,0 +1,146 @@
+<section class="mock-interview">
+  @switch (phase()) {
+    @case ('setup') {
+      <div class="card mock-interview__setup">
+        <span class="mock-interview__icon" aria-hidden="true">🎙️</span>
+        <h1>Start Mock Interview</h1>
+        <p>10-15 real questions, one at a time. We'll score your answers and give you feedback at the end.</p>
+
+        <form [formGroup]="setupForm" (ngSubmit)="startInterview()">
+          <div class="mock-interview__field">
+            <label for="position">Position</label>
+            <select id="position" formControlName="position">
+              <option [ngValue]="null">Any position</option>
+              @for (position of positions; track position) {
+                <option [ngValue]="position">{{ positionLabel[position] }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="mock-interview__field">
+            <label for="difficulty">Interview difficulty</label>
+            <select id="difficulty" formControlName="difficulty">
+              @for (d of difficulties; track d) {
+                <option [value]="d">{{ d }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="mock-interview__field">
+            <span>Mode</span>
+            <div class="mock-interview__mode-toggle">
+              <button
+                type="button"
+                class="btn"
+                [class.btn--primary]="setupForm.controls.mode.value === 'guided'"
+                [class.btn--ghost]="setupForm.controls.mode.value !== 'guided'"
+                (click)="setupForm.controls.mode.setValue('guided')"
+              >
+                Guided
+              </button>
+              <button
+                type="button"
+                class="btn"
+                [class.btn--primary]="setupForm.controls.mode.value === 'real'"
+                [class.btn--ghost]="setupForm.controls.mode.value !== 'real'"
+                (click)="setupForm.controls.mode.setValue('real')"
+              >
+                ⏱️ Real Interview Mode
+              </button>
+            </div>
+            @if (setupForm.controls.mode.value === 'real') {
+              <p class="mock-interview__mode-hint">Timed, no hints — simulates real interview pressure.</p>
+            }
+          </div>
+
+          <button type="submit" class="btn btn--primary btn--block">Start Interview</button>
+        </form>
+      </div>
+    }
+
+    @case ('interviewing') {
+      @if (currentQuestion(); as question) {
+        <div class="mock-interview__progress">
+          <span>{{ progressLabel() }}</span>
+          @if (isRealMode()) {
+            <span class="mock-interview__timer" [class.mock-interview__timer--low]="timeLeft() <= 15">
+              ⏱️ {{ timeLeft() }}s
+            </span>
+          }
+        </div>
+
+        <div class="card mock-interview__question">
+          <span class="card__eyebrow">{{ question.category }}</span>
+          <h2>"{{ question.question }}"</h2>
+
+          @if (!isRealMode()) {
+            <p class="mock-interview__hint">💡 {{ question.structure.join(' → ') }}</p>
+          }
+
+          <textarea
+            rows="6"
+            placeholder="Type your answer…"
+            [value]="draft()"
+            (input)="setDraft($any($event.target).value)"
+          ></textarea>
+
+          <button type="button" class="btn btn--primary btn--block" (click)="nextQuestion()">
+            {{ currentIndex() + 1 === questions().length ? 'Finish interview' : 'Next question' }}
+          </button>
+        </div>
+      }
+    }
+
+    @case ('evaluating') {
+      <div class="card mock-interview__setup">
+        <span class="mock-interview__icon" aria-hidden="true">🧠</span>
+        <h1>Evaluating your answers…</h1>
+        <p>Analyzing grammar, structure, professionalism and clarity.</p>
+      </div>
+    }
+
+    @case ('result') {
+      @if (result(); as result) {
+        <div class="card mock-interview__result">
+          <span class="mock-interview__result-icon" aria-hidden="true">
+            {{ result.overallScore >= 70 ? '🏆' : '💪' }}
+          </span>
+          <span class="card__eyebrow">Overall Score</span>
+          <h1>{{ result.overallScore }}/100</h1>
+
+          <div class="mock-interview__scores">
+            <div><span>Confidence</span><strong>{{ result.confidence }}%</strong></div>
+            <div><span>Relevance</span><strong>{{ result.relevance }}%</strong></div>
+            <div><span>Structure</span><strong>{{ result.structure }}%</strong></div>
+            <div><span>Professionalism</span><strong>{{ result.professionalism }}%</strong></div>
+            <div><span>Clarity</span><strong>{{ result.clarity }}%</strong></div>
+          </div>
+
+          <div class="mock-interview__feedback">
+            <h3>What you did well</h3>
+            @for (item of result.strengths; track item) {
+              <p>✅ {{ item }}</p>
+            }
+            @if (result.improvements.length) {
+              <h3>Improve</h3>
+              @for (item of result.improvements; track item) {
+                <p>⚠️ {{ item }}</p>
+              }
+            }
+            @if (result.recommendedPractice.length) {
+              <h3>Recommended practice</h3>
+              @for (item of result.recommendedPractice; track item) {
+                <p>📌 {{ item }}</p>
+              }
+            }
+          </div>
+
+          <div class="mock-interview__result-actions">
+            <a class="btn btn--ghost" routerLink="/interview-prep/history">View history</a>
+            <button type="button" class="btn btn--primary" (click)="restart()">Try again</button>
+          </div>
+        </div>
+      }
+    }
+  }
+</section>

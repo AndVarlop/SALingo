@@ -1,0 +1,50 @@
+<section class="ih">
+  <header class="ih__header">
+    <h1>Interview History</h1>
+    <p>Every Mock Interview you've completed, with your score and takeaways.</p>
+  </header>
+
+  @if (sessionService.sessionCount() > 0) {
+    <div class="ih__stats">
+      <app-stat-card icon="🎙️" label="Interviews taken" [value]="sessionService.sessionCount() + ''" />
+      <app-stat-card icon="🏆" label="Best score" [value]="sessionService.bestScore() + '/100'" />
+      <app-stat-card icon="📊" label="Average score" [value]="sessionService.averageScore() + '/100'" />
+    </div>
+
+    <ul class="ih__list">
+      @for (session of sessionService.history(); track session.id) {
+        <li class="card ih__session">
+          <div class="ih__session-head">
+            <div>
+              <strong>{{ formatDate(session.startedAt) }}</strong>
+              <span>
+                {{ session.position ? positionLabel[session.position] : 'General' }} interview ·
+                {{ session.questionCount }} questions · {{ formatDuration(session.durationSeconds) }}
+                @if (session.mode === 'real') {
+                  · ⏱️ Real mode
+                }
+              </span>
+            </div>
+            <div class="ih__session-score">{{ session.overallScore }}/100</div>
+          </div>
+
+          <div class="ih__stars">
+            @for (i of [1, 2, 3, 4, 5]; track i) {
+              <span [class.ih__star--filled]="i <= starsFor(session.overallScore)">⭐</span>
+            }
+          </div>
+
+          @if (session.improvements.length) {
+            <p class="ih__note">{{ session.improvements[0] }}</p>
+          }
+        </li>
+      }
+    </ul>
+  } @else {
+    <app-empty-state
+      icon="🎙️"
+      title="No interviews yet"
+      description="Take your first Mock Interview to start building your history."
+    />
+  }
+</section>

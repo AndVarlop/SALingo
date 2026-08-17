@@ -56,15 +56,19 @@
         <h1>Call Center Interview Prep</h1>
         <p>Prepare yourself. Practice your English. Get the job.</p>
       </div>
-      @if (progress.profile().targetPosition; as position) {
-        <span class="interview-dashboard__position-badge">🎯 {{ positionLabel[position] }}</span>
-      }
+      <div class="interview-dashboard__header-actions">
+        @if (progress.profile().targetPosition; as position) {
+          <span class="interview-dashboard__position-badge">🎯 {{ positionLabel[position] }}</span>
+        }
+        <a class="btn btn--ghost" routerLink="/interview-prep/plan">📅 Plan</a>
+        <a class="btn btn--ghost" routerLink="/interview-prep/history">📈 History</a>
+      </div>
     </header>
 
     <div class="interview-dashboard__grid">
       <article class="card interview-dashboard__readiness">
         <span class="card__eyebrow">Interview Readiness</span>
-        <app-progress-ring [value]="progress.readiness().overall" [size]="120" />
+        <app-progress-ring [value]="overallReadiness()" [size]="120" />
       </article>
 
       <article class="card interview-dashboard__breakdown">
@@ -79,9 +83,15 @@
           label="Call Center Vocabulary"
           [showPercent]="true"
         />
-        <p class="interview-dashboard__coming-soon">
-          Roleplay, Mock Interview and Pronunciation scoring are coming in the next phase.
-        </p>
+        @if (sessionService.sessionCount() > 0) {
+          <app-progress-bar
+            [value]="sessionService.bestScore()"
+            [label]="'Mock Interview (best of ' + sessionService.sessionCount() + ')'"
+            [showPercent]="true"
+          />
+        } @else {
+          <p class="interview-dashboard__coming-soon">Take a Mock Interview to add it to your readiness score.</p>
+        }
       </article>
     </div>
 
@@ -111,6 +121,18 @@
       <a class="card interview-dashboard__action" [routerLink]="['/interview-prep/answer-builder', 'iq-tell-me-about-yourself']">
         <span aria-hidden="true">🛠️</span>
         <strong>Build Your Answer</strong>
+      </a>
+      <a class="card interview-dashboard__action" routerLink="/interview-prep/scenarios">
+        <span aria-hidden="true">💼</span>
+        <strong>Customer Scenarios</strong>
+      </a>
+      <a class="card interview-dashboard__action" routerLink="/interview-prep/roleplay">
+        <span aria-hidden="true">🎭</span>
+        <strong>Roleplay</strong>
+      </a>
+      <a class="card interview-dashboard__action" routerLink="/interview-prep/mock-interview">
+        <span aria-hidden="true">🎙️</span>
+        <strong>Mock Interview</strong>
       </a>
     </div>
   </section>

@@ -5,6 +5,7 @@ import { UserStateService } from './user-state.service';
 import { VocabularyService } from './vocabulary.service';
 import { GrammarService } from './grammar.service';
 import { InterviewProgressService } from './interview-progress.service';
+import { InterviewSessionService } from './interview-session.service';
 import { MOCK_ACHIEVEMENTS, AchievementContext } from './mock-data/mock-achievements.data';
 import { Achievement } from '../models';
 
@@ -21,6 +22,7 @@ export class AchievementService {
   private readonly vocabularyService = inject(VocabularyService);
   private readonly grammarService = inject(GrammarService);
   private readonly interviewProgress = inject(InterviewProgressService);
+  private readonly interviewSessions = inject(InterviewSessionService);
 
   private readonly unlockedAt = signal<Record<string, string>>({});
   private readonly loaded = signal(false);
@@ -35,6 +37,8 @@ export class AchievementService {
     averageAccuracy: this.userState.averageAccuracy(),
     interviewQuestionsPracticed: this.interviewProgress.practicedCount(),
     interviewWordsKnown: this.interviewProgress.knownWordCount(),
+    mockInterviewsCompleted: this.interviewSessions.sessionCount(),
+    bestMockInterviewScore: this.interviewSessions.bestScore(),
   }));
 
   readonly achievements = computed<Achievement[]>(() =>

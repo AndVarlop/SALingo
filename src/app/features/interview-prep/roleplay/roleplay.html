@@ -1,0 +1,31 @@
+<section class="roleplay-list">
+  <header class="roleplay-list__header">
+    <h1>🎭 Customer Service Roleplay</h1>
+    <p>Simulate real calls. Start easy, work your way up to aggressive, complex customers.</p>
+  </header>
+
+  <div class="roleplay-list__tabs">
+    @for (difficulty of difficulties; track difficulty) {
+      <button
+        type="button"
+        class="roleplay-list__tab"
+        [class.roleplay-list__tab--active]="activeDifficulty() === difficulty"
+        (click)="activeDifficulty.set(difficulty)"
+      >
+        {{ difficulty }}
+      </button>
+    }
+  </div>
+
+  <div class="roleplay-list__grid">
+    @for (scenario of scenariosFor(activeDifficulty()); track scenario.id) {
+      <a class="card roleplay-list__card" [routerLink]="['/interview-prep/roleplay', scenario.id]">
+        <strong>{{ scenario.title }}</strong>
+        <span>{{ scenario.context }}</span>
+        <div class="roleplay-list__meta">
+          <span class="roleplay-list__badge">{{ scenario.difficulty }}</span>
+        </div>
+      </a>
+    }
+  </div>
+</section>

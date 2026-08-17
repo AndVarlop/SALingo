@@ -98,3 +98,31 @@ export interface AnswerBuilderField {
   type: 'text' | 'yesno';
   placeholder?: string;
 }
+
+export type RoleplayDifficulty = 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
+
+export interface RoleplayScenario {
+  id: string;
+  difficulty: RoleplayDifficulty;
+  title: string;
+  context: string;
+  objective: string;
+  customerPersona: string;
+  problem: string;
+  availableInfo: string[];
+  expectedResolution: string;
+  openingLine: string;
+}
+
+/** One saved run of a Mock Interview. */
+export interface InterviewSession {
+  id: string;
+  position: InterviewPosition | null;
+  startedAt: string;
+  durationSeconds: number;
+  questionCount: number;
+  overallScore: number;
+  strengths: string[];
+  improvements: string[];
+  mode: 'guided' | 'real';
+}

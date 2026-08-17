@@ -84,6 +84,13 @@
   }
 }
 
+.interview-dashboard__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .interview-dashboard__position-badge {
   padding: 6px 14px;
   border-radius: var(--radius-pill);
@@ -140,11 +147,11 @@
 
 .interview-dashboard__actions {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 12px;
 
   @media (max-width: 700px) {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 

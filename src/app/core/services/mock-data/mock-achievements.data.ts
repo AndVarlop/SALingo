@@ -10,6 +10,8 @@ export interface AchievementContext {
   averageAccuracy: number;
   interviewQuestionsPracticed: number;
   interviewWordsKnown: number;
+  mockInterviewsCompleted: number;
+  bestMockInterviewScore: number;
 }
 
 export interface AchievementDef {
@@ -139,5 +141,23 @@ export const MOCK_ACHIEVEMENTS: AchievementDef[] = [
     category: AchievementCategory.Vocabulary,
     goal: 20,
     isUnlocked: (ctx) => ctx.interviewWordsKnown >= 20,
+  },
+  {
+    id: 'ach-first-mock-interview',
+    title: 'First Interview',
+    description: 'Complete your first Mock Interview.',
+    iconEmoji: '🎙️',
+    category: AchievementCategory.Lessons,
+    goal: 1,
+    isUnlocked: (ctx) => ctx.mockInterviewsCompleted >= 1,
+  },
+  {
+    id: 'ach-mock-interview-score-90',
+    title: 'Interview Pro',
+    description: 'Score 90+ on a Mock Interview.',
+    iconEmoji: '🌟',
+    category: AchievementCategory.Accuracy,
+    goal: 90,
+    isUnlocked: (ctx) => ctx.bestMockInterviewScore >= 90,
   },
 ];

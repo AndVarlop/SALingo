@@ -1,0 +1,125 @@
+.scenarios {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.scenarios__header {
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 800;
+  }
+
+  p {
+    color: var(--color-text-muted);
+    margin-top: 6px;
+    font-size: 0.9rem;
+    max-width: 620px;
+  }
+}
+
+.scenarios__tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.scenarios__tab {
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+
+  &--active {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+  }
+}
+
+.scenarios__idle {
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 48px 28px;
+
+  h2 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin-top: 4px;
+  }
+
+  p {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+  }
+}
+
+.scenarios__icon {
+  font-size: 2.6rem;
+}
+
+.scenarios__xp {
+  color: var(--color-success);
+  font-weight: 700;
+}
+
+.scenarios__tips {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.scenarios__tip {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.scenarios__tip-situation {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.scenarios__tip-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+
+  span {
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  p {
+    font-size: 0.85rem;
+  }
+
+  &--avoid {
+    background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+
+    span {
+      color: var(--color-danger);
+    }
+  }
+
+  &--use {
+    background: color-mix(in srgb, var(--color-success) 10%, transparent);
+
+    span {
+      color: var(--color-success);
+    }
+  }
+}

@@ -1,0 +1,55 @@
+<section class="scenarios">
+  <header class="scenarios__header">
+    <h1>Customer Service Scenarios</h1>
+    <p>Real situations you'll face on the job, and how to handle difficult customers professionally.</p>
+  </header>
+
+  <div class="scenarios__tabs">
+    <button type="button" class="scenarios__tab" [class.scenarios__tab--active]="tab() === 'scenarios'" (click)="tab.set('scenarios')">
+      💼 Situations
+    </button>
+    <button type="button" class="scenarios__tab" [class.scenarios__tab--active]="tab() === 'difficult'" (click)="tab.set('difficult')">
+      😤 Difficult Customers
+    </button>
+  </div>
+
+  @if (tab() === 'scenarios') {
+    @switch (phase()) {
+      @case ('idle') {
+        <div class="card scenarios__idle">
+          <span class="scenarios__icon" aria-hidden="true">💼</span>
+          <h2>Practice Scenarios</h2>
+          <p>{{ exercises.length }} real customer service situations. Choose the best response and see why it works.</p>
+          <button type="button" class="btn btn--primary" (click)="start()">Start practice</button>
+        </div>
+      }
+      @case ('playing') {
+        <app-exercise-player [exercises]="exercises" (finished)="onFinished($event)" />
+      }
+      @case ('summary') {
+        <div class="card scenarios__idle">
+          <span class="scenarios__icon" aria-hidden="true">{{ lastAccuracy() >= 70 ? '🎉' : '💼' }}</span>
+          <h2>Practice complete!</h2>
+          <p class="scenarios__xp">+{{ lastXp() }} XP · {{ lastAccuracy() }}% accuracy</p>
+          <button type="button" class="btn btn--primary" (click)="reset()">Practice again</button>
+        </div>
+      }
+    }
+  } @else {
+    <div class="scenarios__tips">
+      @for (tip of tips; track tip.id) {
+        <article class="card scenarios__tip">
+          <span class="scenarios__tip-situation">{{ tip.situation }}</span>
+          <div class="scenarios__tip-row scenarios__tip-row--avoid">
+            <span>Instead of:</span>
+            <p>{{ tip.avoid }}</p>
+          </div>
+          <div class="scenarios__tip-row scenarios__tip-row--use">
+            <span>Use:</span>
+            <p>{{ tip.useInstead }}</p>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

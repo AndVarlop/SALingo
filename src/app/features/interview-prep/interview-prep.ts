@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { InterviewProgressService } from '../../core/services/interview-progress.service';
 import { InterviewQuestionService } from '../../core/services/interview-question.service';
+import { InterviewSessionService } from '../../core/services/interview-session.service';
 import { CEFR_LEVEL_ORDER, CefrLevel, INTERVIEW_POSITION_LABEL, InterviewPosition } from '../../core/models';
 import { ProgressRingComponent } from '../../shared/components/progress-ring/progress-ring';
 import { ProgressBarComponent } from '../../shared/components/progress-bar/progress-bar';
@@ -17,8 +18,17 @@ import { ProgressBarComponent } from '../../shared/components/progress-bar/progr
 })
 export class InterviewPrepComponent {
   protected readonly progress = inject(InterviewProgressService);
+  protected readonly sessionService = inject(InterviewSessionService);
   private readonly questionService = inject(InterviewQuestionService);
   private readonly fb = inject(FormBuilder);
+
+  /** Combines question/vocab readiness with real Mock Interview results, once any exist. */
+  protected readonly overallReadiness = computed(() => {
+    const base = this.progress.readiness();
+    const interviewScore = this.sessionService.bestScore();
+    if (this.sessionService.sessionCount() === 0) return base.overall;
+    return Math.round(base.overall * 0.7 + interviewScore * 0.3);
+  });
 
   protected readonly positions = Object.values(InterviewPosition);
   protected readonly positionLabel = INTERVIEW_POSITION_LABEL;

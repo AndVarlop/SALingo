@@ -158,6 +158,23 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['grammar_progress']['Row']>;
         Relationships: [];
       };
+      interview_sessions: {
+        Row: {
+          id: string;
+          user_id: string;
+          target_position: string | null;
+          started_at: string;
+          duration_seconds: number;
+          question_count: number;
+          overall_score: number;
+          strengths: unknown;
+          improvements: unknown;
+          mode: string;
+        };
+        Insert: Partial<Database['public']['Tables']['interview_sessions']['Row']> & { user_id: string };
+        Update: Partial<Database['public']['Tables']['interview_sessions']['Row']>;
+        Relationships: [];
+      };
       interview_profile: {
         Row: {
           user_id: string;

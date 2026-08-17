@@ -1,0 +1,80 @@
+.roleplay-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.roleplay-list__header {
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 800;
+  }
+
+  p {
+    color: var(--color-text-muted);
+    margin-top: 6px;
+    font-size: 0.9rem;
+    max-width: 600px;
+  }
+}
+
+.roleplay-list__tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.roleplay-list__tab {
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+
+  &--active {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+  }
+}
+
+.roleplay-list__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.roleplay-list__card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color var(--transition-fast);
+
+  &:hover {
+    border-color: var(--color-primary);
+  }
+
+  strong {
+    font-size: 1rem;
+  }
+
+  span {
+    color: var(--color-text-muted);
+    font-size: 0.83rem;
+  }
+}
+
+.roleplay-list__meta {
+  margin-top: 4px;
+}
+
+.roleplay-list__badge {
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-alt);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}

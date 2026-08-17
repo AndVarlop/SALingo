@@ -115,6 +115,45 @@ export const routes: Routes = [
         title: 'Answer Builder · Lingo',
       },
       {
+        path: 'interview-prep/scenarios',
+        loadComponent: () =>
+          import('./features/interview-prep/scenarios/scenarios').then((m) => m.InterviewScenariosComponent),
+        title: 'Customer Service Scenarios · Lingo',
+      },
+      {
+        path: 'interview-prep/roleplay',
+        loadComponent: () => import('./features/interview-prep/roleplay/roleplay').then((m) => m.RoleplayComponent),
+        title: 'Roleplay · Lingo',
+      },
+      {
+        path: 'interview-prep/roleplay/:id',
+        loadComponent: () =>
+          import('./features/interview-prep/roleplay/roleplay-session/roleplay-session').then(
+            (m) => m.RoleplaySessionComponent,
+          ),
+        title: 'Roleplay · Lingo',
+      },
+      {
+        path: 'interview-prep/mock-interview',
+        loadComponent: () =>
+          import('./features/interview-prep/mock-interview/mock-interview').then((m) => m.MockInterviewComponent),
+        title: 'Mock Interview · Lingo',
+      },
+      {
+        path: 'interview-prep/history',
+        loadComponent: () =>
+          import('./features/interview-prep/history/history').then((m) => m.InterviewHistoryComponent),
+        title: 'Interview History · Lingo',
+      },
+      {
+        path: 'interview-prep/plan',
+        loadComponent: () =>
+          import('./features/interview-prep/preparation-plan/preparation-plan').then(
+            (m) => m.PreparationPlanComponent,
+          ),
+        title: 'Preparation Plan · Lingo',
+      },
+      {
         path: 'interview-prep/vocabulary',
         loadComponent: () =>
           import('./features/interview-prep/vocabulary/vocabulary').then((m) => m.InterviewVocabularyComponent),
