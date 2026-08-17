@@ -299,13 +299,12 @@ Every item in 16a/16b/16c went through its own `tsc --noEmit` → `ng lint` → 
 - Call Center Simulator evolution (multi-turn scenario trees beyond the current single-resolution Roleplay) and AI Interviewer evolution (resume/job-description-aware interviews) — both explicitly deferred pending the AI backend decision below.
 
 **Known limitations**:
-- `supabase/skill-tags.sql` has not been confirmed run by the user. Until then, `skill_tag` writes fail silently into the console (logged, not swallowed) and don't persist cross-session — local-first optimistic state still works within a session.
 - Find the Mistake / Grammar Battle / Vocabulary Rush lack dedicated unit tests (see above).
 - PWA icons are still the Angular CLI placeholders (pre-existing gap, unrelated to this round).
 
 **External dependencies**: Task #63 remains open — whether/which real AI backend (LLM provider, hosting) SALingo should integrate for AI Tutor/Roleplay/Mock Interview/Resume Analysis is an explicit product + credentials decision only the user can make. Every AI-adjacent service in the app already follows the "Angular → documented mock/interface, never an API key in the client" rule so swapping in a real backend later is additive, not a rewrite.
 
-**Recommended next steps**: run `supabase/skill-tags.sql`; decide the AI backend question (#63); then either build Daily Challenges/Missions on top of the mini-games/exams that now exist, or keep expanding the Exam Engine's registry (cheapest incremental value, same pattern already proven twice).
+**Recommended next steps**: decide the AI backend question (#63); then either build Daily Challenges/Missions on top of the mini-games/exams that now exist, or keep expanding the Exam Engine's registry (cheapest incremental value, same pattern already proven twice).
 
 ## 17. Adaptive Learning Home redesign
 
@@ -316,6 +315,10 @@ One real type error caught by `tsc` (not by review): binding `jobReadyScore().ov
 ### Build/verification
 `tsc --noEmit` clean, `ng lint` clean (0 errors), `ng test` 56/56 passing, `ng build` clean (same pre-existing non-blocking budget warning). Live-verified: hero showed the real top recommendation for the test account, quick-stats row correct (Interview readiness 60%), remaining recommendations list didn't repeat the hero's item, full Job Ready Score breakdown and Weaknesses rendered with real data, hero's primary CTA navigated correctly end-to-end. No console errors.
 
+## 18. `supabase/skill-tags.sql` migration confirmed run
+
+User confirmed the migration was applied. Live-verified cross-session persistence the same way `job_outcomes` was verified earlier: played a full Grammar Battle round (10/10, `grammar:gr-a1-plural-nouns`), then did a real full browser navigation (not an in-SPA route change) to force `UserStateService` to refetch from Supabase from scratch. `masteryByTag()` came back populated with the real tag data — including the just-played round — and the Dashboard's weak-tag recommendation ("Battle your weak spot: Verb To Be") still resolved correctly against the fresh data. No console errors. `skill_tag` now persists correctly; the Skill Engine's data layer is no longer session-local.
+
 ## FINAL STATUS (updated)
 
-Same as §16's FINAL STATUS, with the Adaptive Learning Home redesign now moved from "remaining" to "completed." Known limitations, external dependencies, and recommended next steps are unchanged (see above) — the AI backend decision (#63) and the `skill-tags.sql` migration confirmation remain the two open items outside this session's control.
+Same as §16/§17, with two changes: the Adaptive Learning Home redesign and the `skill-tags.sql` migration are both now "completed," not "remaining" or "known limitation." The only open item outside this session's control is the AI backend decision (#63) — everything else this session could reasonably do without it has been done.
