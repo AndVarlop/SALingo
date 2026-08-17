@@ -1,51 +1,43 @@
 <section class="answer-builder">
-  <header class="answer-builder__header">
-    <h1>🛠️ Build Your Answer</h1>
-    <p>Answer a few simple questions and we'll suggest a first draft. Edit it to sound like you — never copy it word for word.</p>
-  </header>
+  @if (question(); as q) {
+    <header class="answer-builder__header">
+      <h1>🛠️ Build Your Answer</h1>
+      <p class="answer-builder__question">"{{ q.question }}"</p>
+      <p class="answer-builder__hint">{{ q.whatInterviewerWants }}</p>
+    </header>
 
-  <form class="card answer-builder__form" [formGroup]="form" (ngSubmit)="generateDraft()">
-    <div class="answer-builder__field">
-      <label for="name">1. What's your name?</label>
-      <input id="name" type="text" formControlName="name" placeholder="e.g. Andres" />
+    <div class="card answer-builder__form">
+      @for (step of q.structure; track step; let i = $index) {
+        <div class="answer-builder__field">
+          <label [for]="'step-' + i">{{ i + 1 }}. {{ step }}</label>
+          <input
+            [id]="'step-' + i"
+            type="text"
+            [value]="stepNotes()[i]"
+            (input)="setStepNote(i, $any($event.target).value)"
+            placeholder="A short note in your own words…"
+          />
+        </div>
+      }
+
+      <button type="button" class="btn btn--primary btn--block" (click)="generateDraft()">Generate suggested answer</button>
     </div>
 
-    <div class="answer-builder__field">
-      <label for="whatYouDo">2. What do you do?</label>
-      <input id="whatYouDo" type="text" formControlName="whatYouDo" placeholder="e.g. a student, currently looking for a job" />
-    </div>
-
-    <div class="answer-builder__field">
-      <label for="hasExperience">3. Do you have previous experience?</label>
-      <select id="hasExperience" formControlName="hasExperience">
-        <option value="no">No</option>
-        <option value="yes">Yes</option>
-      </select>
-    </div>
-
-    <div class="answer-builder__field">
-      <label for="skills">4. What are your strongest skills?</label>
-      <input id="skills" type="text" formControlName="strongestSkills" placeholder="e.g. communication and problem-solving" />
-    </div>
-
-    <div class="answer-builder__field">
-      <label for="whyJob">5. Why do you want this job?</label>
-      <input id="whyJob" type="text" formControlName="whyThisJob" placeholder="e.g. I enjoy helping people and want to grow" />
-    </div>
-
-    <button type="submit" class="btn btn--primary btn--block">Generate suggested answer</button>
-  </form>
-
-  @if (draft()) {
-    <div class="card answer-builder__draft">
-      <span class="card__eyebrow">Your suggested answer — edit it!</span>
-      <textarea rows="6" [value]="draft()" (input)="setDraft($any($event.target).value)"></textarea>
-      <div class="answer-builder__draft-actions">
-        <button type="button" class="btn btn--ghost" (click)="goToQuestion()">View full question</button>
-        <button type="button" class="btn btn--primary" (click)="saveAnswer()">
-          {{ saved() ? '✓ Saved' : 'Save this answer' }}
-        </button>
+    @if (draft()) {
+      <div class="card answer-builder__draft">
+        <span class="card__eyebrow">Your suggested answer — edit it!</span>
+        <textarea rows="6" [value]="draft()" (input)="setDraft($any($event.target).value)"></textarea>
+        <div class="answer-builder__draft-actions">
+          <button type="button" class="btn btn--ghost" (click)="goToQuestion()">View full question</button>
+          <button type="button" class="btn btn--primary" (click)="saveAnswer()">
+            {{ saved() ? '✓ Saved' : 'Save this answer' }}
+          </button>
+        </div>
       </div>
-    </div>
+    }
+  } @else {
+    <app-empty-state icon="🔍" title="Question not found" description="This interview question doesn't exist.">
+      <a class="btn btn--primary" routerLink="/interview-prep/questions">Back to Questions</a>
+    </app-empty-state>
   }
 </section>

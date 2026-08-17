@@ -19,6 +19,12 @@
   }
 }
 
+.answer-builder__question {
+  color: var(--color-text) !important;
+  font-weight: 700;
+  font-size: 0.98rem !important;
+}
+
 .answer-builder__form {
   display: flex;
   flex-direction: column;

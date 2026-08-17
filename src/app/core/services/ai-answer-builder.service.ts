@@ -1,41 +1,29 @@
 import { Injectable } from '@angular/core';
 
-export interface AnswerBuilderInput {
-  name: string;
-  whatYouDo: string;
-  hasExperience: boolean;
-  strongestSkills: string;
-  whyThisJob: string;
-}
-
 /**
- * Assembles a first-draft answer to "Tell me about yourself" from the
- * Answer Builder wizard's inputs. Pure templating today — the user is always
- * expected to edit the result, never memorize it word-for-word. Swap the
- * body for a real LLM call later; the input/output shape stays the same.
+ * Assembles a first-draft answer from short notes the user writes for each
+ * step of a question's structure (e.g. "Situation" / "Task" / "Action" /
+ * "Result", or whatever `InterviewQuestion.structure` defines for that
+ * specific question). Works for any of the 23 questions in the bank, not
+ * just "Tell me about yourself" — every question already carries its own
+ * `structure` array, this just stitches the user's notes together in that
+ * order. Pure templating today — the user is always expected to edit the
+ * result, never memorize it word-for-word. Swap the body for a real LLM
+ * call later; the input/output shape stays the same.
  */
 @Injectable({ providedIn: 'root' })
 export class AiAnswerBuilderService {
-  buildTellMeAboutYourself(input: AnswerBuilderInput): string {
-    const parts: string[] = [];
+  buildAnswer(stepTexts: string[]): string {
+    const sentences = stepTexts
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .map((s) => this.ensureSentence(s));
 
-    parts.push(`Hi, my name is ${input.name || '[your name]'}.`);
-    parts.push(input.whatYouDo ? `I'm ${input.whatYouDo}.` : "I'm currently looking for new opportunities.");
+    return sentences.join(' ');
+  }
 
-    if (input.hasExperience) {
-      parts.push('I have previous experience that I think is relevant for this role.');
-    } else {
-      parts.push("I don't have previous call center experience, but I'm a fast learner and I'm ready to give my best.");
-    }
-
-    if (input.strongestSkills) {
-      parts.push(`My strongest skills are ${input.strongestSkills}.`);
-    }
-
-    if (input.whyThisJob) {
-      parts.push(`I'm interested in this position because ${input.whyThisJob}.`);
-    }
-
-    return parts.join(' ');
+  private ensureSentence(text: string): string {
+    const capitalized = text.charAt(0).toUpperCase() + text.slice(1);
+    return /[.!?]$/.test(capitalized) ? capitalized : `${capitalized}.`;
   }
 }

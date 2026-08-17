@@ -1,13 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AiAnswerBuilderService } from '../../../core/services/ai-answer-builder.service';
 import { InterviewProgressService } from '../../../core/services/interview-progress.service';
+import { InterviewQuestionService } from '../../../core/services/interview-question.service';
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state';
 
 @Component({
   selector: 'app-answer-builder',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [RouterLink, EmptyStateComponent],
   templateUrl: './answer-builder.html',
   styleUrl: './answer-builder.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -17,30 +18,25 @@ export class AnswerBuilderComponent {
   private readonly router = inject(Router);
   private readonly aiAnswerBuilder = inject(AiAnswerBuilderService);
   private readonly progress = inject(InterviewProgressService);
-  private readonly fb = inject(FormBuilder);
+  private readonly questionService = inject(InterviewQuestionService);
 
   protected readonly questionId = this.route.snapshot.paramMap.get('id') ?? 'iq-tell-me-about-yourself';
+  protected readonly question = computed(() => this.questionService.getById(this.questionId));
 
-  protected readonly form = this.fb.nonNullable.group({
-    name: [''],
-    whatYouDo: [''],
-    hasExperience: ['no'],
-    strongestSkills: [''],
-    whyThisJob: [''],
-  });
+  /** One text note per step of this question's structure — works for any question, not just one hardcoded form. */
+  protected readonly stepNotes = signal<string[]>(
+    (this.questionService.getById(this.questionId)?.structure ?? []).map(() => ''),
+  );
 
   protected readonly draft = signal('');
   protected readonly saved = signal(false);
 
+  protected setStepNote(index: number, value: string): void {
+    this.stepNotes.update((notes) => notes.map((n, i) => (i === index ? value : n)));
+  }
+
   protected generateDraft(): void {
-    const raw = this.form.getRawValue();
-    const suggestion = this.aiAnswerBuilder.buildTellMeAboutYourself({
-      name: raw.name,
-      whatYouDo: raw.whatYouDo,
-      hasExperience: raw.hasExperience === 'yes',
-      strongestSkills: raw.strongestSkills,
-      whyThisJob: raw.whyThisJob,
-    });
+    const suggestion = this.aiAnswerBuilder.buildAnswer(this.stepNotes());
     this.draft.set(suggestion);
     this.saved.set(false);
   }
