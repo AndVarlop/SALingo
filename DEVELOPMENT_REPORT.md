@@ -319,6 +319,29 @@ One real type error caught by `tsc` (not by review): binding `jobReadyScore().ov
 
 User confirmed the migration was applied. Live-verified cross-session persistence the same way `job_outcomes` was verified earlier: played a full Grammar Battle round (10/10, `grammar:gr-a1-plural-nouns`), then did a real full browser navigation (not an in-SPA route change) to force `UserStateService` to refetch from Supabase from scratch. `masteryByTag()` came back populated with the real tag data — including the just-played round — and the Dashboard's weak-tag recommendation ("Battle your weak spot: Verb To Be") still resolved correctly against the fresh data. No console errors. `skill_tag` now persists correctly; the Skill Engine's data layer is no longer session-local.
 
+## 19. Everything that was "remaining, non-blocked" — now done
+
+User asked to clear out what was left before tackling the AI backend question. Four items, in order:
+
+- **Unit tests for the 3 mini-games** (Grammar Battle, Vocabulary Rush, Find the Mistake): 16 new tests, the app's first component-level specs (everything before was service specs). `TestBed.createComponent()` + fake providers, protected members accessed via a typed cast interface (documents which internals the test touches instead of scattering `as any`), fake timers for the round-advance `setInterval`/`setTimeout` logic, `provideRouter([])` so `RouterLink` resolves during component creation.
+- **Listening, Customer Service and Job Readiness exams**, via the existing `ExamRegistryService` pattern — no engine or runner changes needed. Listening Exam reuses all 20 `MOCK_LISTENING_EXERCISES`; Customer Service Exam generates term→translation questions from the 55-word call-center vocabulary bank, one section per category; Job Readiness Exam mixes 4 real questions from each of Grammar/Vocabulary/Listening/Customer Service into one "how ready am I overall" exam. Deliberately did **not** build a standalone Interview Exam — every existing interview question is open-ended with no correct-answer key, and inventing multiple-choice trivia to fill that gap would have broken the "zero new content" rule every other exam here follows; documented that decision in the registry instead of silently skipping it.
+- **Daily Challenge**: a new `DailyChallengeService` presents the top 3 `recommendedActivities()` as a real checklist on the Dashboard, checked off against today's actual activity log, with a one-time XP bonus when all 3 are done (guarded against double-awarding via a date-keyed local flag). Scoped "Daily Challenges **+ Missions**" down to just Daily Challenge: Missions — the strategy doc's "Introduce Yourself → ... → Pass a Job Interview" progression — turned out to already exist as `CareerPathService`/`/career-path`, a 7-stage sequential progression with real completion checks, shipped earlier this session under a different name. Building a second Missions system would have duplicated it; documented the decision instead.
+
+Two real, non-trivial things were caught during this stretch (not assumed away):
+1. `tsc` caught a `number | null` bound directly to a required `number` input inside an `@if` branch the template type-checker doesn't narrow — fixed with `?? 0`.
+2. `TestBed.tick()` was required to flush `DailyChallengeService`'s `effect()` in tests — confirmed by first watching the "awards the bonus" test genuinely fail (0 calls) before adding the flush, not assumed necessary in advance.
+
+### Build/verification
+Every item above went through its own `tsc --noEmit` → `ng lint` → `ng test` → `ng build` → live Chrome verification cycle before being committed. Current state: `ng test` 78/78 passing, `ng lint` 0 errors, `ng build` clean (pre-existing `roleplay-session.scss` budget warning only, unrelated to this work).
+
 ## FINAL STATUS (updated)
 
-Same as §16/§17, with two changes: the Adaptive Learning Home redesign and the `skill-tags.sql` migration are both now "completed," not "remaining" or "known limitation." The only open item outside this session's control is the AI backend decision (#63) — everything else this session could reasonably do without it has been done.
+**Completed, this stretch**: unit tests for all 3 mini-games; Listening/Customer Service/Job Readiness exams (Exam Engine registry now has 5 exams total); Daily Challenge with real completion tracking and a guarded one-time bonus; confirmed `skill-tags.sql` migration persistence live.
+
+**Remaining**: nothing non-AI-blocked and reasonably scoped is left outstanding. What's left is either (a) genuinely AI-dependent (Call Center Simulator's multi-turn scenario trees, AI Interviewer's resume/job-description awareness — both need task #63 resolved first), or (b) small polish items already logged as known limitations below (not re-listed as "remaining" since they're not blocking anything).
+
+**Known limitations**: PWA icons are still Angular CLI placeholders (unrelated pre-existing gap). Daily Challenge's bonus-award guard is per-device (documented tradeoff, not a bug). Job Readiness Exam's `activityType` is one value across 4 real domains (documented simplification — `skillTag`, which drives `masteryByTag`, stays accurate per-question regardless).
+
+**External dependencies**: Task #63 — the AI backend/provider decision — is now the only thing gating further product work. Every AI-adjacent service in the app already follows "Angular → documented mock/interface, never an API key in the client," so this is additive work whenever it's resolved, not a rewrite.
+
+**Recommended next step**: resolve #63.
