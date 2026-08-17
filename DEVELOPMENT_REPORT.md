@@ -260,3 +260,50 @@ Roleplay already *was* a call simulator in disguise (12 customer-service scenari
 
 ### Build/verification
 `tsc --noEmit` clean, `ng lint` clean (0 errors), `ng test` 33/33 passing, `ng build` clean (same pre-existing non-blocking CSS budget warning) and confirmed `ngsw-worker.js`/`ngsw.json`/`manifest.webmanifest` present in the build output.
+
+## 16. Full Audit + Top 20 fixes + Skill Engine Phase 1 + Gamification Phase 2
+
+Two documents preceded this round of work: `SALINGO_FULL_AUDIT.md` (a fresh 40-point audit against the actual running app — personas, readiness scores, a prioritized Top 20) and `SALINGO_GAMIFIED_LEARNING_STRATEGY.md` (a product-direction document: SALingo should feel like LEARN → PRACTICE → PLAY → MAKE MISTAKES → LEARN FROM MISTAKES → LEVEL UP, not a traditional LMS, with mini-games/exams feeding one unified Skill Engine → Weakness Detection → Recommendation pipeline). This section covers implementing that direction.
+
+### 16a. Top 20 audit fixes (9 items, non-AI)
+Fixed real bugs the audit found, each with its own tsc/lint/test/build/live-verify cycle: Placement Test wasn't linked from anywhere in the nav; Writing's `grammarScore` measured text length instead of grammar (real formula bug); Roleplay's "customer" gave 3 fixed canned replies across all 14 scenarios regardless of what the agent typed (now scored against `expectedResolution` via word-overlap); Job Ready Score was missing a Grammar dimension entirely; Preparation Plan only had a 7-day-out and same-day plan, nothing for 2-5 days out; Answer Builder was hardcoded to one specific question despite every question linking to it; Company Prep analysis and Tips checklist didn't persist across reloads; there was no way to record a real interview/job outcome anywhere in the app; AI Tutor's "correction" mode always said "That's a great sentence!" regardless of input, contradicting its own UI copy — now runs `MistakeDetectionService` for real. New `job_outcomes` table + "My Results" page shipped and its migration was confirmed run and live-verified (a real Supabase insert survived a full page reload).
+
+### 16b. Skill Engine Phase 1 — sub-skill tags
+- `ActivityLogEntry` gained an optional `skillTag` (namespaced string like `grammar:past-simple`, `vocab:business`, `customer-service:billing`, `interview:call-center-agent`) — `supabase/skill-tags.sql` adds the matching `activity_log.skill_tag` column. **This migration has not been confirmed run by the user yet** — until it is, per-session skill tags work but don't persist across reloads (local-first optimistic writes still succeed; only the Supabase insert of that one column fails, logged as a console error, never silently swallowed).
+- `UserStateService.masteryByTag` — a computed aggregating average accuracy per tag across the activity log.
+- `CareerCoachService.weakestSkillTags` — the top 5 lowest-scoring tags, humanized into a readable label (`grammar:past-simple` → "Past Simple"). Empty (never fabricated) when there's no tagged activity yet.
+- Wired into the 4 activities that already existed: Grammar topic tests, Vocabulary review sessions, Roleplay calls, Mock Interview.
+
+### 16c. Gamification Phase 2 — three mini-games + a reusable Exam Engine
+All three mini-games share one shape (proven out with Grammar Battle, then reused verbatim for the other two): timed rounds, a streak counter with a capped XP bonus, one `recordActivity()` call at session end tagging the dominant skill played, zero new content — every question/round comes from services that already exist.
+- **Grammar Battle** (`/grammar-battle`): timed multiple-choice pulled from every grammar topic's existing exercises; opens with the user's weakest grammar tag first if the Skill Engine has detected one.
+- **Vocabulary Rush** (`/vocabulary-rush`): timed term→translation matching from `VocabularyService.words()`; guards on having ≥4 words loaded.
+- **Find the Mistake** (`/find-the-mistake`): correct-vs-has-a-mistake judgment calls. Added `MISTAKE_EXAMPLE_SENTENCES` to `MistakeDetectionService` (one real sentence per existing rule) so the game's entire question bank comes from the same 20 rules that already power AI Tutor/Writing/Mock Interview corrections — zero new mistake logic. Missed mistakes feed into Mistake Memory like every other surface.
+- **Exam Engine** (`core/models/exam.model.ts`, `ExamEngineService`, `ExamRegistryService`, `/exam/:id`): a real reusable engine — `ExamDefinition → ExamSection → ExamQuestion`, evaluated into per-section scores + per-skill-tag breakdown + weakest tags, one activity recorded per skill tag touched (not one blended entry) so results stay as granular as everything else feeding the Skill Engine. Adding a new exam is one `build*Exam()` method in the registry; the runner UI and scoring never change. Two exams shipped from existing content: **Grammar Exam** (one section per CEFR level) and **Vocabulary Exam** (one section per category).
+
+Two real bugs were caught during live verification of the Exam Engine (not in review — both looked fine until actually played end-to-end):
+1. Grammar exercise ids (`ex-1`, `ex-2`, …) are reused across every topic, not globally unique. Using them as the answer-Map key made selections collide across topics, silently undercounting the score (a session where every answer was correct scored 8/13 instead of 13/13). Fixed by namespacing ids as `topicId:exerciseId`.
+2. A genuine race condition: navigating straight to `/exam/vocabulary-exam` without ever visiting `/vocabulary` first built the exam before `VocabularyService`'s Supabase fetch had loaded any words, permanently landing on "exam not found" — because `VocabularyService.loading` defaulted to `false` (meaning "no fetch has happened", not "data is ready"). Fixed the default (now starts `true`, only flips false once a fetch actually settles — this also fixes a latent flash-of-"No words found" on the Vocabulary hub page itself) and switched the exam runner to load via a reactive `effect()` instead of a one-shot constructor call.
+
+### Build/verification
+Every item in 16a/16b/16c went through its own `tsc --noEmit` → `ng lint` → `ng test` → `ng build` → live Chrome verification cycle before being committed; all currently green (`ng test`: 56/56, `ng lint`: 0 errors, `ng build`: clean apart from the pre-existing non-blocking `roleplay-session.scss` budget warning). Live verification used `window.ng.getComponent()` to drive components directly (reading real round/question state rather than blind-clicking), confirming XP header totals, result screens, and Supabase network requests where relevant.
+
+## FINAL STATUS (this session)
+
+**Completed**: Full 40-point product audit (`SALINGO_FULL_AUDIT.md`) and gamification strategy document (`SALINGO_GAMIFIED_LEARNING_STRATEGY.md`, analysis only, no code). 9 Top 20 audit fixes (non-AI). Skill Engine Phase 1 (sub-skill tags, masteryByTag, weakestSkillTags, wired into 4 existing activities). Gamification Phase 2 (3 mini-games + a reusable Exam Engine with 2 exams). 2 real bugs found and fixed via live verification, not assumed-safe from code review alone.
+
+**Remaining (reasonable next P1/P2 work, none externally blocked)**:
+- Find the Mistake / Grammar Battle / Vocabulary Rush have no dedicated `.spec.ts` files (verified live instead, consistent with how they were built, but a unit test on the scoring/streak math would still be worth adding).
+- More exams could be added to the registry with no engine changes: Listening Exam, Customer Service Exam, Interview Exam, Job Readiness Exam (the strategy doc's full list) — each is one `build*Exam()` method.
+- Adaptive Learning "what should I do today" Home/Dashboard redesign (strategy doc §1/§9/§19) — the biggest remaining piece of the gamification vision. `weakestSkillTags()` already exists and is ready to feed a real recommendation, but the Dashboard itself hasn't been redesigned around it yet.
+- Daily Challenges, Missions, Boss Challenges (strategy doc §15-17) — not started; each needs its own small data model, but can reuse the mini-games/exams above as their underlying activities rather than inventing new content.
+- Call Center Simulator evolution (multi-turn scenario trees beyond the current single-resolution Roleplay) and AI Interviewer evolution (resume/job-description-aware interviews) — both explicitly deferred pending the AI backend decision below.
+
+**Known limitations**:
+- `supabase/skill-tags.sql` has not been confirmed run by the user. Until then, `skill_tag` writes fail silently into the console (logged, not swallowed) and don't persist cross-session — local-first optimistic state still works within a session.
+- Find the Mistake / Grammar Battle / Vocabulary Rush lack dedicated unit tests (see above).
+- PWA icons are still the Angular CLI placeholders (pre-existing gap, unrelated to this round).
+
+**External dependencies**: Task #63 remains open — whether/which real AI backend (LLM provider, hosting) SALingo should integrate for AI Tutor/Roleplay/Mock Interview/Resume Analysis is an explicit product + credentials decision only the user can make. Every AI-adjacent service in the app already follows the "Angular → documented mock/interface, never an API key in the client" rule so swapping in a real backend later is additive, not a rewrite.
+
+**Recommended next steps**: run `supabase/skill-tags.sql`; decide the AI backend question (#63); then either continue toward the Adaptive Learning Home redesign (highest product value, no external blocker) or keep expanding the Exam Engine's registry (cheapest incremental value, same pattern already proven twice).
