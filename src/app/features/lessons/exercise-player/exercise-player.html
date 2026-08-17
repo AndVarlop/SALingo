@@ -1,0 +1,57 @@
+<div class="exercise-player">
+  <div class="exercise-player__progress">
+    <app-progress-bar [value]="progressPercent()" />
+    <span>{{ currentIndex() + 1 }} / {{ exercises().length }}</span>
+  </div>
+
+  <div class="card exercise-player__card">
+    @for (ex of [currentExercise()]; track ex.id) {
+      @switch (ex.type) {
+        @case (ExerciseType.MultipleChoice) {
+          <app-multiple-choice-exercise [exercise]="ex" (answered)="onAnswered($event)" />
+        }
+        @case (ExerciseType.FillBlank) {
+          <app-fill-blank-exercise [exercise]="ex" (answered)="onAnswered($event)" />
+        }
+        @case (ExerciseType.TrueFalse) {
+          <app-true-false-exercise [exercise]="ex" (answered)="onAnswered($event)" />
+        }
+        @case (ExerciseType.WordOrder) {
+          <app-word-order-exercise [exercise]="ex" (answered)="onAnswered($event)" />
+        }
+        @case (ExerciseType.Translation) {
+          <app-translation-exercise [exercise]="ex" (answered)="onAnswered($event)" />
+        }
+        @case (ExerciseType.Listening) {
+          <app-listening-exercise [exercise]="ex" (answered)="onAnswered($event)" />
+        }
+        @case (ExerciseType.Reading) {
+          <app-reading-exercise [exercise]="ex" (answered)="onAnswered($event)" />
+        }
+        @case (ExerciseType.Speaking) {
+          <app-speaking-exercise [exercise]="ex" (answered)="onAnswered($event)" />
+        }
+      }
+    }
+
+    @if (lastAnswer(); as answer) {
+      <div
+        class="exercise-feedback"
+        [class.exercise-feedback--correct]="answer.correct"
+        [class.exercise-feedback--incorrect]="!answer.correct"
+      >
+        <span aria-hidden="true">{{ answer.correct ? '✅' : '❌' }}</span>
+        <div class="exercise-feedback__body">
+          <strong>{{ answer.correct ? 'Correct!' : 'Not quite.' }}</strong>
+          @if (currentExercise().explanation) {
+            <span>{{ currentExercise().explanation }}</span>
+          }
+        </div>
+      </div>
+
+      <button type="button" class="btn btn--primary exercise-player__continue" (click)="next()">
+        {{ isLast() ? 'Finish lesson' : 'Continue' }}
+      </button>
+    }
+  </div>
+</div>

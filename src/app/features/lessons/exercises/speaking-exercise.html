@@ -1,0 +1,50 @@
+<p class="exercise-prompt">{{ exercise().prompt }}</p>
+
+<div class="speaking-exercise__sentence">
+  <span>Say this sentence:</span>
+  <strong>"{{ exercise().expectedSentence }}"</strong>
+  @if (exercise().hint) {
+    <span class="speaking-exercise__hint">💡 {{ exercise().hint }}</span>
+  }
+</div>
+
+@if (!isSupported) {
+  @if (state() !== 'result') {
+    <div class="speaking-exercise__fallback">
+      <p>Your browser doesn't support speech recognition. Try Chrome on desktop, or self-report honestly:</p>
+      <div class="speaking-exercise__self-report">
+        <button type="button" class="btn btn--ghost" (click)="selfReport(false)">I need practice</button>
+        <button type="button" class="btn btn--primary" (click)="selfReport(true)">I said it correctly</button>
+      </div>
+    </div>
+  }
+} @else {
+  @switch (state()) {
+    @case ('idle') {
+      <button type="button" class="btn btn--primary btn--block speaking-exercise__start" (click)="startSpeaking()">
+        🎤 Start speaking
+      </button>
+    }
+    @case ('listening') {
+      <div class="speaking-exercise__listening">
+        <span class="speaking-exercise__pulse" aria-hidden="true">🎤</span>
+        <p>Listening… speak now.</p>
+      </div>
+    }
+    @case ('error') {
+      <div class="speaking-exercise__fallback">
+        <p>{{ errorMessage() }}</p>
+        <button type="button" class="btn btn--primary" (click)="startSpeaking()">Try again</button>
+      </div>
+    }
+  }
+}
+
+@if (state() === 'result') {
+  <div class="speaking-exercise__result">
+    <p class="speaking-exercise__expected">Expected: "{{ exercise().expectedSentence }}"</p>
+    <p class="speaking-exercise__transcript">You said: "{{ transcript() }}"</p>
+    <div class="speaking-exercise__score">{{ score() }}%</div>
+    <p>{{ feedbackMessage }}</p>
+  </div>
+}

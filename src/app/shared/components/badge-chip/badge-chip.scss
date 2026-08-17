@@ -1,0 +1,40 @@
+.badge-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+
+  &--primary {
+    background: var(--color-primary-soft);
+    color: var(--color-primary);
+  }
+
+  &--success {
+    background: color-mix(in srgb, var(--color-success) 16%, transparent);
+    color: var(--color-success);
+  }
+
+  &--warn {
+    background: color-mix(in srgb, var(--color-warn) 18%, transparent);
+    color: var(--color-warn);
+  }
+
+  &--danger {
+    background: color-mix(in srgb, var(--color-danger) 16%, transparent);
+    color: var(--color-danger);
+  }
+
+  &--neutral {
+    background: var(--color-surface-alt);
+    color: var(--color-text-muted);
+  }
+
+  &--locked {
+    opacity: 0.5;
+    filter: grayscale(0.6);
+  }
+}

@@ -1,0 +1,301 @@
+// ---------------------------------------------------------------------------
+// Global design tokens. Component styles consume these custom properties
+// so theming (light/dark) never requires touching component SCSS.
+// ---------------------------------------------------------------------------
+@use 'sass:color';
+
+:root {
+  // Brand
+  --color-primary: #6c5ce7;
+  --color-primary-hover: #5b4bd6;
+  --color-primary-soft: #efecfe;
+  --color-accent: #00c2a8;
+  --color-accent-soft: #e0f9f5;
+  --color-warn: #f5a623;
+  --color-danger: #e5484d;
+  --color-success: #2fb673;
+
+  // Surfaces
+  --color-bg: #f7f7fb;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f1f1f8;
+  --color-border: #e6e6f0;
+
+  // Text
+  --color-text: #1c1c28;
+  --color-text-muted: #6b6b80;
+  --color-text-inverse: #ffffff;
+
+  // Elevation
+  --shadow-sm: 0 1px 3px rgba(28, 28, 40, 0.06);
+  --shadow-md: 0 6px 20px rgba(28, 28, 40, 0.08);
+  --shadow-lg: 0 12px 32px rgba(28, 28, 40, 0.12);
+
+  // Layout
+  --sidebar-width: 264px;
+  --bottom-nav-height: 64px;
+  --topbar-height: 64px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  // Motion
+  --transition-fast: 150ms ease;
+  --transition-base: 220ms ease;
+
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --color-primary: #8b7dfb;
+  --color-primary-hover: #a094fc;
+  --color-primary-soft: #2a2540;
+  --color-accent: #35e4c6;
+  --color-accent-soft: #123632;
+
+  --color-bg: #14141c;
+  --color-surface: #1c1c28;
+  --color-surface-alt: #23232f;
+  --color-border: #2e2e3d;
+
+  --color-text: #f2f2f7;
+  --color-text-muted: #a3a3b8;
+  --color-text-inverse: #14141c;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family:
+    'Inter',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  transition:
+    background var(--transition-base),
+    color var(--transition-base);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+// ---------------------------------------------------------------------------
+// Shared primitives reused across feature pages: cards & buttons.
+// Kept global (rather than duplicated per component) since every feature
+// page is built out of the same card/button vocabulary.
+// ---------------------------------------------------------------------------
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.card__eyebrow {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  margin-bottom: 10px;
+}
+
+.card__big-number {
+  font-size: 1.7rem;
+  font-weight: 800;
+  margin-bottom: 14px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  font-size: 0.88rem;
+  border: none;
+  cursor: pointer;
+  transition:
+    transform var(--transition-fast),
+    background var(--transition-fast),
+    box-shadow var(--transition-fast);
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btn--primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+  color: var(--color-text-inverse);
+  box-shadow: var(--shadow-sm);
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.btn--ghost {
+  background: var(--color-surface-alt);
+  color: var(--color-text);
+
+  &:hover:not(:disabled) {
+    background: var(--color-border);
+  }
+}
+
+.btn--block {
+  width: 100%;
+}
+
+// ---------------------------------------------------------------------------
+// Exercise player primitives — shared by every exercise type component so
+// "correct/incorrect" always looks and behaves the same across the app.
+// ---------------------------------------------------------------------------
+.exercise-prompt {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+
+.exercise-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.exercise-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--transition-fast),
+    background var(--transition-fast),
+    transform var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+  }
+
+  &:disabled {
+    cursor: default;
+  }
+
+  &--selected {
+    border-color: var(--color-primary);
+    background: var(--color-primary-soft);
+  }
+
+  &--correct {
+    border-color: var(--color-success);
+    background: color-mix(in srgb, var(--color-success) 14%, var(--color-surface));
+  }
+
+  &--incorrect {
+    border-color: var(--color-danger);
+    background: color-mix(in srgb, var(--color-danger) 14%, var(--color-surface));
+  }
+}
+
+.exercise-feedback {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.88rem;
+  margin-top: 18px;
+
+  &--correct {
+    background: color-mix(in srgb, var(--color-success) 14%, transparent);
+    color: var(--color-success);
+  }
+
+  &--incorrect {
+    background: color-mix(in srgb, var(--color-danger) 14%, transparent);
+    color: var(--color-danger);
+  }
+}
+
+.exercise-feedback__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  strong {
+    font-size: 0.92rem;
+  }
+
+  span {
+    color: var(--color-text-muted);
+    font-weight: 500;
+  }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

@@ -1,0 +1,117 @@
+@if (!progress.profile().onboarded) {
+  <section class="interview-onboard">
+    <div class="card interview-onboard__card">
+      <span class="interview-onboard__badge">📞 Call Center Interview Prep</span>
+      <h1>Ready for your interview?</h1>
+      <p>Practice until you feel confident. A few quick questions to personalize your prep plan.</p>
+
+      <form [formGroup]="onboardingForm" (ngSubmit)="submitOnboarding()">
+        <div class="interview-onboard__field">
+          <label for="position">What job are you applying for?</label>
+          <select id="position" formControlName="targetPosition">
+            <option [ngValue]="null">Not sure yet</option>
+            @for (position of positions; track position) {
+              <option [ngValue]="position">{{ positionLabel[position] }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="interview-onboard__field">
+          <label for="experience">Do you have call center experience?</label>
+          <select id="experience" formControlName="hasExperience">
+            <option value="no">No experience yet</option>
+            <option value="yes">Yes, I have experience</option>
+          </select>
+        </div>
+
+        <div class="interview-onboard__field">
+          <label for="level">What is your English level?</label>
+          <select id="level" formControlName="englishLevel">
+            @for (level of levels; track level) {
+              <option [value]="level">{{ level }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="interview-onboard__field">
+          <label for="struggle">What do you struggle with most? (optional)</label>
+          <input id="struggle" type="text" formControlName="struggleArea" placeholder="e.g. speaking, grammar, vocabulary…" />
+        </div>
+
+        <div class="interview-onboard__field">
+          <label for="date">When is your interview? (optional)</label>
+          <input id="date" type="date" formControlName="interviewDate" />
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--block" [disabled]="submitting()">
+          {{ submitting() ? 'Saving…' : 'Start Preparation' }}
+        </button>
+      </form>
+    </div>
+  </section>
+} @else {
+  <section class="interview-dashboard">
+    <header class="interview-dashboard__header">
+      <div>
+        <h1>Call Center Interview Prep</h1>
+        <p>Prepare yourself. Practice your English. Get the job.</p>
+      </div>
+      @if (progress.profile().targetPosition; as position) {
+        <span class="interview-dashboard__position-badge">🎯 {{ positionLabel[position] }}</span>
+      }
+    </header>
+
+    <div class="interview-dashboard__grid">
+      <article class="card interview-dashboard__readiness">
+        <span class="card__eyebrow">Interview Readiness</span>
+        <app-progress-ring [value]="progress.readiness().overall" [size]="120" />
+      </article>
+
+      <article class="card interview-dashboard__breakdown">
+        <span class="card__eyebrow">Your preparation</span>
+        <app-progress-bar
+          [value]="progress.readiness().questionsScore"
+          [label]="'Interview Questions (' + progress.practicedCount() + '/' + progress.totalQuestions + ')'"
+          [showPercent]="true"
+        />
+        <app-progress-bar
+          [value]="progress.readiness().vocabularyScore"
+          label="Call Center Vocabulary"
+          [showPercent]="true"
+        />
+        <p class="interview-dashboard__coming-soon">
+          Roleplay, Mock Interview and Pronunciation scoring are coming in the next phase.
+        </p>
+      </article>
+    </div>
+
+    @if (nextQuestion(); as question) {
+      <article class="card interview-dashboard__next">
+        <span class="card__eyebrow">Next recommended activity</span>
+        <h2>{{ question.question }}</h2>
+        <span class="interview-dashboard__time">⏱️ ~5 min</span>
+        <a class="btn btn--primary" [routerLink]="['/interview-prep/questions', question.id]">Practice now</a>
+      </article>
+    } @else {
+      <article class="card interview-dashboard__next">
+        <span class="card__eyebrow">🎉 All questions practiced!</span>
+        <h2>Great work — you've practiced every question in the bank.</h2>
+      </article>
+    }
+
+    <div class="interview-dashboard__actions">
+      <a class="card interview-dashboard__action" routerLink="/interview-prep/questions">
+        <span aria-hidden="true">💬</span>
+        <strong>Practice Questions</strong>
+      </a>
+      <a class="card interview-dashboard__action" routerLink="/interview-prep/vocabulary">
+        <span aria-hidden="true">📖</span>
+        <strong>Learn Vocabulary</strong>
+      </a>
+      <a class="card interview-dashboard__action" [routerLink]="['/interview-prep/answer-builder', 'iq-tell-me-about-yourself']">
+        <span aria-hidden="true">🛠️</span>
+        <strong>Build Your Answer</strong>
+      </a>
+    </div>
+  </section>
+}

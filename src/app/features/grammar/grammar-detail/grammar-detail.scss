@@ -1,0 +1,82 @@
+.grammar-detail {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.grammar-detail__intro {
+  h1 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    margin: 6px 0 12px;
+  }
+
+  h3 {
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--color-text-muted);
+    margin: 18px 0 8px;
+  }
+}
+
+.grammar-detail__explanation {
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.grammar-detail__examples,
+.grammar-detail__mistakes {
+  list-style: none;
+  margin: 0 0 4px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  li {
+    padding: 10px 14px;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-alt);
+    font-size: 0.85rem;
+  }
+}
+
+.grammar-detail__examples li {
+  font-style: italic;
+}
+
+.grammar-detail__intro > .btn {
+  margin-top: 24px;
+}
+
+.grammar-detail__summary {
+  text-align: center;
+  padding: 40px 28px;
+
+  h1 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-top: 8px;
+  }
+}
+
+.grammar-detail__summary-icon {
+  font-size: 2.6rem;
+}
+
+.grammar-detail__summary-xp {
+  color: var(--color-success);
+  font-weight: 800;
+  margin: 4px 0 20px;
+}
+
+.grammar-detail__tip {
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-warn) 14%, transparent);
+  color: var(--color-warn);
+  font-size: 0.82rem;
+  margin-bottom: 20px;
+}

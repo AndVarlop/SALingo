@@ -1,0 +1,34 @@
+<section class="iq-list">
+  <header class="iq-list__header">
+    <h1>Common Interview Questions</h1>
+    <p>Learn the structure, see an example, then write your own answer. Don't memorize — practice thinking in English.</p>
+  </header>
+
+  <div class="iq-list__tabs">
+    @for (category of categories; track category) {
+      <button
+        type="button"
+        class="iq-list__tab"
+        [class.iq-list__tab--active]="activeCategory() === category"
+        (click)="activeCategory.set(category)"
+      >
+        {{ categoryLabel[category] }}
+      </button>
+    }
+  </div>
+
+  <ul class="iq-list__items">
+    @for (question of questionsForCategory(activeCategory()); track question.id) {
+      <li>
+        <a class="iq-list__item" [routerLink]="['/interview-prep/questions', question.id]">
+          <span>{{ question.question }}</span>
+          @if (progress.isPracticed(question.id)) {
+            <app-badge-chip tone="success" icon="✓">Practiced</app-badge-chip>
+          } @else {
+            <app-badge-chip tone="neutral">Not started</app-badge-chip>
+          }
+        </a>
+      </li>
+    }
+  </ul>
+</section>

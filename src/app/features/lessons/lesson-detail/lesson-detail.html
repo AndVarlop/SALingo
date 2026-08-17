@@ -1,0 +1,74 @@
+@if (lesson(); as lesson) {
+  <div class="lesson-detail">
+    @switch (phase()) {
+      @case ('intro') {
+        <div class="card lesson-detail__intro">
+          <span class="card__eyebrow">{{ lesson.level }} · {{ lesson.primarySkill }}</span>
+          <h1>{{ lesson.iconEmoji }} {{ lesson.title }}</h1>
+          <p class="lesson-detail__explanation">{{ lesson.explanation }}</p>
+
+          @if (lesson.examples.length) {
+            <ul class="lesson-detail__examples">
+              @for (example of lesson.examples; track example) {
+                <li>{{ example }}</li>
+              }
+            </ul>
+          }
+
+          <button type="button" class="btn btn--primary btn--block" (click)="startLesson()">
+            Start lesson · {{ lesson.exercises.length }} exercises
+          </button>
+        </div>
+      }
+
+      @case ('player') {
+        <app-exercise-player [exercises]="lesson.exercises" (finished)="onFinished($event)" />
+      }
+
+      @case ('summary') {
+        @if (summary(); as summary) {
+          <div class="card lesson-detail__summary">
+            <span class="lesson-detail__summary-icon" aria-hidden="true">
+              {{ summary.accuracy === 100 ? '🏆' : summary.accuracy >= 70 ? '🎉' : '💪' }}
+            </span>
+            <h1>Lesson complete!</h1>
+            <p class="lesson-detail__summary-xp">+{{ summary.xpEarned }} XP</p>
+
+            <div class="lesson-detail__stats">
+              <div>
+                <strong>{{ summary.correctCount }}</strong>
+                <span>Correct</span>
+              </div>
+              <div>
+                <strong>{{ summary.incorrectCount }}</strong>
+                <span>Errors</span>
+              </div>
+              <div>
+                <strong>{{ summary.accuracy }}%</strong>
+                <span>Accuracy</span>
+              </div>
+              <div>
+                <strong>{{ summary.timeSpentSeconds }}s</strong>
+                <span>Time</span>
+              </div>
+            </div>
+
+            @if (summary.accuracy < 70) {
+              <p class="lesson-detail__tip">
+                Tip: review "{{ lesson.title }}" again soon — accuracy under 70% means it's worth another pass.
+              </p>
+            }
+
+            <button type="button" class="btn btn--primary btn--block" (click)="backToLessons()">
+              Continue
+            </button>
+          </div>
+        }
+      }
+    }
+  </div>
+} @else {
+  <app-empty-state icon="🔍" title="Lesson not found" description="This lesson doesn't exist or isn't available.">
+    <a class="btn btn--primary" routerLink="/lessons">Back to Learn</a>
+  </app-empty-state>
+}

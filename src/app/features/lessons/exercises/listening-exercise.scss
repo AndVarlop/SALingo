@@ -1,0 +1,50 @@
+.listening-exercise__player {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+  margin-bottom: 20px;
+}
+
+.listening-exercise__play {
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.listening-exercise__speeds {
+  display: flex;
+  gap: 6px;
+}
+
+.listening-exercise__speed {
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &--active {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: var(--color-primary-soft);
+  }
+}
+
+.listening-exercise__fallback {
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 20px;
+}

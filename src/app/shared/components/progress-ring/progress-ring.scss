@@ -1,0 +1,15 @@
+.progress-ring__track {
+  stroke: var(--color-surface-alt);
+}
+
+.progress-ring__fill {
+  stroke: var(--color-primary);
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--transition-base);
+}
+
+.progress-ring__text {
+  fill: var(--color-text);
+  font-size: 1rem;
+  font-weight: 700;
+}

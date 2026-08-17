@@ -1,0 +1,44 @@
+<p class="exercise-prompt">{{ exercise().prompt }}</p>
+
+@if (speechSupported) {
+  <div class="listening-exercise__player">
+    <button type="button" class="listening-exercise__play" (click)="play()" aria-label="Play audio">
+      🔊 Play
+    </button>
+    <div class="listening-exercise__speeds">
+      @for (s of speeds; track s) {
+        <button
+          type="button"
+          class="listening-exercise__speed"
+          [class.listening-exercise__speed--active]="speed() === s"
+          (click)="setSpeed(s)"
+        >
+          {{ s }}x
+        </button>
+      }
+    </div>
+  </div>
+} @else {
+  <p class="listening-exercise__fallback">
+    Your browser doesn't support audio playback. Read the transcript instead: "{{ exercise().audioText }}"
+  </p>
+}
+
+<p class="exercise-prompt">What did you hear?</p>
+<div class="exercise-options">
+  @for (option of exercise().options; track $index) {
+    <button
+      type="button"
+      class="exercise-option"
+      [class.exercise-option--selected]="selected() === $index && locked() === null"
+      [class.exercise-option--correct]="locked() !== null && $index === exercise().correctOptionIndex"
+      [class.exercise-option--incorrect]="
+        locked() !== null && selected() === $index && $index !== exercise().correctOptionIndex
+      "
+      [disabled]="locked() !== null"
+      (click)="choose($index)"
+    >
+      {{ option }}
+    </button>
+  }
+</div>

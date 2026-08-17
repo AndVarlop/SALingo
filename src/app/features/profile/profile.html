@@ -1,0 +1,79 @@
+<section class="profile">
+  <header class="card profile__header">
+    <app-avatar [emoji]="userState.user().avatarEmoji" [size]="64" />
+    <div>
+      <h1>{{ userState.user().name }}</h1>
+      <p>{{ userState.user().email }}</p>
+    </div>
+  </header>
+
+  <div class="profile__stats">
+    <app-stat-card icon="⭐" label="Total XP" [value]="userState.xp() + ''" />
+    <app-stat-card icon="🔥" label="Current streak" [value]="userState.streak() + ' days'" />
+    <app-stat-card icon="🎓" label="Level" [value]="userState.currentLanguageProgress().level" />
+    <app-stat-card icon="📅" label="Learning since" [value]="userState.user().startedAt" />
+  </div>
+
+  <form class="card profile__settings" [formGroup]="settingsForm" (ngSubmit)="saveSettings()">
+    <span class="card__eyebrow">Settings</span>
+
+    <div class="profile__row">
+      <span class="profile__row-label">Theme</span>
+      <div class="profile__theme-toggle">
+        <button
+          type="button"
+          class="btn"
+          [class.btn--primary]="theme.theme() === 'light'"
+          [class.btn--ghost]="theme.theme() !== 'light'"
+          (click)="theme.set('light')"
+        >
+          ☀️ Light
+        </button>
+        <button
+          type="button"
+          class="btn"
+          [class.btn--primary]="theme.theme() === 'dark'"
+          [class.btn--ghost]="theme.theme() !== 'dark'"
+          (click)="theme.set('dark')"
+        >
+          🌙 Dark
+        </button>
+      </div>
+    </div>
+
+    <div class="profile__row">
+      <label for="dailyGoal">Daily goal (minutes)</label>
+      <input
+        id="dailyGoal"
+        type="number"
+        min="5"
+        max="120"
+        step="5"
+        formControlName="dailyGoalMinutes"
+      />
+    </div>
+
+    <div class="profile__row">
+      <label for="difficulty">Difficulty</label>
+      <select id="difficulty" formControlName="difficulty">
+        <option value="easy">Easy</option>
+        <option value="normal">Normal</option>
+        <option value="hard">Hard</option>
+      </select>
+    </div>
+
+    <div class="profile__row profile__row--checkbox">
+      <label for="notifications">Notifications</label>
+      <input id="notifications" type="checkbox" formControlName="notificationsEnabled" />
+    </div>
+
+    <div class="profile__row profile__row--checkbox">
+      <label for="sounds">Sounds</label>
+      <input id="sounds" type="checkbox" formControlName="soundEnabled" />
+    </div>
+
+    <button type="submit" class="btn btn--primary btn--block">Save settings</button>
+  </form>
+
+  <button type="button" class="btn btn--ghost btn--block" (click)="logout()">Log out</button>
+</section>

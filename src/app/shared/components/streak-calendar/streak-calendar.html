@@ -1,0 +1,10 @@
+<ul class="streak-calendar">
+  @for (day of days(); track $index) {
+    <li class="streak-calendar__day" [class.streak-calendar__day--today]="day.isToday">
+      <span class="streak-calendar__weekday">{{ day.label }}</span>
+      <span class="streak-calendar__dot" [class.streak-calendar__dot--active]="day.active">
+        {{ day.active ? '🔥' : '' }}
+      </span>
+    </li>
+  }
+</ul>

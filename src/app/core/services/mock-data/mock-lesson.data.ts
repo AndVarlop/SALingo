@@ -1,0 +1,158 @@
+import { CefrLevel } from '../../models';
+import { ExerciseType } from '../../models';
+import { Lesson } from '../../models';
+import { Skill } from '../../models';
+
+export const MOCK_LESSONS: Lesson[] = [
+  {
+    id: 'en-a1-verb-to-be',
+    language: 'en',
+    level: CefrLevel.A1,
+    title: 'Verb "to be"',
+    description: 'Learn to say who you are and how you feel.',
+    iconEmoji: '🌱',
+    primarySkill: Skill.Grammar,
+    estimatedMinutes: 8,
+    xpReward: 30,
+    order: 1,
+    requiresLessonIds: [],
+    explanation:
+      'The verb "to be" (am / is / are) is used to talk about identity, feelings and states. "I am happy", "She is a doctor", "They are from Spain".',
+    examples: ['I am a student.', 'You are late.', 'He is tired.', 'We are ready.'],
+    vocabulary: [],
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.MultipleChoice,
+        prompt: 'Choose the correct form: "She ___ a teacher."',
+        options: ['am', 'is', 'are', 'be'],
+        correctOptionIndex: 1,
+        xpReward: 10,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.FillBlank,
+        prompt: 'Complete the sentence.',
+        sentenceWithBlank: 'They ___ from Canada.',
+        options: ['am', 'is', 'are', 'was'],
+        correctOptionIndex: 2,
+        xpReward: 10,
+      },
+      {
+        id: 'ex-3',
+        type: ExerciseType.TrueFalse,
+        prompt: 'True or false?',
+        statement: '"I is happy" is correct English.',
+        correctAnswer: false,
+        xpReward: 10,
+      },
+    ],
+  },
+  {
+    id: 'en-a2-past-simple',
+    language: 'en',
+    level: CefrLevel.A2,
+    title: 'Past Simple',
+    description: 'Talk about finished actions in the past.',
+    iconEmoji: '⏳',
+    primarySkill: Skill.Grammar,
+    estimatedMinutes: 12,
+    xpReward: 40,
+    order: 5,
+    requiresLessonIds: ['en-a1-verb-to-be'],
+    explanation:
+      'Use the Past Simple for actions that started and finished in the past. Regular verbs add "-ed" ("worked"); irregular verbs change form ("went", "ate").',
+    examples: ['I worked yesterday.', 'She went to the park.', 'They didn\'t call me.'],
+    vocabulary: [],
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.FillBlank,
+        prompt: 'Complete the sentence.',
+        sentenceWithBlank: 'I ___ to the supermarket yesterday.',
+        options: ['go', 'goes', 'went', 'going'],
+        correctOptionIndex: 2,
+        xpReward: 10,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.WordOrder,
+        prompt: 'Put the words in the correct order.',
+        shuffledWords: ['English', 'every', 'I', 'study', 'day'],
+        correctSentence: 'I study English every day',
+        xpReward: 15,
+      },
+      {
+        id: 'ex-3',
+        type: ExerciseType.Translation,
+        prompt: 'Translate to English.',
+        sourceText: 'Yo trabajé todos los días.',
+        acceptedAnswers: ['I worked every day', 'I worked every day.'],
+        xpReward: 15,
+      },
+    ],
+  },
+  {
+    id: 'en-b1-present-perfect',
+    language: 'en',
+    level: CefrLevel.B1,
+    title: 'Present Perfect',
+    description: 'Connect the past with the present.',
+    iconEmoji: '🔗',
+    primarySkill: Skill.Grammar,
+    estimatedMinutes: 15,
+    xpReward: 45,
+    order: 12,
+    requiresLessonIds: ['en-a2-past-simple'],
+    explanation:
+      'Use "have/has + past participle" for experiences or actions with a result in the present. "I have visited Paris" (at some point in my life). "She has just arrived" (very recently).',
+    examples: ['I have seen that movie.', 'He has finished his homework.', 'We haven\'t eaten yet.'],
+    vocabulary: [],
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.MultipleChoice,
+        prompt: 'Choose the correct sentence.',
+        options: [
+          'I have seen that movie.',
+          'I have saw that movie.',
+          'I has seen that movie.',
+          'I having seen that movie.',
+        ],
+        correctOptionIndex: 0,
+        xpReward: 10,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.Listening,
+        prompt: 'Listen and choose what you heard.',
+        audioText: 'She has already finished her project.',
+        options: [
+          'She has already finished her project.',
+          'She already finishes her project.',
+          'She had finished her project.',
+        ],
+        correctOptionIndex: 0,
+        xpReward: 15,
+      },
+      {
+        id: 'ex-3',
+        type: ExerciseType.Reading,
+        prompt: 'Read the text and answer.',
+        passage:
+          'Maria has lived in three different countries. She has learned two new languages and has made friends everywhere she has gone.',
+        questions: [
+          {
+            id: 'ex-3-q1',
+            type: ExerciseType.MultipleChoice,
+            prompt: 'How many languages has Maria learned?',
+            options: ['One', 'Two', 'Three', 'None'],
+            correctOptionIndex: 1,
+            xpReward: 10,
+          },
+        ],
+        xpReward: 10,
+      },
+    ],
+  },
+];

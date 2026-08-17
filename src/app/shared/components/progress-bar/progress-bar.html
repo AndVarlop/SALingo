@@ -1,0 +1,18 @@
+@if (label()) {
+  <div class="progress-bar__header">
+    <span class="progress-bar__label">{{ label() }}</span>
+    @if (showPercent()) {
+      <span class="progress-bar__percent">{{ clamped() }}%</span>
+    }
+  </div>
+}
+<div
+  class="progress-bar"
+  role="progressbar"
+  [attr.aria-valuenow]="clamped()"
+  aria-valuemin="0"
+  aria-valuemax="100"
+  [attr.aria-label]="label() || 'Progress'"
+>
+  <div class="progress-bar__fill" [class]="'progress-bar__fill--' + color()" [style.width.%]="clamped()"></div>
+</div>

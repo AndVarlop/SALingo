@@ -1,0 +1,67 @@
+.profile {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 560px;
+}
+
+.profile__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+
+  h1 {
+    font-size: 1.2rem;
+    font-weight: 800;
+  }
+
+  p {
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+  }
+}
+
+.profile__stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.profile__settings {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.profile__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.profile__row-label,
+.profile__row label {
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.profile__row input[type='number'],
+.profile__row select {
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  width: 140px;
+}
+
+.profile__row--checkbox input {
+  width: 20px;
+  height: 20px;
+}
+
+.profile__theme-toggle {
+  display: flex;
+  gap: 8px;
+}

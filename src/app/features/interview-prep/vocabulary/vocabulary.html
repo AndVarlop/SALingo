@@ -1,0 +1,87 @@
+<section class="icv">
+  <header class="icv__header">
+    <h1>Call Center English</h1>
+    <p>Vocabulary and phrases you'll actually hear and use on the job.</p>
+  </header>
+
+  <div class="icv__tabs">
+    <button type="button" class="icv__tab" [class.icv__tab--active]="tab() === 'vocabulary'" (click)="tab.set('vocabulary')">
+      📖 Vocabulary
+    </button>
+    <button type="button" class="icv__tab" [class.icv__tab--active]="tab() === 'phrases'" (click)="tab.set('phrases')">
+      💬 Phrases
+    </button>
+  </div>
+
+  @if (tab() === 'vocabulary') {
+    <div class="card icv__filters">
+      <input
+        type="text"
+        class="icv__search"
+        placeholder="Search words or translations…"
+        [value]="search()"
+        (input)="search.set($any($event.target).value)"
+      />
+      <div class="icv__chip-row">
+        @for (category of vocabCategories; track category) {
+          <button
+            type="button"
+            class="icv__chip"
+            [class.icv__chip--active]="categoryFilter() === category"
+            (click)="categoryFilter.set(category)"
+          >
+            {{ category }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <div class="icv__grid">
+      @for (word of filteredWords(); track word.id) {
+        <article class="card icv__word" [class.icv__word--known]="progress.isWordKnown(word.id)">
+          <div class="icv__word-head">
+            <div>
+              <strong>{{ word.term }}</strong>
+              <span class="icv__pronunciation">{{ word.pronunciation }}</span>
+            </div>
+            <div class="icv__word-actions">
+              @if (speechSupported) {
+                <button type="button" class="icv__play-btn" (click)="play(word.term)" aria-label="Play pronunciation">🔊</button>
+              }
+              <button
+                type="button"
+                class="icv__known-btn"
+                [class.icv__known-btn--active]="progress.isWordKnown(word.id)"
+                (click)="progress.toggleWordKnown(word.id)"
+              >
+                {{ progress.isWordKnown(word.id) ? '✓ Known' : 'Mark known' }}
+              </button>
+            </div>
+          </div>
+          <p class="icv__translation">{{ word.translation }}</p>
+          <p class="icv__example">"{{ word.example }}"</p>
+          <span class="icv__badge">{{ word.category }} · {{ word.difficulty }}</span>
+        </article>
+      }
+    </div>
+  } @else {
+    <div class="icv__phrases">
+      @for (category of phraseCategories; track category) {
+        <div class="icv__phrase-group">
+          <h2>{{ category }}</h2>
+          @for (phrase of phrasesForCategory(category); track phrase.id) {
+            <div class="card icv__phrase">
+              <div>
+                <strong>"{{ phrase.phrase }}"</strong>
+                <span>{{ phrase.translation }}</span>
+              </div>
+              @if (speechSupported) {
+                <button type="button" class="icv__play-btn" (click)="play(phrase.phrase)" aria-label="Play phrase">🔊</button>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</section>

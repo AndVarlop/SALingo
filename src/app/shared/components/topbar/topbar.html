@@ -1,0 +1,29 @@
+<header class="topbar">
+  <div class="topbar__brand-mobile">
+    <span aria-hidden="true">🌐</span>
+    <span>Lingo</span>
+  </div>
+
+  <div class="topbar__actions">
+    <div class="topbar__chip" title="Current streak">
+      <span aria-hidden="true">🔥</span>
+      <span>{{ streak() }}</span>
+    </div>
+
+    <div class="topbar__chip" title="Total XP">
+      <span aria-hidden="true">⭐</span>
+      <span>{{ xp() }} XP</span>
+    </div>
+
+    <button
+      type="button"
+      class="topbar__theme-btn"
+      (click)="themeToggle.emit()"
+      [attr.aria-label]="isDark() ? 'Switch to light mode' : 'Switch to dark mode'"
+    >
+      {{ isDark() ? '☀️' : '🌙' }}
+    </button>
+
+    <div class="topbar__avatar" aria-hidden="true">{{ avatarEmoji() }}</div>
+  </div>
+</header>

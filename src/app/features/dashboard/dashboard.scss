@@ -1,0 +1,151 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.dashboard__greeting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+  }
+}
+
+.dashboard__subtitle {
+  color: var(--color-text-muted);
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.dashboard__streak-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-warn) 16%, transparent);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.dashboard__grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 16px;
+
+  &--secondary {
+    grid-template-columns: 1.2fr 1fr;
+  }
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+
+    &--secondary {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+.card--hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  background: linear-gradient(135deg, var(--color-primary-soft), var(--color-surface));
+
+  h2 {
+    font-size: 1.2rem;
+    margin: 6px 0;
+  }
+
+  p {
+    color: var(--color-text-muted);
+    margin-bottom: 14px;
+    font-size: 0.9rem;
+  }
+}
+
+.card--hero__info {
+  min-width: 0;
+}
+
+.dashboard__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+
+  @media (max-width: 900px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.dashboard__rec-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dashboard__rec-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+}
+
+.dashboard__rec-icon {
+  font-size: 1.4rem;
+}
+
+.dashboard__rec-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  font-size: 0.85rem;
+
+  span {
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+  }
+}
+
+.dashboard__recent-title {
+  margin-top: 20px;
+}
+
+.dashboard__activity-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--color-border);
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}
+
+.dashboard__activity-xp {
+  color: var(--color-success);
+  font-weight: 700;
+}

@@ -1,0 +1,23 @@
+<div class="shell">
+  <app-sidebar
+    class="shell__sidebar"
+    [userName]="userState.user().name"
+    [streak]="userState.streak()"
+  />
+
+  <div class="shell__main">
+    <app-topbar
+      [xp]="userState.xp()"
+      [streak]="userState.streak()"
+      [avatarEmoji]="userState.user().avatarEmoji"
+      [isDark]="isDark()"
+      (themeToggle)="toggleTheme()"
+    />
+
+    <main class="shell__content">
+      <router-outlet />
+    </main>
+  </div>
+
+  <app-bottom-nav class="shell__bottom-nav" />
+</div>

@@ -1,0 +1,84 @@
+<section class="writing">
+  @switch (phase()) {
+    @case ('selecting') {
+      <header class="writing__header">
+        <h1>Writing</h1>
+        <p>Pick a topic and write a short text. You'll get feedback on grammar, vocabulary and coherence.</p>
+      </header>
+
+      <div class="writing__prompts">
+        @for (prompt of prompts; track prompt.id) {
+          <button type="button" class="card writing__prompt" (click)="selectPrompt(prompt)">
+            <strong>{{ prompt.title }}</strong>
+            <span>{{ prompt.description }}</span>
+            <span class="writing__prompt-meta">{{ prompt.minWords }}+ words</span>
+          </button>
+        }
+      </div>
+    }
+
+    @case ('writing') {
+      @if (selectedPrompt(); as prompt) {
+        <div class="card writing__editor">
+          <span class="card__eyebrow">{{ prompt.title }}</span>
+          <p class="writing__description">{{ prompt.description }}</p>
+
+          <textarea
+            class="writing__textarea"
+            rows="10"
+            placeholder="Start writing here…"
+            [value]="text()"
+            (input)="setText($any($event.target).value)"
+          ></textarea>
+
+          <div class="writing__footer">
+            <span class="writing__word-count">{{ wordCount() }} words</span>
+            <button
+              type="button"
+              class="btn btn--primary"
+              [disabled]="wordCount() < 10 || evaluating()"
+              (click)="submit()"
+            >
+              {{ evaluating() ? 'Evaluating…' : 'Submit for feedback' }}
+            </button>
+          </div>
+        </div>
+      }
+    }
+
+    @case ('result') {
+      @if (evaluation(); as evaluation) {
+        <div class="card writing__result">
+          <span class="card__eyebrow">Your feedback</span>
+          <div class="writing__score-circle">{{ evaluation.overallScore }}%</div>
+
+          <div class="writing__scores">
+            <div>
+              <span>Grammar</span>
+              <strong>{{ evaluation.grammarScore }}%</strong>
+            </div>
+            <div>
+              <span>Vocabulary</span>
+              <strong>{{ evaluation.vocabularyScore }}%</strong>
+            </div>
+            <div>
+              <span>Coherence</span>
+              <strong>{{ evaluation.coherenceScore }}%</strong>
+            </div>
+          </div>
+
+          <h3>Suggestions</h3>
+          <ul class="writing__suggestions">
+            @for (suggestion of evaluation.suggestions; track suggestion) {
+              <li>💡 {{ suggestion }}</li>
+            }
+          </ul>
+
+          <button type="button" class="btn btn--primary btn--block" (click)="writeAnother()">
+            Write another
+          </button>
+        </div>
+      }
+    }
+  }
+</section>

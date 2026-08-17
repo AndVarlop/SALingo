@@ -1,0 +1,42 @@
+<section class="lessons">
+  <header class="lessons__header">
+    <h1>Learn</h1>
+    <p>Work through lessons level by level. Each one ends with a real set of exercises — XP, streak and progress all update live.</p>
+  </header>
+
+  @for (level of levels; track level) {
+    @if (lessonsForLevel(level).length) {
+      <div class="lessons__level">
+        <div class="lessons__level-header">
+          <h2>{{ level }} · {{ levelLabel[level] }}</h2>
+          <span class="lessons__level-percent">{{ levelPercent(level) }}%</span>
+        </div>
+        <app-progress-bar [value]="levelPercent(level)" />
+
+        <ul class="lessons__list">
+          @for (lesson of lessonsForLevel(level); track lesson.id) {
+            <li class="lessons__item" [class.lessons__item--locked]="!isUnlocked(lesson)">
+              <span class="lessons__icon" aria-hidden="true">{{ lesson.iconEmoji }}</span>
+              <div class="lessons__item-body">
+                <strong>{{ lesson.title }}</strong>
+                <span>{{ lesson.description }}</span>
+              </div>
+
+              @if (isCompleted(lesson)) {
+                <a class="btn btn--ghost" [routerLink]="['/lessons', lesson.id]">
+                  <app-badge-chip tone="success" icon="✓">Done</app-badge-chip>
+                </a>
+              } @else if (!isUnlocked(lesson)) {
+                <app-badge-chip tone="neutral" icon="🔒" [locked]="true">Locked</app-badge-chip>
+              } @else {
+                <a class="btn btn--primary" [routerLink]="['/lessons', lesson.id]">
+                  Start · +{{ lesson.xpReward }} XP
+                </a>
+              }
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  }
+</section>

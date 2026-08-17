@@ -1,0 +1,42 @@
+.streak-calendar {
+  display: flex;
+  justify-content: space-between;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 6px;
+}
+
+.streak-calendar__day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.streak-calendar__weekday {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.streak-calendar__dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-alt);
+  font-size: 1rem;
+
+  &--active {
+    background: color-mix(in srgb, var(--color-warn) 20%, transparent);
+  }
+}
+
+.streak-calendar__day--today .streak-calendar__dot {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}

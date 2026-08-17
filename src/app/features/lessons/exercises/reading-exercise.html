@@ -1,0 +1,28 @@
+<p class="exercise-prompt">{{ exercise().prompt }}</p>
+
+<div class="reading-exercise__passage">{{ exercise().passage }}</div>
+
+@for (question of exercise().questions; track question.id; let qi = $index) {
+  <p class="exercise-prompt reading-exercise__question">{{ question.prompt }}</p>
+  <div class="exercise-options">
+    @for (option of question.options; track $index) {
+      <button
+        type="button"
+        class="exercise-option"
+        [class.exercise-option--selected]="selections()[qi] === $index && !locked()"
+        [class.exercise-option--correct]="locked() && $index === question.correctOptionIndex"
+        [class.exercise-option--incorrect]="
+          locked() && selections()[qi] === $index && $index !== question.correctOptionIndex
+        "
+        [disabled]="locked()"
+        (click)="select(qi, $index)"
+      >
+        {{ option }}
+      </button>
+    }
+  </div>
+}
+
+<button type="button" class="btn btn--primary" [disabled]="!canCheck()" (click)="check()">
+  Check answers
+</button>

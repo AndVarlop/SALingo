@@ -1,0 +1,25 @@
+<section class="listening">
+  @switch (phase()) {
+    @case ('idle') {
+      <div class="card listening__idle">
+        <span class="listening__icon" aria-hidden="true">🎧</span>
+        <h1>Listening practice</h1>
+        <p>{{ exercises.length }} short audio clips. Listen, then choose what you heard.</p>
+        <button type="button" class="btn btn--primary" (click)="start()">Start practice</button>
+      </div>
+    }
+
+    @case ('playing') {
+      <app-exercise-player [exercises]="exercises" (finished)="onFinished($event)" />
+    }
+
+    @case ('summary') {
+      <div class="card listening__idle">
+        <span class="listening__icon" aria-hidden="true">{{ lastAccuracy() >= 70 ? '🎉' : '🎧' }}</span>
+        <h1>Practice complete!</h1>
+        <p class="listening__xp">+{{ lastXp() }} XP · {{ lastAccuracy() }}% accuracy</p>
+        <button type="button" class="btn btn--primary" (click)="reset()">Practice again</button>
+      </div>
+    }
+  }
+</section>

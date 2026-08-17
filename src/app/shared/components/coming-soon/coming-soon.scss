@@ -1,0 +1,36 @@
+.coming-soon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 64px 24px;
+  max-width: 480px;
+  margin: 40px auto 0;
+}
+
+.coming-soon__icon {
+  font-size: 3rem;
+}
+
+.coming-soon__badge {
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.coming-soon h1 {
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.coming-soon p {
+  color: var(--color-text-muted);
+  font-size: 0.92rem;
+}

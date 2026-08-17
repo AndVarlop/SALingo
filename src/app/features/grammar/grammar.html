@@ -1,0 +1,35 @@
+<section class="grammar">
+  <header class="grammar__header">
+    <h1>Grammar</h1>
+    <p>Plain-language explanations, examples, common mistakes and a short test for each topic.</p>
+  </header>
+
+  @for (level of levels; track level) {
+    @if (topicsForLevel(level).length) {
+      <div class="grammar__level">
+        <h2>{{ level }} · {{ levelLabel[level] }}</h2>
+        <ul class="grammar__list">
+          @for (topic of topicsForLevel(level); track topic.id) {
+            <li class="grammar__item">
+              <a class="grammar__link" [routerLink]="['/grammar', topic.id]">
+                <div class="grammar__item-body">
+                  <strong>{{ topic.title }}</strong>
+                  <span>{{ topic.summary }}</span>
+                </div>
+                @if (grammarService.progressFor(topic.id).completed) {
+                  <app-badge-chip tone="success" icon="✓">
+                    {{ grammarService.progressFor(topic.id).bestScore }}%
+                  </app-badge-chip>
+                } @else if (grammarService.progressFor(topic.id).attempts > 0) {
+                  <app-badge-chip tone="warn">{{ grammarService.progressFor(topic.id).bestScore }}%</app-badge-chip>
+                } @else {
+                  <app-badge-chip tone="neutral">Not started</app-badge-chip>
+                }
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  }
+</section>

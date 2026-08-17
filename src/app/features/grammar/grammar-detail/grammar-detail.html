@@ -1,0 +1,53 @@
+@if (topic(); as topic) {
+  <div class="grammar-detail">
+    @switch (phase()) {
+      @case ('intro') {
+        <div class="card grammar-detail__intro">
+          <span class="card__eyebrow">{{ topic.level }} · Grammar</span>
+          <h1>{{ topic.title }}</h1>
+          <p class="grammar-detail__explanation">{{ topic.explanation }}</p>
+
+          <h3>Examples</h3>
+          <ul class="grammar-detail__examples">
+            @for (example of topic.examples; track example) {
+              <li>{{ example }}</li>
+            }
+          </ul>
+
+          <h3>Common mistakes</h3>
+          <ul class="grammar-detail__mistakes">
+            @for (mistake of topic.commonMistakes; track mistake) {
+              <li>⚠️ {{ mistake }}</li>
+            }
+          </ul>
+
+          <button type="button" class="btn btn--primary btn--block" (click)="startTest()">
+            Take the test · {{ topic.exercises.length }} questions
+          </button>
+        </div>
+      }
+
+      @case ('test') {
+        <app-exercise-player [exercises]="topic.exercises" (finished)="onFinished($event)" />
+      }
+
+      @case ('summary') {
+        <div class="card grammar-detail__summary">
+          <span class="grammar-detail__summary-icon" aria-hidden="true">
+            {{ lastScore() >= 70 ? '🎉' : '📘' }}
+          </span>
+          <h1>{{ lastScore() }}% score</h1>
+          <p class="grammar-detail__summary-xp">+{{ lastXp() }} XP</p>
+          @if (lastScore() < 70) {
+            <p class="grammar-detail__tip">Scores under 70% don't mark the topic complete — try again anytime.</p>
+          }
+          <button type="button" class="btn btn--primary btn--block" (click)="backToGrammar()">Continue</button>
+        </div>
+      }
+    }
+  </div>
+} @else {
+  <app-empty-state icon="🔍" title="Topic not found" description="This grammar topic doesn't exist.">
+    <a class="btn btn--primary" routerLink="/grammar">Back to Grammar</a>
+  </app-empty-state>
+}

@@ -1,0 +1,68 @@
+<section class="review">
+  @switch (phase()) {
+    @case ('idle') {
+      @if (loading()) {
+        <div class="card review__idle">
+          <p>Loading your review queue…</p>
+        </div>
+      } @else if (dueCount() > 0) {
+        <div class="card review__idle">
+          <span class="review__idle-icon" aria-hidden="true">🧠</span>
+          <h1>You have {{ dueCount() }} word{{ dueCount() === 1 ? '' : 's' }} to review today</h1>
+          <p>Quick flashcards — see the word, try to recall it, then grade yourself.</p>
+          <button type="button" class="btn btn--primary" (click)="startSession()">Start review</button>
+        </div>
+      } @else {
+        <app-empty-state icon="🎉" title="You're all caught up!" description="No words due for review right now. Check back later." />
+      }
+    }
+
+    @case ('reviewing') {
+      @if (currentWord(); as word) {
+        <div class="review__progress">{{ progressLabel() }}</div>
+
+        <div class="card review__card">
+          <span class="review__badge">{{ word.category }} · {{ word.level }}</span>
+          <h2 class="review__term">{{ word.term }}</h2>
+          <span class="review__pronunciation">{{ word.pronunciation }}</span>
+
+          @if (revealed()) {
+            <div class="review__answer">
+              <p class="review__translation">{{ word.translation }}</p>
+              <p class="review__example">"{{ word.example }}"</p>
+            </div>
+
+            <div class="review__grades">
+              <button type="button" class="review__grade review__grade--again" (click)="grade('again')">
+                😵 Again
+              </button>
+              <button type="button" class="review__grade review__grade--hard" (click)="grade('hard')">
+                😕 Hard
+              </button>
+              <button type="button" class="review__grade review__grade--good" (click)="grade('good')">
+                🙂 Good
+              </button>
+              <button type="button" class="review__grade review__grade--easy" (click)="grade('easy')">
+                😄 Easy
+              </button>
+            </div>
+          } @else {
+            <button type="button" class="btn btn--primary btn--block review__reveal" (click)="reveal()">
+              Show answer
+            </button>
+          }
+        </div>
+      }
+    }
+
+    @case ('complete') {
+      <div class="card review__idle">
+        <span class="review__idle-icon" aria-hidden="true">🎉</span>
+        <h1>Review complete!</h1>
+        <p class="review__summary-xp">+{{ sessionXp }} XP</p>
+        <p>{{ sessionAccuracy }}% accuracy this session</p>
+        <button type="button" class="btn btn--primary" (click)="reviewAgain()">Back to Review</button>
+      </div>
+    }
+  }
+</section>

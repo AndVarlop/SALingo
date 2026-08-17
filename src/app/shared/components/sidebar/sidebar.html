@@ -1,0 +1,26 @@
+<nav class="sidebar" aria-label="Main navigation">
+  <div class="sidebar__brand">
+    <span class="sidebar__logo">🌐</span>
+    <span class="sidebar__name">Lingo</span>
+  </div>
+
+  <ul class="sidebar__list">
+    @for (item of navItems; track item.routerLink) {
+      <li>
+        <a
+          class="sidebar__link"
+          [routerLink]="item.routerLink"
+          routerLinkActive="sidebar__link--active"
+        >
+          <span class="sidebar__icon" aria-hidden="true">{{ item.icon }}</span>
+          <span>{{ item.label }}</span>
+        </a>
+      </li>
+    }
+  </ul>
+
+  <div class="sidebar__footer">
+    <span aria-hidden="true">🔥</span>
+    <span>{{ streak() }} day streak</span>
+  </div>
+</nav>

@@ -1,0 +1,51 @@
+<section class="answer-builder">
+  <header class="answer-builder__header">
+    <h1>🛠️ Build Your Answer</h1>
+    <p>Answer a few simple questions and we'll suggest a first draft. Edit it to sound like you — never copy it word for word.</p>
+  </header>
+
+  <form class="card answer-builder__form" [formGroup]="form" (ngSubmit)="generateDraft()">
+    <div class="answer-builder__field">
+      <label for="name">1. What's your name?</label>
+      <input id="name" type="text" formControlName="name" placeholder="e.g. Andres" />
+    </div>
+
+    <div class="answer-builder__field">
+      <label for="whatYouDo">2. What do you do?</label>
+      <input id="whatYouDo" type="text" formControlName="whatYouDo" placeholder="e.g. a student, currently looking for a job" />
+    </div>
+
+    <div class="answer-builder__field">
+      <label for="hasExperience">3. Do you have previous experience?</label>
+      <select id="hasExperience" formControlName="hasExperience">
+        <option value="no">No</option>
+        <option value="yes">Yes</option>
+      </select>
+    </div>
+
+    <div class="answer-builder__field">
+      <label for="skills">4. What are your strongest skills?</label>
+      <input id="skills" type="text" formControlName="strongestSkills" placeholder="e.g. communication and problem-solving" />
+    </div>
+
+    <div class="answer-builder__field">
+      <label for="whyJob">5. Why do you want this job?</label>
+      <input id="whyJob" type="text" formControlName="whyThisJob" placeholder="e.g. I enjoy helping people and want to grow" />
+    </div>
+
+    <button type="submit" class="btn btn--primary btn--block">Generate suggested answer</button>
+  </form>
+
+  @if (draft()) {
+    <div class="card answer-builder__draft">
+      <span class="card__eyebrow">Your suggested answer — edit it!</span>
+      <textarea rows="6" [value]="draft()" (input)="setDraft($any($event.target).value)"></textarea>
+      <div class="answer-builder__draft-actions">
+        <button type="button" class="btn btn--ghost" (click)="goToQuestion()">View full question</button>
+        <button type="button" class="btn btn--primary" (click)="saveAnswer()">
+          {{ saved() ? '✓ Saved' : 'Save this answer' }}
+        </button>
+      </div>
+    </div>
+  }
+</section>

@@ -1,0 +1,10 @@
+<span
+  class="badge-chip"
+  [class]="'badge-chip--' + tone()"
+  [class.badge-chip--locked]="locked()"
+>
+  @if (icon()) {
+    <span class="badge-chip__icon" aria-hidden="true">{{ icon() }}</span>
+  }
+  <span class="badge-chip__label"><ng-content /></span>
+</span>

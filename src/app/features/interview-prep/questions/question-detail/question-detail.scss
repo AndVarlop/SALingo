@@ -1,0 +1,97 @@
+.iq-detail {
+  max-width: 620px;
+  margin: 0 auto;
+}
+
+.iq-detail__back {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.iq-detail__card h1 {
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 6px 0 20px;
+}
+
+.iq-detail__section {
+  margin-bottom: 20px;
+
+  h3 {
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--color-text-muted);
+    margin-bottom: 8px;
+  }
+
+  p {
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+}
+
+.iq-detail__structure {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.88rem;
+}
+
+.iq-detail__example {
+  font-style: italic;
+  background: var(--color-surface-alt);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+}
+
+.iq-detail__vocab {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.iq-detail__vocab-chip {
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.iq-detail__warning {
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-warn) 14%, transparent);
+  color: var(--color-warn);
+  font-size: 0.82rem;
+  margin-bottom: 20px;
+}
+
+.iq-detail__builder-link {
+  margin-bottom: 20px;
+}
+
+.iq-detail__your-answer textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: 0.88rem;
+  resize: vertical;
+  margin-bottom: 12px;
+
+  &:focus-visible {
+    border-color: var(--color-primary);
+  }
+}

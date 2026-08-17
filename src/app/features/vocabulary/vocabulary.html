@@ -1,0 +1,102 @@
+<section class="vocabulary">
+  <header class="vocabulary__header">
+    <h1>Vocabulary</h1>
+    <p>{{ filteredWords().length }} words · search, filter and track how well you know each one.</p>
+  </header>
+
+  <div class="card vocabulary__filters">
+    <input
+      type="text"
+      class="vocabulary__search"
+      placeholder="Search words or translations…"
+      [value]="search()"
+      (input)="setSearch($any($event.target).value)"
+    />
+
+    <div class="vocabulary__chip-row">
+      @for (category of categories; track category) {
+        <button
+          type="button"
+          class="vocabulary__chip"
+          [class.vocabulary__chip--active]="categoryFilter() === category"
+          (click)="categoryFilter.set(category)"
+        >
+          {{ category }}
+        </button>
+      }
+    </div>
+
+    <div class="vocabulary__chip-row">
+      @for (level of levels; track level) {
+        <button
+          type="button"
+          class="vocabulary__chip"
+          [class.vocabulary__chip--active]="levelFilter() === level"
+          (click)="levelFilter.set(level)"
+        >
+          {{ level }}
+        </button>
+      }
+      <button
+        type="button"
+        class="vocabulary__chip vocabulary__chip--favorite"
+        [class.vocabulary__chip--active]="favoritesOnly()"
+        (click)="favoritesOnly.set(!favoritesOnly())"
+      >
+        ⭐ Favorites
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="vocabulary__grid">
+      @for (i of [1, 2, 3, 4, 5, 6]; track i) {
+        <div class="card vocabulary__skeleton-card">
+          <app-skeleton height="20px" width="60%" />
+          <app-skeleton height="14px" width="40%" />
+          <app-skeleton height="14px" width="90%" />
+        </div>
+      }
+    </div>
+  } @else if (filteredWords().length) {
+    <div class="vocabulary__grid">
+      @for (word of filteredWords(); track word.id) {
+        <article class="card vocabulary__word">
+          <div class="vocabulary__word-head">
+            <div>
+              <strong>{{ word.term }}</strong>
+              <span class="vocabulary__pronunciation">{{ word.pronunciation }}</span>
+            </div>
+            <button
+              type="button"
+              class="vocabulary__favorite-btn"
+              [class.vocabulary__favorite-btn--active]="word.isFavorite"
+              (click)="toggleFavorite(word.id, $event)"
+              [attr.aria-label]="word.isFavorite ? 'Remove from favorites' : 'Add to favorites'"
+            >
+              {{ word.isFavorite ? '⭐' : '☆' }}
+            </button>
+          </div>
+
+          <p class="vocabulary__translation">{{ word.translation }}</p>
+          <p class="vocabulary__example">"{{ word.example }}"</p>
+
+          <div class="vocabulary__meta">
+            <span class="vocabulary__badge">{{ word.category }}</span>
+            <span class="vocabulary__badge">{{ word.level }}</span>
+          </div>
+
+          <app-progress-bar [value]="word.masteryPercent" label="Mastery" [showPercent]="true" />
+        </article>
+      }
+    </div>
+  } @else {
+    <app-empty-state
+      icon="🔍"
+      title="No words found"
+      description="Try a different search term or clear your filters."
+    />
+  }
+
+  <a class="btn btn--primary vocabulary__review-cta" routerLink="/review">🧠 Go to Review</a>
+</section>

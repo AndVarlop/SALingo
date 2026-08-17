@@ -1,0 +1,34 @@
+.listening {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.listening__idle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  padding: 48px 28px;
+
+  h1 {
+    font-size: 1.2rem;
+    font-weight: 800;
+    margin-top: 4px;
+  }
+
+  p {
+    color: var(--color-text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+  }
+}
+
+.listening__icon {
+  font-size: 2.6rem;
+}
+
+.listening__xp {
+  color: var(--color-success);
+  font-weight: 700;
+}

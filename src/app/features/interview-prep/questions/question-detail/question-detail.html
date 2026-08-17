@@ -1,0 +1,70 @@
+@if (question(); as question) {
+  <div class="iq-detail">
+    <a class="iq-detail__back" routerLink="/interview-prep/questions">← Back to questions</a>
+
+    <div class="card iq-detail__card">
+      <span class="card__eyebrow">{{ question.category }}</span>
+      <h1>"{{ question.question }}"</h1>
+
+      <section class="iq-detail__section">
+        <h3>What the interviewer wants to know</h3>
+        <p>{{ question.whatInterviewerWants }}</p>
+      </section>
+
+      <section class="iq-detail__section">
+        <h3>Recommended structure</h3>
+        <ol class="iq-detail__structure">
+          @for (step of question.structure; track step) {
+            <li>{{ step }}</li>
+          }
+        </ol>
+      </section>
+
+      <section class="iq-detail__section">
+        <h3>Example answer</h3>
+        <p class="iq-detail__example">"{{ question.exampleAnswer }}"</p>
+      </section>
+
+      <section class="iq-detail__section">
+        <h3>Spanish explanation</h3>
+        <p>{{ question.spanishExplanation }}</p>
+      </section>
+
+      <section class="iq-detail__section">
+        <h3>Useful vocabulary</h3>
+        <div class="iq-detail__vocab">
+          @for (word of question.usefulVocabulary; track word) {
+            <span class="iq-detail__vocab-chip">{{ word }}</span>
+          }
+        </div>
+      </section>
+
+      <div class="iq-detail__warning">
+        ⚠️ Don't memorize the answer word by word. Use the structure and answer naturally, in your own words.
+      </div>
+
+      @if (question.id === 'iq-tell-me-about-yourself') {
+        <a class="btn btn--ghost btn--block iq-detail__builder-link" [routerLink]="['/interview-prep/answer-builder', question.id]">
+          🛠️ Use the Answer Builder instead
+        </a>
+      }
+
+      <section class="iq-detail__section iq-detail__your-answer">
+        <h3>Your answer</h3>
+        <textarea
+          rows="6"
+          placeholder="Now write your own answer, in your own words…"
+          [value]="myAnswer()"
+          (input)="setAnswer($any($event.target).value)"
+        ></textarea>
+        <button type="button" class="btn btn--primary" (click)="save()" [disabled]="!myAnswer().trim()">
+          {{ saved() ? '✓ Saved' : 'Save my answer' }}
+        </button>
+      </section>
+    </div>
+  </div>
+} @else {
+  <app-empty-state icon="🔍" title="Question not found" description="This question doesn't exist.">
+    <a class="btn btn--primary" routerLink="/interview-prep/questions">Back to questions</a>
+  </app-empty-state>
+}

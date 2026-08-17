@@ -1,0 +1,27 @@
+<p class="exercise-prompt">{{ exercise().prompt }}</p>
+
+<div class="word-order__built" [class.word-order__built--empty]="builtSentence().length === 0">
+  @if (builtSentence().length) {
+    @for (chip of orderedBuiltChips(); track chip.word + $index) {
+      <button type="button" class="word-order__chip" [disabled]="locked()" (click)="tapUsed(chip)">
+        {{ chip.word }}
+      </button>
+    }
+  } @else {
+    <span>Tap the words below in order</span>
+  }
+</div>
+
+<div class="word-order__bank">
+  @for (chip of chips(); track chip.word + $index) {
+    @if (chip.usedIndex === null) {
+      <button type="button" class="word-order__chip word-order__chip--bank" (click)="tapAvailable(chip)">
+        {{ chip.word }}
+      </button>
+    }
+  }
+</div>
+
+<button type="button" class="btn btn--primary" [disabled]="!canCheck()" (click)="check()">
+  Check
+</button>

@@ -1,0 +1,105 @@
+<section class="dashboard">
+  <header class="dashboard__greeting">
+    <div>
+      <h1>{{ greeting() }}, {{ firstName() }} 👋</h1>
+      <p class="dashboard__subtitle">
+        Learning <strong>English</strong> · Level {{ languageProgress().level }}
+      </p>
+    </div>
+    <div class="dashboard__streak-chip">
+      <span aria-hidden="true">🔥</span>
+      <span>{{ userState.streak() }} day streak</span>
+    </div>
+  </header>
+
+  <div class="dashboard__grid">
+    <!-- Continue learning -->
+    <article class="card card--hero">
+      <div class="card--hero__info">
+        <span class="card__eyebrow">Recommended for you</span>
+        @if (recommendedLesson(); as lesson) {
+          <h2>{{ lesson.iconEmoji }} {{ lesson.title }}</h2>
+          <p>{{ lesson.description }}</p>
+          <a class="btn btn--primary" routerLink="/lessons">Continue lesson</a>
+        } @else {
+          <h2>🎉 All lessons complete!</h2>
+          <p>You've finished every available lesson at this level.</p>
+        }
+      </div>
+      <app-progress-ring [value]="userState.levelProgressPercent()" [size]="104" />
+    </article>
+
+    <!-- Daily goal -->
+    <article class="card">
+      <span class="card__eyebrow">Today's goal</span>
+      <p class="card__big-number">{{ userState.todayMinutes() }} / {{ userState.dailyGoalMinutes() }} min</p>
+      <app-progress-bar [value]="userState.dailyGoalPercent()" color="accent" />
+    </article>
+
+    <!-- XP / level -->
+    <article class="card">
+      <span class="card__eyebrow">Level progress</span>
+      <p class="card__big-number">{{ userState.xp() }} XP</p>
+      <app-progress-bar
+        [value]="userState.levelProgressPercent()"
+        [label]="'Next level at ' + userState.xpToNextLevel() + ' XP'"
+        [showPercent]="true"
+      />
+    </article>
+  </div>
+
+  <!-- Stats -->
+  <div class="dashboard__stats">
+    <app-stat-card icon="📚" label="Words learned" [value]="languageProgress().wordsLearned + ''" />
+    <app-stat-card
+      icon="⏱️"
+      label="Time studied"
+      [value]="(languageProgress().totalStudyMinutes / 60 | number: '1.0-1') + ' h'"
+    />
+    <app-stat-card icon="🎯" label="Avg. accuracy" [value]="languageProgress().averageAccuracy + '%'" />
+    <app-stat-card icon="🏆" label="Longest streak" [value]="userState.longestStreak() + ' days'" />
+  </div>
+
+  <div class="dashboard__grid dashboard__grid--secondary">
+    <!-- Recommendations -->
+    <article class="card">
+      <span class="card__eyebrow">Recommended for you</span>
+      <ul class="dashboard__rec-list">
+        @for (rec of recommendations(); track rec.id) {
+          <li class="dashboard__rec-item">
+            <span class="dashboard__rec-icon" aria-hidden="true">{{ rec.iconEmoji }}</span>
+            <div class="dashboard__rec-body">
+              <strong>{{ rec.title }}</strong>
+              <span>{{ rec.description }}</span>
+            </div>
+            <a class="btn btn--ghost" [routerLink]="rec.routerLink">{{ rec.actionLabel }}</a>
+          </li>
+        }
+      </ul>
+    </article>
+
+    <!-- Activity calendar + recent log -->
+    <article class="card">
+      <span class="card__eyebrow">This week</span>
+      <app-streak-calendar [activity]="userState.progress().activityByDate" />
+
+      <span class="card__eyebrow dashboard__recent-title">Recent activity</span>
+      @if (recentActivity().length) {
+        <ul class="dashboard__activity-list">
+          @for (entry of recentActivity(); track entry.id) {
+            <li>
+              <span>{{ entry.title }}</span>
+              <span class="dashboard__activity-xp">+{{ entry.xpEarned }} XP</span>
+            </li>
+          }
+        </ul>
+      } @else {
+        <app-empty-state
+          icon="🌱"
+          title="No activity yet"
+          description="Complete a lesson to see it show up here."
+        />
+      }
+    </article>
+  </div>
+</section>

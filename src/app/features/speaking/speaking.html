@@ -1,0 +1,30 @@
+<section class="speaking">
+  @switch (phase()) {
+    @case ('idle') {
+      <div class="card speaking__idle">
+        <span class="speaking__icon" aria-hidden="true">🎤</span>
+        <h1>Speaking practice</h1>
+        <p>{{ exercises.length }} sentences to say out loud. We'll score your pronunciation.</p>
+        @if (!isSupported) {
+          <p class="speaking__warning">
+            ⚠️ Your browser doesn't support speech recognition — you'll self-report each answer instead.
+          </p>
+        }
+        <button type="button" class="btn btn--primary" (click)="start()">Start practice</button>
+      </div>
+    }
+
+    @case ('playing') {
+      <app-exercise-player [exercises]="exercises" (finished)="onFinished($event)" />
+    }
+
+    @case ('summary') {
+      <div class="card speaking__idle">
+        <span class="speaking__icon" aria-hidden="true">{{ lastAccuracy() >= 70 ? '🎉' : '🎤' }}</span>
+        <h1>Practice complete!</h1>
+        <p class="speaking__xp">+{{ lastXp() }} XP · {{ lastAccuracy() }}% accuracy</p>
+        <button type="button" class="btn btn--primary" (click)="reset()">Practice again</button>
+      </div>
+    }
+  }
+</section>

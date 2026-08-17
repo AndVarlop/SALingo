@@ -1,0 +1,31 @@
+<svg
+  class="progress-ring"
+  [attr.width]="size()"
+  [attr.height]="size()"
+  [attr.viewBox]="'0 0 ' + size() + ' ' + size()"
+  role="img"
+  [attr.aria-label]="clamped() + '% complete'"
+>
+  <circle
+    class="progress-ring__track"
+    [attr.cx]="size() / 2"
+    [attr.cy]="size() / 2"
+    [attr.r]="radius()"
+    [attr.stroke-width]="strokeWidth()"
+    fill="none"
+  />
+  <circle
+    class="progress-ring__fill"
+    [attr.cx]="size() / 2"
+    [attr.cy]="size() / 2"
+    [attr.r]="radius()"
+    [attr.stroke-width]="strokeWidth()"
+    fill="none"
+    [attr.stroke-dasharray]="circumference()"
+    [attr.stroke-dashoffset]="offset()"
+    [attr.transform]="'rotate(-90 ' + size() / 2 + ' ' + size() / 2 + ')'"
+  />
+  <text class="progress-ring__text" x="50%" y="50%" text-anchor="middle" dy="0.35em">
+    {{ clamped() }}%
+  </text>
+</svg>
