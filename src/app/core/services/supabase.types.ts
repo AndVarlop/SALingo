@@ -221,6 +221,24 @@ export interface Database {
         Update: Partial<Database['public']['Tables']['interview_tips_checklist']['Row']>;
         Relationships: [];
       };
+      job_outcomes: {
+        Row: {
+          id: string;
+          user_id: string;
+          company: string;
+          position: string | null;
+          outcome: string;
+          notes: string | null;
+          event_date: string;
+          created_at: string;
+        };
+        Insert: Partial<Database['public']['Tables']['job_outcomes']['Row']> & {
+          user_id: string;
+          outcome: string;
+        };
+        Update: Partial<Database['public']['Tables']['job_outcomes']['Row']>;
+        Relationships: [];
+      };
       interview_sessions: {
         Row: {
           id: string;

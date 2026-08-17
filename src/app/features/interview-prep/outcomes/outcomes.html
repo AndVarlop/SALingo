@@ -1,0 +1,75 @@
+<section class="jo">
+  <header class="jo__header">
+    <h1>🎯 My Results</h1>
+    <p>Track what actually happens after you apply — this is what tells us if your prep is really working.</p>
+  </header>
+
+  @if (!showForm()) {
+    <button type="button" class="btn btn--primary btn--block" (click)="showForm.set(true)">
+      + Log an outcome
+    </button>
+  } @else {
+    <form class="card jo__form" [formGroup]="form" (ngSubmit)="submit()">
+      <div class="jo__field">
+        <label for="company">Company</label>
+        <input id="company" type="text" formControlName="company" placeholder="e.g. Acme Support Co." />
+      </div>
+
+      <div class="jo__field">
+        <label for="position">Position (optional)</label>
+        <input id="position" type="text" formControlName="position" placeholder="e.g. Customer Service Representative" />
+      </div>
+
+      <div class="jo__field">
+        <label for="outcome">What happened?</label>
+        <select id="outcome" formControlName="outcome">
+          @for (opt of outcomeOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.icon }} {{ opt.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="jo__field">
+        <label for="eventDate">Date</label>
+        <input id="eventDate" type="date" formControlName="eventDate" />
+      </div>
+
+      <div class="jo__field">
+        <label for="notes">Notes (optional)</label>
+        <textarea id="notes" rows="3" formControlName="notes" placeholder="Anything worth remembering…"></textarea>
+      </div>
+
+      <div class="jo__form-actions">
+        <button type="button" class="btn btn--ghost" (click)="showForm.set(false)">Cancel</button>
+        <button type="submit" class="btn btn--primary" [disabled]="!form.controls.company.value.trim()">Save</button>
+      </div>
+    </form>
+  }
+
+  @if (outcomeService.history().length) {
+    <ul class="jo__list">
+      @for (entry of outcomeService.history(); track entry.id) {
+        <li class="card jo__item">
+          <span class="jo__item-icon" aria-hidden="true">{{ optionByValue[entry.outcome].icon }}</span>
+          <div class="jo__item-body">
+            <strong>{{ entry.company }}</strong>
+            <span>
+              {{ optionByValue[entry.outcome].label }}
+              @if (entry.position) { · {{ entry.position }} }
+              · {{ entry.eventDate }}
+            </span>
+            @if (entry.notes) {
+              <p>{{ entry.notes }}</p>
+            }
+          </div>
+        </li>
+      }
+    </ul>
+  } @else if (!showForm()) {
+    <app-empty-state
+      icon="🎯"
+      title="No results logged yet"
+      description="After you apply somewhere, come back and log what happens — it's how we'll know your prep is actually working."
+    />
+  }
+</section>

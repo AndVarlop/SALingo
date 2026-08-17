@@ -190,6 +190,12 @@ export const routes: Routes = [
         title: 'Speaking Warm-up · SALingo',
       },
       {
+        path: 'interview-prep/outcomes',
+        loadComponent: () =>
+          import('./features/interview-prep/outcomes/outcomes').then((m) => m.JobOutcomesComponent),
+        title: 'My Results · SALingo',
+      },
+      {
         path: 'interview-prep/tracks',
         loadComponent: () =>
           import('./features/interview-prep/career-tracks/career-tracks').then((m) => m.CareerTracksComponent),

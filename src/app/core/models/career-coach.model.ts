@@ -105,6 +105,24 @@ export interface CareerPathStage {
   routerLink: string[];
 }
 
+export type JobOutcomeType =
+  | 'applied'
+  | 'interview_scheduled'
+  | 'interview_completed'
+  | 'rejected'
+  | 'got_offer'
+  | 'accepted_job';
+
+export interface JobOutcome {
+  id: string;
+  company: string;
+  position: string | null;
+  outcome: JobOutcomeType;
+  notes: string | null;
+  eventDate: string; // ISO date
+  createdAt: string; // ISO datetime
+}
+
 export interface CandidateProfile {
   position: string | null;
   hasExperience: boolean | null;
