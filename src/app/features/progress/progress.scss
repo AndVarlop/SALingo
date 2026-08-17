@@ -66,6 +66,57 @@
   text-transform: uppercase;
 }
 
+.progress-page__weekly-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+
+  @media (max-width: 700px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.progress-page__weekly-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface-alt);
+
+  strong {
+    font-size: 1.1rem;
+  }
+}
+
+.progress-page__weekly-label {
+  font-size: 0.7rem;
+  color: var(--color-text-muted);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.progress-page__weekly-trend {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+
+  &--up {
+    color: var(--color-success);
+  }
+
+  &--down {
+    color: var(--color-danger);
+  }
+}
+
+.progress-page__weekly-empty {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
 .progress-page__skills-grid {
   display: flex;
   flex-direction: column;

@@ -240,4 +240,13 @@ Roleplay already *was* a call simulator in disguise (12 customer-service scenari
 ### Build/verification
 `tsc --noEmit` clean, `ng build` clean (same pre-existing CSS budget warning, unrelated).
 
-**Fase 3 P2 complete (5/5): 24-Hour Interview Mode + Speaking Warm-up, Career Path, Career Tracks, Gamification 2.0, plus Advanced Analytics is the one remaining P2 item — not started this round.**
+## 14. Fase 3 P2 — Advanced Analytics
+
+- New `AdvancedAnalyticsService` (spec §30): a "this week vs last week" comparison across Study time, XP earned, Speaking accuracy, Interview accuracy, Vocabulary reviews, and Mistakes reviewed. All derived from `activityByDate`/`activityLog` (already loaded) and `MistakeMemoryService` — no snapshots, no new tables. Per the no-fake-data rule, a metric with no matching entries reports `null` and the UI shows "Not enough data yet" instead of a misleading 0% change; a metric with data but no prior week shows "New" instead of a fabricated percentage.
+- Progress page: new "Weekly report" card between the XP chart and skills breakdown, with a computed `trendLabel()` (+X%/-X%/New) per metric.
+- Verified live: real numbers for the test account (36 min, 725 XP, 75% Speaking, 81% Interview, 0 vocabulary sessions, 3 mistakes reviewed — all correctly labeled "New" since the account has no prior-week baseline yet), no console errors.
+
+### Build/verification
+`tsc --noEmit` clean, `ng build` clean (same pre-existing CSS budget warning, unrelated).
+
+**Fase 3 P2 complete (5/5): 24-Hour Interview Mode + Speaking Warm-up, Career Path, Career Tracks, Gamification 2.0, Advanced Analytics. Only P3 (PWA, performance, automated tests, ESLint, polish) remains from the original priority list.**

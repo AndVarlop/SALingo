@@ -41,6 +41,31 @@
       </div>
     </article>
 
+    <article class="card progress-page__weekly">
+      <span class="card__eyebrow">Weekly report — this week vs last week</span>
+      <div class="progress-page__weekly-grid">
+        @for (metric of weeklyReport(); track metric.label) {
+          <div class="progress-page__weekly-item">
+            <span class="progress-page__weekly-label">{{ metric.label }}</span>
+            @if (metric.thisWeek !== null) {
+              <strong>{{ metric.thisWeek }}{{ metric.unit === '%' ? '%' : '' }} {{ metric.unit !== '%' ? metric.unit : '' }}</strong>
+              @if (trendLabel(metric.thisWeek, metric.lastWeek); as trend) {
+                <span
+                  class="progress-page__weekly-trend"
+                  [class.progress-page__weekly-trend--up]="trend.startsWith('+') || trend === 'New'"
+                  [class.progress-page__weekly-trend--down]="trend.startsWith('-')"
+                >
+                  {{ trend }}
+                </span>
+              }
+            } @else {
+              <span class="progress-page__weekly-empty">Not enough data yet</span>
+            }
+          </div>
+        }
+      </div>
+    </article>
+
     <article class="card progress-page__skills">
       <span class="card__eyebrow">Skills breakdown</span>
       <div class="progress-page__skills-grid">

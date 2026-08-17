@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/c
 import { DecimalPipe } from '@angular/common';
 import { UserStateService } from '../../core/services/user-state.service';
 import { VocabularyService } from '../../core/services/vocabulary.service';
+import { AdvancedAnalyticsService } from '../../core/services/advanced-analytics.service';
 import { SKILL_ICON, SKILL_LABEL } from '../../core/models/skill.model';
 import { StatCardComponent } from '../../shared/components/stat-card/stat-card';
 import { ProgressBarComponent } from '../../shared/components/progress-bar/progress-bar';
@@ -25,6 +26,7 @@ interface DayBar {
 export class ProgressComponent {
   protected readonly userState = inject(UserStateService);
   private readonly vocabularyService = inject(VocabularyService);
+  protected readonly weeklyReport = inject(AdvancedAnalyticsService).weeklyReport;
 
   protected readonly skillIcon = SKILL_ICON;
   protected readonly skillLabel = SKILL_LABEL;
@@ -63,4 +65,12 @@ export class ProgressComponent {
 
   protected readonly totalXpLast14Days = computed(() => this.xpByDay().reduce((sum, d) => sum + d.xp, 0));
   protected readonly hasAnyActivity = computed(() => this.userState.progress().activityLog.length > 0);
+
+  /** "+20%", "-5%", "New" (no last-week baseline) or null (nothing to compare). */
+  protected trendLabel(thisWeek: number | null, lastWeek: number | null): string | null {
+    if (thisWeek === null) return null;
+    if (lastWeek === null || lastWeek === 0) return thisWeek > 0 ? 'New' : null;
+    const change = Math.round(((thisWeek - lastWeek) / lastWeek) * 100);
+    return `${change >= 0 ? '+' : ''}${change}%`;
+  }
 }
