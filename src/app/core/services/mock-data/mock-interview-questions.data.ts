@@ -1,7 +1,6 @@
 import { InterviewPosition, InterviewQuestion } from '../../models';
 
 const CS = [InterviewPosition.CustomerService, InterviewPosition.CallCenterAgent];
-const SALES = [InterviewPosition.Sales];
 const ALL: InterviewPosition[] = [];
 
 export const MOCK_INTERVIEW_QUESTIONS: InterviewQuestion[] = [

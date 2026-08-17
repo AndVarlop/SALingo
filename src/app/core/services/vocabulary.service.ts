@@ -57,7 +57,8 @@ export class VocabularyService {
     const isFavorite = this.favoriteWordIds().has(wordId);
     this.favoriteWordIds.update((set) => {
       const next = new Set(set);
-      isFavorite ? next.delete(wordId) : next.add(wordId);
+      if (isFavorite) next.delete(wordId);
+      else next.add(wordId);
       return next;
     });
 

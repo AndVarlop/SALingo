@@ -27,7 +27,8 @@ export class InterviewTipsComponent {
   protected toggleChecklistItem(index: number): void {
     this.checkedItems.update((set) => {
       const next = new Set(set);
-      next.has(index) ? next.delete(index) : next.add(index);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
       return next;
     });
   }

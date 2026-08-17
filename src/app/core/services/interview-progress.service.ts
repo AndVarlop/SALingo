@@ -150,7 +150,8 @@ export class InterviewProgressService {
 
     this.knownWordIds.update((set) => {
       const next = new Set(set);
-      isKnown ? next.delete(wordId) : next.add(wordId);
+      if (isKnown) next.delete(wordId);
+      else next.add(wordId);
       return next;
     });
 

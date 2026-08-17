@@ -1,14 +1,22 @@
 import { Injectable } from '@angular/core';
 
 /** Minimal shape of the Web Speech API's SpeechRecognition — not in lib.dom.d.ts. */
+interface SpeechRecognitionResultLike {
+  results?: Record<number, Record<number, { transcript?: string }>>;
+}
+
+interface SpeechRecognitionErrorLike {
+  error?: string;
+}
+
 interface SpeechRecognitionLike extends EventTarget {
   lang: string;
   interimResults: boolean;
   maxAlternatives: number;
   start(): void;
   stop(): void;
-  onresult: ((event: any) => void) | null;
-  onerror: ((event: any) => void) | null;
+  onresult: ((event: SpeechRecognitionResultLike) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorLike) => void) | null;
   onend: (() => void) | null;
 }
 
@@ -43,11 +51,11 @@ export class SpeechRecognitionService {
       recognition.interimResults = false;
       recognition.maxAlternatives = 1;
 
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event) => {
         const transcript = event.results?.[0]?.[0]?.transcript ?? '';
         resolve(transcript);
       };
-      recognition.onerror = (event: any) => {
+      recognition.onerror = (event) => {
         reject(new Error(event?.error ?? 'Speech recognition error'));
       };
 
@@ -82,12 +90,12 @@ export class SpeechRecognitionService {
       recognition.maxAlternatives = 1;
       const startedAt = performance.now();
 
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event) => {
         const transcript = event.results?.[0]?.[0]?.transcript ?? '';
         const durationSeconds = Math.max(0.5, (performance.now() - startedAt) / 1000);
         resolve(this.buildResult(expected, transcript, durationSeconds));
       };
-      recognition.onerror = (event: any) => {
+      recognition.onerror = (event) => {
         reject(new Error(event?.error ?? 'Speech recognition error'));
       };
 
