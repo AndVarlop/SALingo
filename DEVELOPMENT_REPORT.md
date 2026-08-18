@@ -451,3 +451,47 @@ User asked for a complete mobile/tablet/desktop/ultra-wide audit. **Important li
 
 ### Build/verification
 `tsc --noEmit` clean, `ng lint` 0 errors, `ng test` 96/96 passing, `ng build` clean (same pre-existing non-blocking budget warning).
+
+## 24. SALingo Brand Identity + Full Mobile Navigation
+
+**Logo concept**: two overlapping speech-bubble shapes (conversation — core to both language learning and call-center practice), deliberately not the generic book+flag "school platform" look the user ruled out. One reusable `LogoComponent` (`shared/components/logo`), never duplicated in markup — `variant="full"` (icon+wordmark) / `variant="icon"` (icon only, for the collapsed sidebar), `size="sm"/"md"/"lg"`. Colored via the existing `--color-primary` token (already light/dark-mode-aware), not a new hardcoded hex — one identity, automatically theme-correct everywhere.
+
+**Where it now appears**: sidebar (expanded and collapsed), topbar mobile brand, login, register, forgot-password. Confirmed via a full-codebase grep that zero placeholder brand emoji (🌐) remain anywhere.
+
+**Colors/typography/spacing**: already centralized in `src/styles.scss` as CSS custom properties (`--color-primary`, `--color-surface`, `--radius-md`, etc.) before this session started. Kept the existing token names rather than renaming everything to a `--salingo-*` prefix — a purely cosmetic rename across dozens of files would have added real regression risk for zero functional benefit; the brief itself said "adapta los nombres al sistema real del proyecto."
+
+**Favicon**: added `public/favicon.svg` (same mark) as a second `<link rel="icon">` ahead of the existing `favicon.ico` — modern Chrome/Firefox/Edge prefer SVG favicons automatically when both are present; ICO remains the Safari/legacy fallback. No raster image tooling was available in this session to regenerate the PWA manifest icon PNGs themselves (pre-existing gap from earlier in the project, unrelated to this pass, still open).
+
+**Page titles**: already set per-route via Angular Router's `title:` field (confirmed pre-existing, e.g. "Sign up · SALingo", "Dashboard · SALingo") — no change needed, already correct.
+
+**Mobile navigation — the most emphasized requirement**: new `MobileMenuComponent`, a real full-screen drawer, not a shrunk desktop menu. Grouped **Learn / Practice / Career / Progress / Account** (`NAV_GROUPS` in `nav.constant.ts`), built from routes read directly out of `app.routes.ts` — nothing invented. Opened by a new hamburger button in the topbar (shown only below 900px). A real gap was found and fixed in the process: Grammar Battle, Vocabulary Rush, and Find the Mistake had **no navigation entry anywhere** — only reachable via CTA cards on the Grammar/Vocabulary hub pages — now in the Practice group. Closes on the X button, a backdrop tap, or picking any route.
+
+One real accessibility bug caught by lint (not by review): the backdrop was a `<div>` with a click handler — `@angular-eslint/template/click-events-have-key-events` and `interactive-supports-focus` both flagged it correctly, since a div click handler is invisible to keyboard/screen-reader users. Fixed by making it a real `<button>`.
+
+### Build/verification
+`tsc --noEmit` clean, `ng lint` 0 errors (after fixing the backdrop accessibility finding above), `ng test` 96/96 passing, `ng build` clean (same pre-existing budget warning). Live-verified the new logo on `/auth/login` and `/auth/register` (real screenshot + DOM inspection, no console errors). **Not re-verified live**: the authenticated shell (hamburger → drawer open/close/navigate, sidebar logo swap) — the test account's session expired mid-session and this environment has no password to log back in with. Structural correctness (fully typed Angular bindings, compiled clean) plus the same shell's sidebar-collapse feature having been live-verified earlier this session give reasonable confidence, but this is stated honestly as not re-confirmed this pass.
+
+## Completed
+- SALingo brand identity: reusable `LogoComponent`, applied everywhere the old placeholder emoji was, SVG favicon.
+- Full mobile navigation drawer with every real route, grouped, including 3 previously-unreachable mini-games.
+- Full responsive audit (§23): real `dvh` chat-height fixes, global reduced-motion/overflow safety nets, one real overflow-risk fix in Profile.
+- AI backend (Claude via a Supabase Edge Function) built and wired into 5 real features, all with honest failure states.
+- Deployment pipeline (GitHub Pages, GitHub Actions) built, domain-corrected, CNAME fixed.
+- Collapsible sidebar.
+
+## Remaining
+- Live visual confirmation of the mobile drawer + authenticated shell once the user's session is active again (or on the real deployed site).
+- Genuine breakpoint-by-breakpoint visual QA (320px→2560px) — blocked by this session's `resize_window` tool limitation both times it was attempted; recommend Chrome DevTools' device toolbar or a real device once live.
+- PWA manifest icons are still generic Angular CLI placeholders (no image-generation tool available in any session so far).
+
+## Known Issues
+- None newly introduced — every change this pass went through the full `tsc`/lint/test/build cycle clean.
+
+## External Dependencies
+- GitHub Pages source setting, DNS, Supabase auth redirect URLs (see §22 ACTION REQUIRED — unchanged, still pending on the user's side).
+- Anthropic API key / Edge Function deployment (paused by user's choice).
+
+## Next Steps
+1. Log back into the app and visually confirm the mobile drawer + collapsed sidebar on a real narrow viewport (DevTools device toolbar or a phone).
+2. Complete the GitHub Pages deployment steps from §22 so the branding/nav work is actually visible in production.
+3. If real device testing surfaces any drawer/nav issues, fix them directly — the component is small and self-contained.
