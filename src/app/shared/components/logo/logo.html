@@ -1,0 +1,18 @@
+<span class="logo" [class]="'logo--' + size()">
+  <svg class="logo__mark" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+    <!-- Back bubble -->
+    <path
+      d="M3 11c0-3.314 2.686-6 6-6h8c3.314 0 6 2.686 6 6v4c0 3.314-2.686 6-6 6h-6.2l-4.6 3.6c-.6.47-1.47.03-1.47-.73V21C3.68 20.4 3 19.28 3 15z"
+      class="logo__bubble logo__bubble--back"
+    />
+    <!-- Front bubble -->
+    <path
+      d="M29 18.5c0 2.76-2.24 5-5 5h-4.7l-3.8 2.98c-.5.4-1.23.03-1.23-.6V23.3c-2.26-.34-4-2.3-4-4.66v-2.14c0-2.76 2.24-5 5-5h8.7c2.76 0 5 2.24 5 5z"
+      class="logo__bubble logo__bubble--front"
+    />
+  </svg>
+
+  @if (variant() === 'full') {
+    <span class="logo__word">SALingo</span>
+  }
+</span>

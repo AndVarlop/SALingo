@@ -1,7 +1,15 @@
 <header class="topbar">
+  <button
+    type="button"
+    class="topbar__menu-btn"
+    (click)="menuOpen.emit()"
+    aria-label="Open navigation menu"
+  >
+    <span aria-hidden="true">☰</span>
+  </button>
+
   <div class="topbar__brand-mobile">
-    <span aria-hidden="true">🌐</span>
-    <span>SALingo</span>
+    <app-logo variant="full" size="sm" />
   </div>
 
   <div class="topbar__actions">

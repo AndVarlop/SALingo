@@ -3,11 +3,12 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NAV_ITEMS } from '../../../core/constants/nav.constant';
 import { STORAGE_KEYS } from '../../../core/constants/storage-keys.constant';
 import { StorageService } from '../../../core/services/storage.service';
+import { LogoComponent } from '../logo/logo';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, LogoComponent],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

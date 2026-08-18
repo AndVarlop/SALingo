@@ -1,9 +1,6 @@
 <nav class="sidebar" [class.sidebar--collapsed]="collapsed()" aria-label="Main navigation">
   <div class="sidebar__brand">
-    <span class="sidebar__logo">🌐</span>
-    @if (!collapsed()) {
-      <span class="sidebar__name">SALingo</span>
-    }
+    <app-logo [variant]="collapsed() ? 'icon' : 'full'" />
     <button
       type="button"
       class="sidebar__toggle"

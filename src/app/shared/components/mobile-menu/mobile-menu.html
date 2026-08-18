@@ -1,0 +1,40 @@
+@if (open()) {
+  <button
+    type="button"
+    class="mobile-menu__backdrop"
+    (click)="closed.emit()"
+    aria-label="Close menu"
+  ></button>
+
+  <nav class="mobile-menu" aria-label="Full navigation menu">
+    <div class="mobile-menu__header">
+      <app-logo variant="full" />
+      <button type="button" class="mobile-menu__close" (click)="closed.emit()" aria-label="Close menu">
+        ✕
+      </button>
+    </div>
+
+    <div class="mobile-menu__scroll">
+      @for (group of groups; track group.label) {
+        <div class="mobile-menu__group">
+          <span class="mobile-menu__group-label">{{ group.label }}</span>
+          <ul class="mobile-menu__list">
+            @for (item of group.items; track item.routerLink) {
+              <li>
+                <a
+                  class="mobile-menu__link"
+                  [routerLink]="item.routerLink"
+                  routerLinkActive="mobile-menu__link--active"
+                  (click)="closed.emit()"
+                >
+                  <span class="mobile-menu__icon" aria-hidden="true">{{ item.icon }}</span>
+                  <span>{{ item.label }}</span>
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </div>
+  </nav>
+}

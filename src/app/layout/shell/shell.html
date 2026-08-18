@@ -12,6 +12,7 @@
       [avatarEmoji]="userState.user().avatarEmoji"
       [isDark]="isDark()"
       (themeToggle)="toggleTheme()"
+      (menuOpen)="mobileMenuOpen.set(true)"
     />
 
     <main class="shell__content">
@@ -20,4 +21,6 @@
   </div>
 
   <app-bottom-nav class="shell__bottom-nav" />
+
+  <app-mobile-menu [open]="mobileMenuOpen()" (closed)="mobileMenuOpen.set(false)" />
 </div>
