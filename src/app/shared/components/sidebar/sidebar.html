@@ -1,7 +1,18 @@
-<nav class="sidebar" aria-label="Main navigation">
+<nav class="sidebar" [class.sidebar--collapsed]="collapsed()" aria-label="Main navigation">
   <div class="sidebar__brand">
     <span class="sidebar__logo">🌐</span>
-    <span class="sidebar__name">SALingo</span>
+    @if (!collapsed()) {
+      <span class="sidebar__name">SALingo</span>
+    }
+    <button
+      type="button"
+      class="sidebar__toggle"
+      (click)="toggleCollapsed()"
+      [attr.aria-label]="collapsed() ? 'Expand navigation' : 'Collapse navigation'"
+      [attr.title]="collapsed() ? 'Expand navigation' : 'Collapse navigation'"
+    >
+      {{ collapsed() ? '»' : '«' }}
+    </button>
   </div>
 
   <ul class="sidebar__list">
@@ -11,16 +22,21 @@
           class="sidebar__link"
           [routerLink]="item.routerLink"
           routerLinkActive="sidebar__link--active"
+          [attr.title]="collapsed() ? item.label : null"
         >
           <span class="sidebar__icon" aria-hidden="true">{{ item.icon }}</span>
-          <span>{{ item.label }}</span>
+          @if (!collapsed()) {
+            <span>{{ item.label }}</span>
+          }
         </a>
       </li>
     }
   </ul>
 
-  <div class="sidebar__footer">
+  <div class="sidebar__footer" [attr.title]="collapsed() ? streak() + ' day streak' : null">
     <span aria-hidden="true">🔥</span>
-    <span>{{ streak() }} day streak</span>
+    @if (!collapsed()) {
+      <span>{{ streak() }} day streak</span>
+    }
   </div>
 </nav>

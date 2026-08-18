@@ -9,4 +9,5 @@ export const STORAGE_KEYS = {
   completedLessons: 'lingo.completed-lessons',
   authToken: 'lingo.auth-token',
   dailyChallengeBonus: 'lingo.daily-challenge-bonus',
+  sidebarCollapsed: 'lingo.sidebar-collapsed',
 } as const;
