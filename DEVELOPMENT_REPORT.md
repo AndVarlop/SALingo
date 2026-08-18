@@ -471,6 +471,30 @@ One real accessibility bug caught by lint (not by review): the backdrop was a `<
 ### Build/verification
 `tsc --noEmit` clean, `ng lint` 0 errors (after fixing the backdrop accessibility finding above), `ng test` 96/96 passing, `ng build` clean (same pre-existing budget warning). Live-verified the new logo on `/auth/login` and `/auth/register` (real screenshot + DOM inspection, no console errors). **Not re-verified live**: the authenticated shell (hamburger → drawer open/close/navigate, sidebar logo swap) — the test account's session expired mid-session and this environment has no password to log back in with. Structural correctness (fully typed Angular bindings, compiled clean) plus the same shell's sidebar-collapse feature having been live-verified earlier this session give reasonable confidence, but this is stated honestly as not re-confirmed this pass.
 
+## 25. B2 + C1 + C2 content expansion (Advanced English Learning System)
+
+**Architecture audit first, per the brief's own instruction not to invent new architecture.** Confirmed before writing any content:
+- `CefrLevel` enum and `CEFR_LEVEL_ORDER`/`CEFR_LEVEL_LABEL` (`core/models/language.model.ts`) already fully cover B2/C1/C2 — zero model changes needed.
+- `ExamRegistryService.buildGrammarExam()` iterates `CEFR_LEVEL_ORDER` dynamically, so new grammar topics at any level surface in the Exam Engine automatically, with no engine code touched.
+- Grammar content is mock-data-driven (`mock-grammar.data.ts`), consumed identically by the Grammar hub, Grammar Battle mini-game, and the Exam Engine — one new `GrammarTopic` entry lights up all three.
+- `VocabularyService` is Supabase-backed (`vocabulary_words` table), not mock data — new vocabulary needs a SQL migration, not a code change. The table's `level` check constraint already permits `'B2'|'C1'|'C2'`, so no schema migration was needed, only a data-insert one.
+- `RoleplayScenario` has no CEFR field — its `Advanced`/`Expert` difficulty tiers are the existing mechanism for expressing higher-complexity call-center scenarios, so B2/C1-equivalent scenarios were authored into those tiers rather than adding a new field.
+- `InterviewQuestion` has 3 fixed categories (`'about-you' | 'call-center' | 'behavioral'`), no level field — new advanced questions were authored into the existing `'behavioral'` category, matching the shape of pre-existing questions exactly.
+
+Result: this was a **content-authoring pass on already-adequate infrastructure**, not a rebuild — consistent with the brief's explicit warning against inventing new B2/C1/C2 component classes.
+
+**What was actually built this pass** (first real wave of content, not the full scope of the brief — see Remaining below):
+- **15 new grammar topics** in `mock-grammar.data.ts`, each with explanation/examples/common mistakes/2 exercises, XP scaled by level (12/15/18 for B2/C1/C2):
+  - B2 (6): mixed conditionals, advanced passive voice, advanced relative clauses, modals of deduction/speculation, future perfect/continuous, wish/if only.
+  - C1 (5): inversion for emphasis, cleft sentences, participle clauses, advanced reporting structures, hedging/softening modals.
+  - C2 (4): ellipsis and substitution, emphasis and fronting, register shifts, advanced discourse markers.
+- **45 new vocabulary rows** in `supabase/vocabulary-b2-c1-c2.sql` (not yet applied — see External Dependencies): 18 B2 (phrasal verbs/collocations: *follow up, get the hang of, bring up, trade-off, bottom-line, burnout*…), 15 C1 (precise register-aware verbs: *assert, undermine, leverage, mitigate, scrutinize, discretion*…), 12 C2 (nuanced idiomatic vocabulary: *circumvent, vindicate, tacit, equivocate, untenable*…) — each with real IPA pronunciation and a workplace/call-center-relevant example sentence, mapped into the existing `VocabularyCategory` set.
+- **4 new advanced roleplay scenarios** in `mock-roleplay.data.ts`: a VIP customer escalation, a contract-renegotiation/retention call, a cross-team-conflict escalation, and a customer pressuring for a policy exception — each with a distinct, more sophisticated `customerPersona` and a resolution that requires real judgment, not a scripted response. Feeds directly into `AiRoleplayService` for richer AI-driven conversations once the Edge Function is deployed.
+- **5 new advanced interview questions** in `mock-interview-questions.data.ts` (`'behavioral'` category): conflicting priorities, disagreeing with a manager, improving retention (B2), describing a failure and what was learned, handling a policy-exception demand (C1) — each with structure/example-answer/Spanish coaching notes matching the existing question format exactly.
+
+### Build/verification
+`npx tsc --noEmit -p tsconfig.json` clean · `ng lint` 0 errors · `ng test --watch=false` 96/96 passing · `ng build` clean (same pre-existing roleplay-session budget warning, unrelated to this pass). Live Chrome verification was not attempted this pass — no working authenticated session was available (same test-account expiry noted in §24), and this pass was pure data-layer content that the existing components already render correctly by construction (verified by the clean build/lint/test cycle, plus the fact that this is the identical `GrammarTopic`/`RoleplayScenario`/`InterviewQuestion` shape already rendered live for A1/A2/B1 earlier in the session).
+
 ## Completed
 - SALingo brand identity: reusable `LogoComponent`, applied everywhere the old placeholder emoji was, SVG favicon.
 - Full mobile navigation drawer with every real route, grouped, including 3 previously-unreachable mini-games.
@@ -478,11 +502,20 @@ One real accessibility bug caught by lint (not by review): the backdrop was a `<
 - AI backend (Claude via a Supabase Edge Function) built and wired into 5 real features, all with honest failure states.
 - Deployment pipeline (GitHub Pages, GitHub Actions) built, domain-corrected, CNAME fixed.
 - Collapsible sidebar.
+- First wave of B2/C1/C2 content (§25): 15 grammar topics, 45 vocabulary words (migration pending), 4 advanced roleplay scenarios, 5 advanced interview questions — all live in the existing Grammar/Exam/Roleplay/Interview surfaces with zero engine changes.
 
 ## Remaining
 - Live visual confirmation of the mobile drawer + authenticated shell once the user's session is active again (or on the real deployed site).
 - Genuine breakpoint-by-breakpoint visual QA (320px→2560px) — blocked by this session's `resize_window` tool limitation both times it was attempted; recommend Chrome DevTools' device toolbar or a real device once live.
 - PWA manifest icons are still generic Angular CLI placeholders (no image-generation tool available in any session so far).
+- **B2/C1/C2 scope not yet covered** (deferred, not attempted this pass — flagging honestly rather than claiming full coverage of the original brief):
+  - Reading/Listening/Writing/Speaking content authored specifically for B2/C1/C2 (this pass covered Grammar, Vocabulary, Roleplay and Interview only).
+  - New per-level mini-game variants (Vocabulary Rush→Grammar Challenge/Sentence Builder for B2, Debate Challenge/Word Precision for C1, Nuance Master/Tone Detective for C2) — the brief explicitly asks for evolved games, not the existing ones reused unchanged; none were built this pass.
+  - Formal level-unlock gating (B2 locked until B1 done + Final Assessment + minimum mastery, same B2→C1→C2) — `CEFR_LEVEL_ORDER` supports this but no gating logic was added.
+  - Level-scoped Final Assessment / exam sections beyond Grammar (Vocabulary/Reading/Listening/Speaking/Writing/Critical-Thinking exam sections for B2/C1/C2).
+  - Skill Mastery dashboards broken out per level, Adaptive Learning remediation paths, and Error Memory pattern-detection extensions (e.g. "say vs tell") — none built this pass.
+  - Placement Test range extension to C2, Daily Challenge B2/C1/C2-aware recommendations, Career Path B2/C1/C2 tiers (Customer Service Specialist → Team Leader → International Business/Management) — none built this pass.
+  - These are large, mostly-new-component efforts (per the brief's own scope) rather than natural extensions of this pass's data-authoring work; recommend treating each as its own follow-up pass with its own build/test/commit cycle.
 
 ## Known Issues
 - None newly introduced — every change this pass went through the full `tsc`/lint/test/build cycle clean.
@@ -490,8 +523,11 @@ One real accessibility bug caught by lint (not by review): the backdrop was a `<
 ## External Dependencies
 - GitHub Pages source setting, DNS, Supabase auth redirect URLs (see §22 ACTION REQUIRED — unchanged, still pending on the user's side).
 - Anthropic API key / Edge Function deployment (paused by user's choice).
+- **New**: `supabase/vocabulary-b2-c1-c2.sql` must be run manually in the Supabase SQL Editor (after `vocabulary.sql`) for the 45 new B2/C1/C2 words to appear in the app — additive and safe to re-run (`ON CONFLICT DO NOTHING`), same pattern as the earlier `skill-tags.sql`.
 
 ## Next Steps
 1. Log back into the app and visually confirm the mobile drawer + collapsed sidebar on a real narrow viewport (DevTools device toolbar or a phone).
 2. Complete the GitHub Pages deployment steps from §22 so the branding/nav work is actually visible in production.
-3. If real device testing surfaces any drawer/nav issues, fix them directly — the component is small and self-contained.
+3. Run `supabase/vocabulary-b2-c1-c2.sql` in the Supabase SQL Editor so the new B2/C1/C2 vocabulary words go live.
+4. If real device testing surfaces any drawer/nav issues, fix them directly — the component is small and self-contained.
+5. Pick one deferred B2/C1/C2 item from §25's Remaining list (Reading/Listening/Writing content is the most natural next slice, reusing the existing exercise types) for the next pass.
