@@ -39,6 +39,21 @@ testem.log
 /typings
 __screenshots__/
 
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials.json
+
+# Supabase CLI local state
+supabase/.temp/
+supabase/.branches/
+
+# Logs
+*.log
+
 # System files
 .DS_Store
 Thumbs.db
