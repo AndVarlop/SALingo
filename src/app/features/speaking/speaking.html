@@ -1,5 +1,14 @@
 <section class="speaking">
-  <app-level-filter [levels]="levels" [selected]="selectedLevel()" (selectedChange)="setLevel($event)" />
+  <app-level-filter
+    [levels]="levels"
+    [selected]="selectedLevel()"
+    [lockedLevels]="lockedLevels()"
+    (selectedChange)="setLevel($event)"
+    (lockedLevelClicked)="onLockedLevelClicked($event)"
+  />
+  @if (lockedMessage(); as message) {
+    <p class="speaking__locked">🔒 {{ message }}</p>
+  }
 
   @if (!isOpenMode()) {
     <!-- Guided mode: fixed-sentence practice, scored by match (or self-report). -->

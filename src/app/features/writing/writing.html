@@ -4,7 +4,16 @@
       <header class="writing__header">
         <h1>Writing</h1>
         <p>Pick a topic and write a short text. You'll get feedback on grammar, vocabulary and coherence.</p>
-        <app-level-filter [levels]="levels" [selected]="selectedLevel()" (selectedChange)="setLevel($event)" />
+        <app-level-filter
+          [levels]="levels"
+          [selected]="selectedLevel()"
+          [lockedLevels]="lockedLevels()"
+          (selectedChange)="setLevel($event)"
+          (lockedLevelClicked)="onLockedLevelClicked($event)"
+        />
+        @if (lockedMessage(); as message) {
+          <p class="writing__locked">🔒 {{ message }}</p>
+        }
       </header>
 
       <div class="writing__prompts">

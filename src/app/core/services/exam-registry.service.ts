@@ -1,11 +1,13 @@
 import { Injectable, inject } from '@angular/core';
 import { MOCK_GRAMMAR_TOPICS } from './mock-data/mock-grammar.data';
 import { MOCK_LISTENING_EXERCISES } from './mock-data/mock-listening.data';
+import { MOCK_READING_EXERCISES } from './mock-data/mock-reading.data';
 import { MOCK_INTERVIEW_VOCABULARY } from './mock-data/mock-interview-vocabulary.data';
 import { VocabularyService } from './vocabulary.service';
 import {
   CEFR_LEVEL_LABEL,
   CEFR_LEVEL_ORDER,
+  CefrLevel,
   ExamDefinition,
   ExamQuestion,
   ExamSection,
@@ -17,6 +19,14 @@ const VOCAB_QUESTIONS_PER_CATEGORY = 5;
 const CUSTOMER_SERVICE_QUESTIONS_PER_CATEGORY = 5;
 const LISTENING_QUESTION_COUNT = 15;
 const JOB_READINESS_QUESTIONS_PER_DOMAIN = 4;
+
+const FINAL_ASSESSMENT_IDS = ['b2-final-assessment', 'c1-final-assessment', 'c2-final-assessment'] as const;
+type FinalAssessmentId = (typeof FINAL_ASSESSMENT_IDS)[number];
+const FINAL_ASSESSMENT_LEVEL: Record<FinalAssessmentId, CefrLevel> = {
+  'b2-final-assessment': CefrLevel.B2,
+  'c1-final-assessment': CefrLevel.C1,
+  'c2-final-assessment': CefrLevel.C2,
+};
 
 interface TranslationItem {
   id: string;
@@ -49,6 +59,7 @@ export class ExamRegistryService {
     if (id === 'listening-exam') return this.buildListeningExam();
     if (id === 'customer-service-exam') return this.buildCustomerServiceExam();
     if (id === 'job-readiness-exam') return this.buildJobReadinessExam();
+    if (isFinalAssessmentId(id)) return this.buildFinalAssessment(id);
     return null;
   }
 
@@ -60,7 +71,9 @@ export class ExamRegistryService {
    * `effect()` so it re-evaluates once loading flips.
    */
   isReady(id: string): boolean {
-    if (id === 'vocabulary-exam' || id === 'job-readiness-exam') return !this.vocabulary.loading();
+    if (id === 'vocabulary-exam' || id === 'job-readiness-exam' || isFinalAssessmentId(id)) {
+      return !this.vocabulary.loading();
+    }
     return true;
   }
 
@@ -173,6 +186,89 @@ export class ExamRegistryService {
     };
   }
 
+  /**
+   * The B2/C1/C2 Final Assessment — the level-unlock gate. Pulls real
+   * questions from Grammar, Vocabulary, Reading and Listening for that
+   * level; Speaking and Writing are deliberately NOT folded in here since
+   * they're open-ended and AI-graded elsewhere (Speaking/Writing modules),
+   * not auto-gradable multiple-choice — folding them in would mean either
+   * inventing fake MC "writing" questions or silently not grading them,
+   * both worse than being explicit that this assessment covers the
+   * auto-gradable skills and the other two are tracked via their own
+   * modules' activity log. C1 adds a Professional English section (reusing
+   * the real call-center vocabulary bank); C2's reading section already
+   * tests tone/inference/implied meaning, so it doubles as the "Nuance &
+   * Register" section the brief asks for, rather than inventing separate
+   * content for what the reading questions already exercise.
+   */
+  private buildFinalAssessment(id: FinalAssessmentId): ExamDefinition {
+    const level = FINAL_ASSESSMENT_LEVEL[id];
+    const grammar = this.grammarQuestionsForLevel(level).sort(() => Math.random() - 0.5);
+    const vocabulary = this.flatTranslationQuestions(
+      this.vocabulary.words().filter((w) => w.level === level),
+      'vocab',
+      10,
+      false,
+    );
+    const reading = this.readingQuestionsForLevel(level);
+    const listening = this.listeningQuestionsForLevel(level);
+
+    const sections: ExamSection[] = [
+      { id: 'grammar', title: 'Grammar', questions: grammar },
+      { id: 'vocabulary', title: level === CefrLevel.C2 ? 'Advanced Vocabulary' : 'Vocabulary', questions: vocabulary },
+      {
+        id: 'reading',
+        title:
+          level === CefrLevel.C1
+            ? 'Reading & Critical Thinking'
+            : level === CefrLevel.C2
+              ? 'Reading, Nuance & Inference'
+              : 'Reading',
+        questions: reading,
+      },
+      { id: 'listening', title: 'Listening', questions: listening },
+    ];
+
+    if (level === CefrLevel.C1) {
+      sections.push({
+        id: 'professional-english',
+        title: 'Professional English',
+        questions: this.flatTranslationQuestions(MOCK_INTERVIEW_VOCABULARY, 'customer-service', 8, true),
+      });
+    }
+
+    return {
+      id,
+      title: `${level} Final Assessment`,
+      description: `The level-unlock gate for ${level} — covers Grammar, Vocabulary, Reading and Listening at ${CEFR_LEVEL_LABEL[level]} level. Speaking and Writing are graded separately in their own modules.`,
+      icon: '🏁',
+      activityType: 'final-assessment',
+      sections: sections.filter((s) => s.questions.length > 0),
+    };
+  }
+
+  private readingQuestionsForLevel(level: CefrLevel): ExamQuestion[] {
+    return MOCK_READING_EXERCISES.filter((ex) => ex.level === level).flatMap((ex) =>
+      ex.questions.map((q) => ({
+        id: q.id,
+        prompt: `Passage: "${ex.passage.slice(0, 220)}${ex.passage.length > 220 ? '…' : ''}"\n\n${q.prompt}`,
+        options: q.options,
+        correctOptionIndex: q.correctOptionIndex,
+        skillTag: `reading:${ex.id}`,
+      })),
+    );
+  }
+
+  private listeningQuestionsForLevel(level: CefrLevel): ExamQuestion[] {
+    return MOCK_LISTENING_EXERCISES.filter((ex) => ex.level === level).map((ex) => ({
+      id: ex.id,
+      prompt: ex.audioText,
+      options: ex.options,
+      correctOptionIndex: ex.correctOptionIndex,
+      skillTag: 'listening:comprehension',
+    }));
+  }
+
   private grammarQuestionsForLevel(level: (typeof CEFR_LEVEL_ORDER)[number] | null): ExamQuestion[] {
     const topics = level === null ? MOCK_GRAMMAR_TOPICS : MOCK_GRAMMAR_TOPICS.filter((t) => t.level === level);
     return topics.flatMap((topic) =>
@@ -245,4 +341,8 @@ export class ExamRegistryService {
       .slice(0, count)
       .map((item) => this.toTranslationQuestion(item, allTranslations, skillPrefix, slugifyTag));
   }
+}
+
+function isFinalAssessmentId(id: string): id is FinalAssessmentId {
+  return (FINAL_ASSESSMENT_IDS as readonly string[]).includes(id);
 }

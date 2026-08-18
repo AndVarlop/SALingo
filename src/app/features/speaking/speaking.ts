@@ -7,6 +7,7 @@ import { AiEvaluationService, WritingEvaluationError } from '../../core/services
 import { CefrLevel, ExerciseResult, WritingEvaluation } from '../../core/models';
 import { ExercisePlayerComponent } from '../lessons/exercise-player/exercise-player';
 import { LevelFilterComponent } from '../../shared/components';
+import { LevelProgressService } from '../../core/services/level-progress.service';
 
 type Phase = 'idle' | 'playing' | 'summary';
 type OpenPhase = 'selecting' | 'ready' | 'recording' | 'result';
@@ -32,12 +33,17 @@ export class SpeakingComponent {
   private readonly userState = inject(UserStateService);
   private readonly speechRecognition = inject(SpeechRecognitionService);
   private readonly aiEvaluation = inject(AiEvaluationService);
+  protected readonly levelProgress = inject(LevelProgressService);
   protected readonly isSupported = this.speechRecognition.isSupported;
 
   protected readonly allExercises = MOCK_SPEAKING_EXERCISES;
   protected readonly allOpenPrompts = MOCK_OPEN_SPEAKING_PROMPTS;
   protected readonly levels = LEVELS_WITH_CONTENT;
+  protected readonly lockedLevels = computed(
+    () => new Set(this.levels.filter((l) => this.levelProgress.isLocked(l))),
+  );
   protected readonly selectedLevel = signal<CefrLevel | null>(null);
+  protected readonly lockedMessage = signal<string | null>(null);
 
   protected readonly isOpenMode = computed(() => {
     const level = this.selectedLevel();
@@ -45,15 +51,17 @@ export class SpeakingComponent {
   });
 
   protected readonly exercises = computed(() => {
+    const accessible = this.allExercises.filter((e) => !e.level || !this.levelProgress.isLocked(e.level));
     const level = this.selectedLevel();
-    if (level === null) return this.allExercises;
-    return this.allExercises.filter((e) => e.level === level);
+    if (level === null) return accessible;
+    return accessible.filter((e) => e.level === level);
   });
 
   protected readonly openPrompts = computed(() => {
+    const accessible = this.allOpenPrompts.filter((p) => !this.levelProgress.isLocked(p.level));
     const level = this.selectedLevel();
-    if (level === null) return this.allOpenPrompts;
-    return this.allOpenPrompts.filter((p) => p.level === level);
+    if (level === null) return accessible;
+    return accessible.filter((p) => p.level === level);
   });
 
   // --- guided (exact-sentence match) mode ---
@@ -76,6 +84,11 @@ export class SpeakingComponent {
     this.openPhase.set('selecting');
     this.selectedPrompt.set(null);
     this.evaluation.set(null);
+    this.lockedMessage.set(null);
+  }
+
+  protected onLockedLevelClicked(level: CefrLevel): void {
+    this.lockedMessage.set(this.levelProgress.lockReason(level));
   }
 
   protected start(): void {

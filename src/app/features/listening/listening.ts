@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { RouterLink } from '@angular/router';
 import { MOCK_LISTENING_EXERCISES } from '../../core/services/mock-data/mock-listening.data';
 import { UserStateService } from '../../core/services/user-state.service';
+import { LevelProgressService } from '../../core/services/level-progress.service';
 import { CefrLevel, ExerciseResult } from '../../core/models';
 import { ExercisePlayerComponent } from '../lessons/exercise-player/exercise-player';
 import { LevelFilterComponent } from '../../shared/components';
@@ -24,16 +25,26 @@ const LEVELS_WITH_CONTENT: CefrLevel[] = [
 })
 export class ListeningComponent {
   private readonly userState = inject(UserStateService);
+  protected readonly levelProgress = inject(LevelProgressService);
 
   protected readonly allExercises = MOCK_LISTENING_EXERCISES;
   protected readonly levels = LEVELS_WITH_CONTENT;
+  protected readonly lockedLevels = computed(
+    () => new Set(this.levels.filter((l) => this.levelProgress.isLocked(l))),
+  );
   protected readonly selectedLevel = signal<CefrLevel | null>(null);
+  protected readonly lockedMessage = signal<string | null>(null);
 
-  /** Exercises for the selected level. "All" includes the untagged (A1/A2/B1-era) items plus everything tagged. */
+  protected onLockedLevelClicked(level: CefrLevel): void {
+    this.lockedMessage.set(this.levelProgress.lockReason(level));
+  }
+
+  /** "All" only means all UNLOCKED content — untagged (A1/A2/B1-era) items are never level-gated. */
   protected readonly exercises = computed(() => {
+    const accessible = this.allExercises.filter((e) => !e.level || !this.levelProgress.isLocked(e.level));
     const level = this.selectedLevel();
-    if (level === null) return this.allExercises;
-    return this.allExercises.filter((e) => e.level === level);
+    if (level === null) return accessible;
+    return accessible.filter((e) => e.level === level);
   });
 
   protected readonly phase = signal<Phase>('idle');

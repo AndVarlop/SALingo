@@ -20,6 +20,7 @@ export interface ActivityLogEntry {
     | 'speaking'
     | 'writing'
     | 'placement-test'
+    | 'final-assessment'
     | 'interview';
   title: string;
   xpEarned: number;

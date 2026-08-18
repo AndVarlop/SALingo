@@ -5,7 +5,16 @@
         <span class="listening__icon" aria-hidden="true">🎧</span>
         <h1>Listening practice</h1>
         <p>{{ exercises().length }} clips at this level. Listen, then choose what you heard.</p>
-        <app-level-filter [levels]="levels" [selected]="selectedLevel()" (selectedChange)="setLevel($event)" />
+        <app-level-filter
+          [levels]="levels"
+          [selected]="selectedLevel()"
+          [lockedLevels]="lockedLevels()"
+          (selectedChange)="setLevel($event)"
+          (lockedLevelClicked)="onLockedLevelClicked($event)"
+        />
+        @if (lockedMessage(); as message) {
+          <p class="listening__locked">🔒 {{ message }}</p>
+        }
         @if (exercises().length === 0) {
           <p class="listening__empty">No clips at this level yet — try another one.</p>
         } @else {

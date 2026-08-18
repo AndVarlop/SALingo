@@ -71,5 +71,19 @@ export class ExamEngineService {
         skillTag: tag.tag,
       });
     }
+
+    // Final Assessments also need ONE entry carrying the overall score
+    // (not just per-tag breakdowns), since LevelProgressService reads this
+    // exact skillTag to decide whether the next level unlocks.
+    if (exam.activityType === 'final-assessment') {
+      this.userState.recordActivity({
+        minutes: 1,
+        xp: 0,
+        type: exam.activityType,
+        title: `${exam.title} — Overall`,
+        accuracy: result.scorePercent,
+        skillTag: `final-assessment:${exam.id}`,
+      });
+    }
   }
 }

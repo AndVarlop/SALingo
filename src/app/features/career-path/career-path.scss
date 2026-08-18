@@ -39,6 +39,19 @@
     opacity: 1;
     border-color: var(--color-primary);
   }
+
+  &--locked {
+    opacity: 0.5;
+  }
+}
+
+.career-path__locked-badge {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .career-path__stage-icon {

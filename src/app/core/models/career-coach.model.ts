@@ -93,7 +93,10 @@ export type CareerPathStageId =
   | 'interview-prep'
   | 'roleplay'
   | 'mock-interview'
-  | 'job-ready';
+  | 'job-ready'
+  | 'b2-customer-service-specialist'
+  | 'c1-team-leader'
+  | 'c2-international-business';
 
 export interface CareerPathStage {
   id: CareerPathStageId;
@@ -102,6 +105,8 @@ export interface CareerPathStage {
   percent: number; // 0-100
   completed: boolean;
   requirement: string;
+  /** True when a previous stage's gate (e.g. a Final Assessment) hasn't been passed yet — spec §8/§10. */
+  locked?: boolean;
   routerLink: string[];
 }
 

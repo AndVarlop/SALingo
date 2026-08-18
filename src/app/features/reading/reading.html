@@ -5,7 +5,16 @@
         <span class="reading__icon" aria-hidden="true">📖</span>
         <h1>Reading practice</h1>
         <p>{{ exercises().length }} passages at this level. Read, then answer.</p>
-        <app-level-filter [levels]="levels" [selected]="selectedLevel()" (selectedChange)="setLevel($event)" />
+        <app-level-filter
+          [levels]="levels"
+          [selected]="selectedLevel()"
+          [lockedLevels]="lockedLevels()"
+          (selectedChange)="setLevel($event)"
+          (lockedLevelClicked)="onLockedLevelClicked($event)"
+        />
+        @if (lockedMessage(); as message) {
+          <p class="reading__locked">🔒 {{ message }}</p>
+        }
         @if (exercises().length === 0) {
           <p class="reading__empty">No passages at this level yet — try another one.</p>
         } @else {

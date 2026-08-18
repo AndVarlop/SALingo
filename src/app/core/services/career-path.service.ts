@@ -4,7 +4,8 @@ import { MockLessonService } from './mock-lesson.service';
 import { InterviewProgressService } from './interview-progress.service';
 import { InterviewSessionService } from './interview-session.service';
 import { CareerCoachService } from './career-coach.service';
-import { CareerPathStage } from '../models';
+import { LevelProgressService } from './level-progress.service';
+import { CareerPathStage, CefrLevel } from '../models';
 
 const ROLEPLAY_GOAL = 5;
 const MOCK_INTERVIEW_GOAL = 3;
@@ -25,6 +26,7 @@ export class CareerPathService {
   private readonly interviewProgress = inject(InterviewProgressService);
   private readonly interviewSessions = inject(InterviewSessionService);
   private readonly careerCoach = inject(CareerCoachService);
+  private readonly levelProgress = inject(LevelProgressService);
 
   readonly stages = computed<CareerPathStage[]>(() => {
     const completedLessons = this.userState.currentLanguageProgress().lessonsCompleted.length;
@@ -117,8 +119,67 @@ export class CareerPathService {
         requirement: `Reach a ${JOB_READY_THRESHOLD}% Job Ready Score`,
         routerLink: ['/dashboard'],
       },
+      ...this.advancedStages(),
     ];
   });
+
+  /**
+   * B2/C1/C2, spec §10: English + Career connected progressively past
+   * "Job Ready" — Customer Service Specialist → Team Leader / Advanced
+   * Customer Service → International Business / Professional
+   * Communication. Percent and completed come from the real Final
+   * Assessment scores (exam-registry.service.ts / level-progress.service.ts)
+   * — the same gate that unlocks the level's practice content, not a
+   * separate invented metric.
+   */
+  private advancedStages(): CareerPathStage[] {
+    const b2Locked = this.levelProgress.isLocked(CefrLevel.B2);
+    const c1Locked = this.levelProgress.isLocked(CefrLevel.C1);
+    const c2Locked = this.levelProgress.isLocked(CefrLevel.C2);
+
+    const b2Score = this.levelProgress.finalAssessmentScore(CefrLevel.B2) ?? 0;
+    const c1Score = this.levelProgress.finalAssessmentScore(CefrLevel.C1) ?? 0;
+    const c2Score = this.levelProgress.finalAssessmentScore(CefrLevel.C2) ?? 0;
+
+    return [
+      {
+        id: 'b2-customer-service-specialist',
+        label: 'B2 · Customer Service Specialist',
+        iconEmoji: '🎧',
+        percent: b2Score,
+        completed: this.levelProgress.passedFinalAssessment(CefrLevel.B2),
+        requirement: b2Locked
+          ? this.levelProgress.lockReason(CefrLevel.B2)
+          : 'Pass the B2 Final Assessment (Grammar, Vocabulary, Reading, Listening)',
+        routerLink: b2Locked ? ['/career-path'] : ['/exam', 'b2-final-assessment'],
+        locked: b2Locked,
+      },
+      {
+        id: 'c1-team-leader',
+        label: 'C1 · Team Leader / Advanced Customer Service',
+        iconEmoji: '🧭',
+        percent: c1Score,
+        completed: this.levelProgress.passedFinalAssessment(CefrLevel.C1),
+        requirement: c1Locked
+          ? this.levelProgress.lockReason(CefrLevel.C1)
+          : 'Pass the C1 Final Assessment (adds Critical Thinking & Professional English)',
+        routerLink: c1Locked ? ['/career-path'] : ['/exam', 'c1-final-assessment'],
+        locked: c1Locked,
+      },
+      {
+        id: 'c2-international-business',
+        label: 'C2 · International Business / Professional Communication',
+        iconEmoji: '🌍',
+        percent: c2Score,
+        completed: this.levelProgress.passedFinalAssessment(CefrLevel.C2),
+        requirement: c2Locked
+          ? this.levelProgress.lockReason(CefrLevel.C2)
+          : 'Pass the C2 Final Assessment (Nuance, Register & Inference)',
+        routerLink: c2Locked ? ['/career-path'] : ['/exam', 'c2-final-assessment'],
+        locked: c2Locked,
+      },
+    ];
+  }
 
   readonly currentStageIndex = computed(() => {
     const stages = this.stages();

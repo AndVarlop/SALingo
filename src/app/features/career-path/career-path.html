@@ -1,7 +1,10 @@
 <section class="career-path">
   <header class="career-path__header">
     <h1>🗺️ Career Path</h1>
-    <p>English → Call Center English → Customer Service → Interview Prep → Roleplay → Mock Interview → Job Ready</p>
+    <p>
+      English → Call Center English → Customer Service → Interview Prep → Roleplay → Mock Interview → Job Ready →
+      B2 Customer Service Specialist → C1 Team Leader → C2 International Business
+    </p>
   </header>
 
   <div class="career-path__list">
@@ -10,18 +13,25 @@
         class="card career-path__stage"
         [class.career-path__stage--done]="stage.completed"
         [class.career-path__stage--current]="i === careerPath.currentStageIndex() && !stage.completed"
+        [class.career-path__stage--locked]="stage.locked"
       >
         <div class="career-path__stage-icon">
-          {{ stage.completed ? '✅' : stage.iconEmoji }}
+          {{ stage.locked ? '🔒' : stage.completed ? '✅' : stage.iconEmoji }}
         </div>
         <div class="career-path__stage-body">
           <strong>{{ stage.label }}</strong>
           <span>{{ stage.requirement }}</span>
-          <app-progress-bar [value]="stage.percent" [showPercent]="true" />
+          @if (!stage.locked) {
+            <app-progress-bar [value]="stage.percent" [showPercent]="true" />
+          }
         </div>
-        <a class="btn btn--ghost" [routerLink]="stage.routerLink">
-          {{ stage.completed ? 'Review' : 'Continue' }}
-        </a>
+        @if (stage.locked) {
+          <span class="career-path__locked-badge">Locked</span>
+        } @else {
+          <a class="btn btn--ghost" [routerLink]="stage.routerLink">
+            {{ stage.completed ? 'Review' : 'Continue' }}
+          </a>
+        }
       </div>
       @if (!$last) {
         <div class="career-path__connector" aria-hidden="true">↓</div>

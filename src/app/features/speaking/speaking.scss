@@ -63,6 +63,13 @@
   padding: 16px 0;
 }
 
+.speaking__locked {
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  text-align: center;
+  margin-top: 8px;
+}
+
 .speaking__open-list {
   display: flex;
   flex-direction: column;

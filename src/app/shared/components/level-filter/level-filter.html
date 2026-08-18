@@ -12,9 +12,13 @@
       type="button"
       class="level-filter__chip"
       [class.level-filter__chip--active]="selected() === level"
-      [title]="label[level]"
+      [class.level-filter__chip--locked]="lockedLevels().has(level)"
+      [title]="lockedLevels().has(level) ? label[level] + ' (locked)' : label[level]"
       (click)="select(level)"
     >
+      @if (lockedLevels().has(level)) {
+        <span aria-hidden="true">🔒</span>
+      }
       {{ level }}
     </button>
   }

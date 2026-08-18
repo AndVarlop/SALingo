@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MOCK_READING_EXERCISES } from '../../core/services/mock-data/mock-reading.data';
 import { UserStateService } from '../../core/services/user-state.service';
+import { LevelProgressService } from '../../core/services/level-progress.service';
 import { CefrLevel, ExerciseResult } from '../../core/models';
 import { ExercisePlayerComponent } from '../lessons/exercise-player/exercise-player';
 import { LevelFilterComponent } from '../../shared/components';
@@ -23,15 +24,26 @@ const LEVELS_WITH_CONTENT: CefrLevel[] = [
 })
 export class ReadingComponent {
   private readonly userState = inject(UserStateService);
+  protected readonly levelProgress = inject(LevelProgressService);
 
   protected readonly allExercises = MOCK_READING_EXERCISES;
   protected readonly levels = LEVELS_WITH_CONTENT;
+  protected readonly lockedLevels = computed(
+    () => new Set(this.levels.filter((l) => this.levelProgress.isLocked(l))),
+  );
   protected readonly selectedLevel = signal<CefrLevel | null>(null);
+  protected readonly lockedMessage = signal<string | null>(null);
 
+  protected onLockedLevelClicked(level: CefrLevel): void {
+    this.lockedMessage.set(this.levelProgress.lockReason(level));
+  }
+
+  /** "All" only means all UNLOCKED content — locked-level items never silently leak in through the unfiltered view. */
   protected readonly exercises = computed(() => {
+    const accessible = this.allExercises.filter((e) => !e.level || !this.levelProgress.isLocked(e.level));
     const level = this.selectedLevel();
-    if (level === null) return this.allExercises;
-    return this.allExercises.filter((e) => e.level === level);
+    if (level === null) return accessible;
+    return accessible.filter((e) => e.level === level);
   });
 
   protected readonly phase = signal<Phase>('idle');

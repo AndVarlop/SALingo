@@ -5,6 +5,7 @@ import { MistakeMemoryService } from '../../core/services/mistake-memory.service
 import { UserStateService } from '../../core/services/user-state.service';
 import { CefrLevel, WritingEvaluation } from '../../core/models';
 import { LevelFilterComponent } from '../../shared/components';
+import { LevelProgressService } from '../../core/services/level-progress.service';
 
 type Phase = 'selecting' | 'writing' | 'result';
 
@@ -26,18 +27,28 @@ export class WritingComponent {
   private readonly aiEvaluation = inject(AiEvaluationService);
   private readonly mistakeMemory = inject(MistakeMemoryService);
   private readonly userState = inject(UserStateService);
+  protected readonly levelProgress = inject(LevelProgressService);
 
   protected readonly allPrompts = MOCK_WRITING_PROMPTS;
   protected readonly levels = LEVELS_WITH_CONTENT;
+  protected readonly lockedLevels = computed(
+    () => new Set(this.levels.filter((l) => this.levelProgress.isLocked(l))),
+  );
   protected readonly selectedLevel = signal<CefrLevel | null>(null);
+  protected readonly lockedMessage = signal<string | null>(null);
   protected readonly prompts = computed(() => {
+    const accessible = this.allPrompts.filter((p) => !p.level || !this.levelProgress.isLocked(p.level));
     const level = this.selectedLevel();
-    if (level === null) return this.allPrompts;
-    return this.allPrompts.filter((p) => p.level === level);
+    if (level === null) return accessible;
+    return accessible.filter((p) => p.level === level);
   });
 
   protected setLevel(level: CefrLevel | null): void {
     this.selectedLevel.set(level);
+  }
+
+  protected onLockedLevelClicked(level: CefrLevel): void {
+    this.lockedMessage.set(this.levelProgress.lockReason(level));
   }
 
   protected readonly phase = signal<Phase>('selecting');
