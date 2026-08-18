@@ -378,3 +378,38 @@ Each of the 5 features went through its own full cycle: `tsc --noEmit` (both tsc
 **Known limitations**: same as §19, plus — no per-user rate limiting beyond the Edge Function's fixed `MAX_TOKENS_CEILING`/`MAX_MESSAGES` caps; worth adding before opening AI features up beyond testing, per the README's cost note. `pickNextQuestion`'s keyword-based adaptive selection was not upgraded to AI (legitimate heuristic, not a correctness issue — see §20).
 
 **External dependencies**: none blocking further work — task #63 is resolved. The only outstanding item is the user completing deployment (item 1 above), which this session cannot do (no Supabase CLI credentials/access).
+
+## 21. Production deployment prep — Git + Hostinger + salingo.devanvar.com
+
+User decided to pause Claude/AI setup (no Anthropic plan yet — fine, everything already fails honestly instead of breaking) and move to getting SALingo actually published at `https://salingo.devanvar.com`.
+
+**Audit findings**: Angular 21.2, Node 22.20.0/npm 11.6.2 (confirmed via `ng version`), pure client-side SPA — no SSR, no Node server needed on the host. Build output is `dist/lingo-app/browser/` (confirmed by inspecting the real output, not assumed — the new `@angular/build:application` builder nests one level deeper than the classic builder people usually assume). Git was already initialized with `origin` pointing at `github.com/AndVarlop/SALingo`, branch `main`, clean history — nothing to set up there, just verified.
+
+**Security sweep before touching anything**: searched all tracked files for service-role keys, private keys, JWT secrets, DB passwords, `.env` files — none found. The only Supabase key present is the public anon key (`sb_publishable_...`), safe by design and RLS-protected on every table.
+
+**What got built**:
+- `.gitignore`: added `.env`/`.env.*`, `supabase/.temp/` (the CLI's local link cache — was showing as untracked after the user ran `supabase link`), key/credential file patterns, logs.
+- SEO: real `<title>`/meta description/robots/Open Graph tags in `index.html`, `public/robots.txt`, `public/sitemap.xml` (only the two actually-public routes — `/auth/login`, `/auth/register` — everything else sits behind `authGuard`).
+- `public/.htaccess`: forces HTTPS, Angular Router SPA fallback (deep links like `/dashboard` don't 404 on direct load or refresh), long-cache on hashed build assets while forcing `index.html`/`ngsw.json` to always revalidate, gzip. Lives in `public/` so it's copied into every build automatically by Angular's existing asset glob — confirmed by rebuilding and checking it landed in `dist/lingo-app/browser/`.
+- `.github/workflows/deploy.yml`: builds/type-checks/lints/tests every push to `main`, deploys to Hostinger over FTP once the (not-yet-set) `FTP_SERVER`/`FTP_USERNAME`/`FTP_PASSWORD` repo secrets exist — skips the upload with a visible warning otherwise, so `main` always shows whether it's deployable even before Hostinger credentials are wired up.
+- `DEPLOYMENT.md`: full guide (requirements, build, git workflow, Hostinger FTP setup, domain/SSL, `.htaccess` internals, env var split between public-Angular/GitHub-secrets/Supabase-secrets, Supabase Dashboard changes needed, troubleshooting, git-revert-based rollback).
+
+**Real verification, not assumed**: rebuilt clean and confirmed `.htaccess`/`robots.txt`/`sitemap.xml` actually exist in `dist/lingo-app/browser/`. Served that exact output locally with `serve -s` (same rewrite-to-index.html behavior `.htaccess` implements on Apache) and used `curl` to confirm `/dashboard` and a nested deep link both return `200` (were `404` without the fallback flag — proving it's the fallback doing the work, not assuming it), while `/favicon.ico` still serves as a real file, not swallowed by the catch-all. `tsc`/lint/96 tests/build all clean on every commit in this batch. Pushed to `origin/main` successfully (confirmed via `git fetch` + `git status -sb` showing local and remote in sync).
+
+**Not verified, and cannot be from this environment**: actual DNS resolution/SSL cert status for `salingo.devanvar.com` on Hostinger's side, Hostinger's real FTP hostname/credentials/document-root path, whether `mod_rewrite`/`mod_expires`/`mod_deflate` are enabled on the actual Hostinger Apache instance (standard on shared hosting, but not confirmable without access), and — obviously — the live site itself, since nothing has been uploaded yet.
+
+### Build/verification
+`tsc --noEmit` clean, `ng lint` 0 errors, `ng test` 96/96 passing, `ng build` clean (same pre-existing non-blocking budget warning) on every commit. Full details and the exact `curl` evidence are in `DEPLOYMENT.md`.
+
+## ACTION REQUIRED FROM YOU
+
+Everything else is done and pushed. These are the only steps that need you specifically:
+
+1. **Hostinger FTP**: hPanel → Files → FTP Accounts → get the hostname/username/password and the exact document-root path for `salingo.devanvar.com`.
+2. **Add GitHub secrets** (repo → Settings → Secrets and variables → Actions): `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`, and `FTP_SERVER_DIR` if the document root isn't `/public_html/`. Once set, every push to `main` deploys automatically.
+3. **Enable SSL** for the subdomain specifically in hPanel → SSL (don't assume it's inherited from the main domain).
+4. **Confirm DNS** for `salingo.devanvar.com` actually resolves to Hostinger (you said it's already configured — worth a final check with `nslookup salingo.devanvar.com` once SSL is on).
+5. **Supabase Dashboard** → Authentication → URL Configuration: set Site URL to `https://salingo.devanvar.com` and add it to the Redirect URLs allow-list. Without this, password-reset emails will be rejected even though the app code already sends the right URL.
+6. *(Paused by your choice, not urgent)* When ready to enable real AI: the 3 commands from `supabase/functions/ai-proxy/README.md`.
+
+If you'd rather deploy manually the first time instead of waiting on GitHub Actions secrets: `npm run build`, then upload the **contents of** `dist/lingo-app/browser/` via Hostinger's File Manager — no waiting on step 1/2 above.
