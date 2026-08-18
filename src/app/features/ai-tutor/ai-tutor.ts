@@ -76,6 +76,20 @@ export class AiTutorComponent {
     try {
       const reply = await this.aiTutor.sendMessage(this.messages(), text, this.activeTopic() ?? undefined);
       this.messages.update((m) => [...m, reply]);
+    } catch (err) {
+      // AiTutorService already turns expected AI failures into an honest
+      // reply message — this only catches genuinely unexpected exceptions,
+      // so the chat never silently hangs on "thinking" forever.
+      console.error('[AiTutor] Unexpected error', err);
+      this.messages.update((m) => [
+        ...m,
+        {
+          id: `ai-${Date.now()}`,
+          role: 'assistant',
+          text: 'Something went wrong on my end. Please try again.',
+          timestamp: new Date().toISOString(),
+        },
+      ]);
     } finally {
       this.thinking.set(false);
       this.scrollToBottom();
