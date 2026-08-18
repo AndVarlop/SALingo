@@ -34,6 +34,10 @@
       <button type="submit" class="btn btn--primary btn--block" [disabled]="analyzing() || !form.controls.jobDescription.value.trim()">
         {{ analyzing() ? 'Analyzing…' : 'Generate my prep plan' }}
       </button>
+
+      @if (analysisError(); as error) {
+        <p class="cp__error">⚠️ {{ error }}</p>
+      }
     </form>
 
     @if (companyPrepHistory.history().length) {

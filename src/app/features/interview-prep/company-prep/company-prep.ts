@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AiJobAnalysisService, JobAnalysisResult } from '../../../core/services/ai-job-analysis.service';
+import { AiJobAnalysisService, JobAnalysisError, JobAnalysisResult } from '../../../core/services/ai-job-analysis.service';
 import { CompanyPrepService, CompanyPrepAnalysis } from '../../../core/services/company-prep.service';
 import { INTERVIEW_POSITION_LABEL, InterviewPosition } from '../../../core/models';
 
@@ -31,6 +31,7 @@ export class CompanyPrepComponent {
 
   protected readonly analyzing = signal(false);
   protected readonly result = signal<JobAnalysisResult | null>(null);
+  protected readonly analysisError = signal<string | null>(null);
 
   protected async analyze(): Promise<void> {
     const { company, jobDescription } = this.form.getRawValue();
@@ -38,6 +39,7 @@ export class CompanyPrepComponent {
 
     const { position } = this.form.getRawValue();
     this.analyzing.set(true);
+    this.analysisError.set(null);
     try {
       const analysis = await this.aiJobAnalysis.analyze(company, jobDescription);
       this.result.set(analysis);
@@ -47,6 +49,10 @@ export class CompanyPrepComponent {
         jobDescription,
         result: analysis,
       });
+    } catch (err) {
+      this.analysisError.set(
+        err instanceof JobAnalysisError ? err.message : 'Something went wrong analyzing this job description. Please try again.',
+      );
     } finally {
       this.analyzing.set(false);
     }
