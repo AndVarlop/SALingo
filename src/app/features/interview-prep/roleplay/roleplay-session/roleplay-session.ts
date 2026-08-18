@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MOCK_ROLEPLAY_SCENARIOS } from '../../../../core/services/mock-data/mock-roleplay.data';
 import { AiRoleplayService, RoleplayAiError, RoleplayScenarioContext } from '../../../../core/services/ai-roleplay.service';
-import { AiInterviewEvaluationService, InterviewAnswerEvaluation } from '../../../../core/services/ai-interview-evaluation.service';
+import { AiInterviewEvaluationService, InterviewAnswerEvaluation, InterviewEvaluationError } from '../../../../core/services/ai-interview-evaluation.service';
 import { CallFlowScoringService } from '../../../../core/services/call-flow-scoring.service';
 import { MistakeDetectionService } from '../../../../core/services/mistake-detection.service';
 import { MistakeMemoryService } from '../../../../core/services/mistake-memory.service';
@@ -119,7 +119,17 @@ export class RoleplaySessionComponent {
       .join(' ');
 
     this.thinking.set(true);
-    const result = await this.aiEvaluation.evaluateAnswer(agentText || 'No response given.');
+    this.errorMessage.set(null);
+    let result: InterviewAnswerEvaluation;
+    try {
+      result = await this.aiEvaluation.evaluateAnswer(scenario.objective, agentText || 'No response given.');
+    } catch (err) {
+      this.errorMessage.set(
+        err instanceof InterviewEvaluationError ? err.message : 'Something went wrong evaluating the call. Please try again.',
+      );
+      this.thinking.set(false);
+      return;
+    }
     this.evaluation.set(result);
     this.callPerformance.set(
       this.callFlowScoring.score(agentText, scenario.availableInfo.length > 0),

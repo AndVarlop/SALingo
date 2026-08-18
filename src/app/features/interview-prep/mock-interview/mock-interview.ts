@@ -4,7 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { InterviewQuestionService } from '../../../core/services/interview-question.service';
 import { InterviewProgressService } from '../../../core/services/interview-progress.service';
 import { InterviewSessionService } from '../../../core/services/interview-session.service';
-import { AiInterviewEvaluationService, InterviewAnswerEvaluation } from '../../../core/services/ai-interview-evaluation.service';
+import { AiInterviewEvaluationService, InterviewAnswerEvaluation, InterviewEvaluationError } from '../../../core/services/ai-interview-evaluation.service';
 import { AiInterviewService } from '../../../core/services/ai-interview.service';
 import { MistakeDetectionService } from '../../../core/services/mistake-detection.service';
 import { MistakeMemoryService } from '../../../core/services/mistake-memory.service';
@@ -23,18 +23,6 @@ const QUESTION_COUNT_BY_DIFFICULTY: Record<Difficulty, number> = {
 };
 
 const REAL_MODE_SECONDS_PER_QUESTION = 90;
-
-interface AggregateResult {
-  overallScore: number;
-  confidence: number;
-  relevance: number;
-  structure: number;
-  professionalism: number;
-  clarity: number;
-  strengths: string[];
-  improvements: string[];
-  recommendedPractice: string[];
-}
 
 @Component({
   selector: 'app-mock-interview',
@@ -82,7 +70,8 @@ export class MockInterviewComponent implements OnDestroy {
   protected readonly answers = signal<string[]>([]);
   protected readonly draft = signal('');
   protected readonly timeLeft = signal(REAL_MODE_SECONDS_PER_QUESTION);
-  protected readonly result = signal<AggregateResult | null>(null);
+  protected readonly result = signal<InterviewAnswerEvaluation | null>(null);
+  protected readonly evaluationError = signal<string | null>(null);
   /** Adaptive: not every question is picked up-front — the pool the next pick comes from. */
   private readonly remainingPool = signal<InterviewQuestion[]>([]);
   protected readonly targetCount = signal(0);
@@ -172,9 +161,24 @@ export class MockInterviewComponent implements OnDestroy {
 
   private async finishInterview(): Promise<void> {
     this.phase.set('evaluating');
-    const evaluations = await Promise.all(this.answers().map((a) => this.aiEvaluation.evaluateAnswer(a)));
-    const aggregate = this.aggregate(evaluations);
-    this.result.set(aggregate);
+    this.evaluationError.set(null);
+
+    const qaPairs = this.questions().map((q, i) => ({ question: q.question, answer: this.answers()[i] ?? '' }));
+
+    let result: InterviewAnswerEvaluation;
+    try {
+      // ONE AI call for the whole interview, evaluated holistically — not
+      // one call per question, which would be both slower and needlessly
+      // expensive for a 15-question Expert-difficulty session.
+      result = await this.aiEvaluation.evaluateInterview(qaPairs);
+    } catch (err) {
+      this.evaluationError.set(
+        err instanceof InterviewEvaluationError ? err.message : 'Something went wrong evaluating your interview. Please try again.',
+      );
+      return; // stay on the 'evaluating' screen — it shows the error + a retry button
+    }
+
+    this.result.set(result);
 
     const detected = this.answers().flatMap((a) => this.mistakeDetection.detect(a));
     if (detected.length) await this.mistakeMemory.recordAll(detected, 'Mock Interview');
@@ -186,51 +190,32 @@ export class MockInterviewComponent implements OnDestroy {
       position,
       durationSeconds,
       questionCount: this.questions().length,
-      overallScore: aggregate.overallScore,
-      strengths: aggregate.strengths,
-      improvements: aggregate.improvements,
+      overallScore: result.overallScore,
+      strengths: result.strengths,
+      improvements: result.improvements,
       mode,
     });
 
     this.userState.recordActivity({
       minutes: Math.max(1, Math.round(durationSeconds / 60)),
-      xp: 40 + Math.round(aggregate.overallScore / 5),
+      xp: 40 + Math.round(result.overallScore / 5),
       type: 'interview',
       title: 'Completed a Mock Interview',
-      accuracy: aggregate.overallScore,
+      accuracy: result.overallScore,
       skillTag: `interview:${position ?? 'general'}`,
     });
 
     this.phase.set('result');
   }
 
-  private aggregate(evaluations: InterviewAnswerEvaluation[]): AggregateResult {
-    const avg = (key: keyof InterviewAnswerEvaluation) =>
-      Math.round(
-        evaluations.reduce((sum, e) => sum + (e[key] as number), 0) / Math.max(1, evaluations.length),
-      );
-
-    const strengths = [...new Set(evaluations.flatMap((e) => e.strengths))].slice(0, 5);
-    const improvements = [...new Set(evaluations.flatMap((e) => e.improvements))].slice(0, 5);
-    const recommendedPractice = [...new Set(evaluations.flatMap((e) => e.recommendedPractice))].slice(0, 4);
-
-    return {
-      overallScore: avg('overallScore'),
-      confidence: avg('confidence'),
-      relevance: avg('relevance'),
-      structure: avg('structure'),
-      professionalism: avg('professionalism'),
-      clarity: avg('clarity'),
-      strengths: strengths.length ? strengths : ['You completed the full interview — that takes courage!'],
-      improvements,
-      recommendedPractice,
-    };
-  }
-
   protected restart(): void {
     this.stopTimer();
     this.phase.set('setup');
     this.result.set(null);
+  }
+
+  protected retryEvaluation(): void {
+    void this.finishInterview();
   }
 
   ngOnDestroy(): void {

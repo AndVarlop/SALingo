@@ -96,9 +96,16 @@
 
     @case ('evaluating') {
       <div class="card mock-interview__setup">
-        <span class="mock-interview__icon" aria-hidden="true">🧠</span>
-        <h1>Evaluating your answers…</h1>
-        <p>Analyzing grammar, structure, professionalism and clarity.</p>
+        @if (evaluationError(); as error) {
+          <span class="mock-interview__icon" aria-hidden="true">⚠️</span>
+          <h1>Couldn't evaluate your interview</h1>
+          <p>{{ error }}</p>
+          <button type="button" class="btn btn--primary" (click)="retryEvaluation()">Try again</button>
+        } @else {
+          <span class="mock-interview__icon" aria-hidden="true">🧠</span>
+          <h1>Evaluating your answers…</h1>
+          <p>Analyzing grammar, structure, professionalism and clarity.</p>
+        }
       </div>
     }
 
