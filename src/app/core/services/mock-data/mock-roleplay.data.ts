@@ -264,4 +264,40 @@ export const MOCK_ROLEPLAY_SCENARIOS: RoleplayScenario[] = [
     expectedResolution: 'Acknowledge their loyalty genuinely, explain clearly why the refund itself isn\'t possible without being defensive, and offer the store-credit goodwill gesture as a real alternative — without caving to the implied threat.',
     openingLine: "I've been a loyal customer for three years, and I really don't think it's unreasonable to ask for a refund here. I'd hate to have to write about this experience publicly.",
   },
+
+  // -------------------------------------- C2 · leadership / negotiation ---
+  {
+    id: 'rp-19',
+    difficulty: 'Expert',
+    category: 'Escalation',
+    title: 'Negotiating a multi-year enterprise contract renewal',
+    context: 'You are speaking with the operations director of a large enterprise client whose three-year contract is up for renewal. They are negotiating on behalf of their own leadership, not just themselves.',
+    objective: 'Negotiate renewal terms professionally at a strategic level — protecting margin while genuinely addressing their leverage — without either capitulating or sounding inflexible.',
+    customerPersona: 'A seasoned negotiator themselves: calm, precise, uses silence deliberately, and reframes your points back at you rather than reacting emotionally.',
+    problem: 'They want a 20% price reduction and a shorter contract term, citing a competing offer, and are testing how much flexibility you actually have.',
+    availableInfo: [
+      'You are authorized to offer up to a 10% reduction tied to a longer term, not a shorter one',
+      'This account represents a significant share of your team\'s targets this year',
+      'Their actual competing offer, if real, would mean losing some integrations they currently rely on',
+    ],
+    expectedResolution: 'Reframe the conversation around total value and switching cost rather than matching the price directly, offer the real trade-off available (reduction for a longer term), and hold your position with calm confidence rather than urgency.',
+    openingLine: "We've been a client for three years, and frankly, another provider has offered us a substantially better rate. I'd like to understand what you can actually do for us before we make a decision.",
+  },
+  {
+    id: 'rp-20',
+    difficulty: 'Expert',
+    category: 'Escalation',
+    title: 'Leading your team through a service-wide outage',
+    context: 'A major outage has affected all customers for two hours. You are speaking as a team lead to a senior agent on your team who is overwhelmed and frustrated with how leadership has handled communication.',
+    objective: 'Lead the conversation with a struggling team member during a crisis — acknowledge their frustration honestly, without either dismissing it or undermining leadership in front of them.',
+    customerPersona: '(Playing your teammate, not a customer.) Exhausted, a little resentful, feels unsupported and under-informed during the outage.',
+    problem: 'They feel leadership gave the team no real information for the first hour and are now fielding angry customers with nothing useful to say.',
+    availableInfo: [
+      'You now have a clear update: root cause identified, fix deployed, full resolution expected within 30 minutes',
+      'You have the authority to give the team a short break once immediate queues are stable',
+      'Leadership\'s early silence was due to genuinely not having confirmed information yet, not indifference',
+    ],
+    expectedResolution: 'Acknowledge their frustration as legitimate before explaining anything, give them the concrete update they can actually use with customers now, and address the "no communication" concern honestly without either blaming leadership or pretending it didn\'t happen.',
+    openingLine: "Two hours, no real update, and I'm the one who has to sit here and tell people we don't know what's wrong? I get that things break, but this is not how a team should be treated.",
+  },
 ];
