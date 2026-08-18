@@ -424,3 +424,30 @@ Everything else is done and pushed. These are the only steps that need you speci
 4. **Supabase Dashboard** → Authentication → URL Configuration: set Site URL to `https://salingo.devandvar.com` and add it to the Redirect URLs allow-list. Without this, password-reset emails will be rejected even though the app code already sends the right URL.
 5. **Test the deep-link fix once actually live**: hard-refresh `https://salingo.devandvar.com/dashboard` directly — this is the one piece of this pivot that could not be verified from this environment (see §22).
 6. *(Paused by your choice, not urgent)* When ready to enable real AI: the 3 commands from `supabase/functions/ai-proxy/README.md`.
+
+## 23. RESPONSIVE AUDIT
+
+User asked for a complete mobile/tablet/desktop/ultra-wide audit. **Important limitation, stated honestly rather than glossed over**: this session's browser automation tool (`resize_window`) does not actually change the rendered viewport in this environment — confirmed by testing it repeatedly (375×812, 390×844) and reading back `window.innerWidth`, which stayed at the browser's real window size (~1566px) every time. So this audit is **code-level** (structure, CSS, grep sweeps for known-bad patterns, build/lint/test verification) — not pixel-by-pixel visual confirmation at each of the 12 requested viewport sizes. Anything below marked "verified" was actually checked; nothing is claimed as visually confirmed that wasn't.
+
+**Breakpoints already in use** (found consistent throughout, not something this pass introduced): `640px`, `700px`, `900px` as the main tiers — roughly mobile / tablet / desktop-and-up. Reasonable and consistent; did not introduce more granular breakpoints since nothing found needed them.
+
+**What was already correct** (verified via full-codebase grep sweeps, not assumed):
+- Every `width:` declaration in the app already uses `max-width` (flexible), except exactly one real fixed `width: 140px` (a number/select input in Profile — safely narrow, not a real risk).
+- No `outline: none` anywhere — focus indicators are intact everywhere (item #26).
+- No `:hover`-only reveal of information that would be unreachable on touch (item #11).
+- Bottom nav (mobile) already shows a curated 5-item subset (`MOBILE_NAV_ITEMS`), not all 14 sidebar items crammed in — already has `padding-bottom: env(safe-area-inset-bottom)` for notch devices (item #29).
+- Forms (Company Prep, auth, etc.) are already single-column — no multi-column desktop layout that could break on mobile (item #13).
+- Games/exams (Grammar Battle, Vocabulary Rush, Find the Mistake, Exam Runner) are already button-based, no drag-and-drop, `max-width` containers — already touch-safe by construction (item #15).
+
+**Real bugs found and fixed**:
+1. `ai-tutor.scss` and `roleplay-session.scss` chat containers used `height: 100vh`/`70vh` — doesn't account for mobile browser chrome (address bar) or the on-screen keyboard opening, a real bug that can push the message composer off-screen on mobile. Added `100dvh`/`70dvh` overrides (vh kept as a fallback for older browsers).
+2. `prefers-reduced-motion` was only respected in 2 of the components using animation — added one global rule in `styles.scss` instead, covering every animation/transition in the app at once (item #28).
+3. Added `html, body { overflow-x: hidden; max-width: 100% }` as a page-wide safety net (item #23) — a backstop on top of, not instead of, the per-component sweep that found nothing else wrong.
+4. `profile.scss`'s label+input row lacked `flex-wrap`, a real overflow risk on a 320px-wide screen with a longer label.
+
+**Pages/components reviewed this pass**: shell/sidebar/topbar/bottom-nav (navigation), Dashboard, AI Tutor, Roleplay session, Mock Interview, Company Prep, Profile, Auth, and a full-codebase grep sweep (not page-by-page) for fixed widths, `100vh`, `overflow-x`, `outline: none`, hover-only reveals, across every `.scss` file in `src/app`.
+
+**Not done this pass, and why**: a genuine device-by-device/breakpoint-by-breakpoint visual walkthrough of all ~30 routes at all 12 requested viewport sizes — blocked by the `resize_window` tool limitation above, not skipped by choice. The code-level patterns already in place (consistent `max-width` usage, existing breakpoints, curated mobile nav) give reasonable confidence the app already behaves well across sizes, but that's an inference from code review, not a substitute for actually seeing it rendered at 320px/768px/1920px/2560px. **Recommended next step**: open the live site (once deployed) on a real phone/tablet, or use Chrome DevTools' device toolbar directly (Cmd/Ctrl+Shift+M) — both work around this session's automation limitation.
+
+### Build/verification
+`tsc --noEmit` clean, `ng lint` 0 errors, `ng test` 96/96 passing, `ng build` clean (same pre-existing non-blocking budget warning).
