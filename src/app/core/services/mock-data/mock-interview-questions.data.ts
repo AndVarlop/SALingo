@@ -293,4 +293,76 @@ export const MOCK_INTERVIEW_QUESTIONS: InterviewQuestion[] = [
     spanishExplanation: 'Los entrevistadores buscan que respetes las políticas de la empresa aunque no estés 100% de acuerdo — eso es profesionalismo.',
     usefulVocabulary: ['policy', 'escalate', 'professional'],
   },
+
+  // ---------------------------------------------------- B2 / Advanced ---
+  {
+    id: 'iq-b2-conflicting-priorities',
+    category: 'behavioral',
+    positions: CS,
+    question: 'How would you handle conflicting priorities during a busy shift?',
+    whatInterviewerWants:
+      'Quiere ver que puedes organizar tu trabajo bajo presión sin dejar caer nada importante, y que sabes explicar tu razonamiento con claridad.',
+    structure: ['Acknowledge the pressure', 'Explain your prioritization criteria', 'Give a concrete example', 'Result'],
+    exampleAnswer:
+      "During busy periods, I prioritize based on urgency and impact — a customer with a billing error affecting their account comes before a general question, for example (criteria). Last month, I had two calls waiting during a system outage; I handled the account-locked customer first because they couldn't work at all, then followed up with the other (example). Both were resolved within the hour (result).",
+    spanishExplanation:
+      'No digas simplemente "hago todo rápido" — explica el CRITERIO que usas para decidir qué va primero, y da un ejemplo real.',
+    usefulVocabulary: ['prioritize', 'urgency', 'impact', 'follow up'],
+  },
+  {
+    id: 'iq-b2-disagree-manager',
+    category: 'behavioral',
+    positions: CS,
+    question: 'Tell me about a time you disagreed with your manager.',
+    whatInterviewerWants:
+      'Quiere ver que puedes expresar un desacuerdo de forma profesional y diplomática, no que evites el conflicto ni que seas confrontativo.',
+    structure: ['Situation', 'How you raised the disagreement respectfully', 'The outcome', 'What you learned'],
+    exampleAnswer:
+      "My manager wanted to close a ticket I felt wasn't fully resolved (situation). I asked for a moment to explain my concern and shared the customer's follow-up message as evidence (action). We agreed to keep it open for one more day, and the customer confirmed it was fixed (result). I learned that raising concerns calmly, with evidence, works better than just going along with it.",
+    spanishExplanation:
+      'La clave es mostrar que planteaste el desacuerdo con respeto y evidencia, no que "tenías razón y tu jefe estaba equivocado".',
+    usefulVocabulary: ['raise a concern', 'evidence', 'respectfully'],
+  },
+  {
+    id: 'iq-b2-improve-retention',
+    category: 'behavioral',
+    positions: CS,
+    question: 'How would you improve customer retention in this role?',
+    whatInterviewerWants:
+      'Quiere ver pensamiento propositivo, no solo reactivo — que puedas pensar más allá de resolver el ticket de hoy.',
+    structure: ['A specific idea', 'Why it would help', 'How you would measure success'],
+    exampleAnswer:
+      "One thing that helps retention is following up after a resolved complaint, not just closing the ticket — a quick check-in a few days later shows the customer we actually care about the outcome, not just closing the case. I'd track it by comparing repeat-complaint rates before and after.",
+    spanishExplanation:
+      'Da UNA idea concreta y explica por qué funcionaría, en vez de una lista genérica de "buen servicio, ser amable, etc."',
+    usefulVocabulary: ['retention', 'follow-up', 'measure success'],
+  },
+  {
+    id: 'iq-c1-failure-learned',
+    category: 'behavioral',
+    positions: CS,
+    question: 'Describe a situation where you failed, and what you learned from it.',
+    whatInterviewerWants:
+      'Quiere ver honestidad genuina y capacidad de reflexión — NO buscan un "fallo falso" disfrazado de fortaleza (como "trabajo demasiado").',
+    structure: ['A real, specific failure', 'What went wrong and why', 'What you changed afterward', 'The lasting lesson'],
+    exampleAnswer:
+      "Early on, I promised a customer a callback time without checking with the technical team first, and we missed it (failure). I hadn't confirmed availability before committing to a specific time (what went wrong). Since then, I always confirm internally before giving a customer a specific commitment (what changed). It taught me that a vague but reliable promise is better than a precise but broken one.",
+    spanishExplanation:
+      'Evita fallos "falsos" como "soy demasiado perfeccionista". Cuenta un error real, específico, y qué cambiaste de verdad después.',
+    usefulVocabulary: ['commit to', 'confirm', 'reliable'],
+  },
+  {
+    id: 'iq-c1-policy-exception-demand',
+    category: 'behavioral',
+    positions: CS,
+    question: 'What would you do if a customer demanded something against company policy?',
+    whatInterviewerWants:
+      'Quiere ver que puedes mantener un límite profesional sin ser rígido ni ceder por presión — un equilibrio difícil.',
+    structure: ['Acknowledge their request genuinely', 'Explain the limit clearly, without being defensive', 'Offer a real alternative within your authority', 'Escalate if truly necessary'],
+    exampleAnswer:
+      "I'd start by genuinely acknowledging why they're asking — it's usually a real frustration, not just stubbornness. Then I'd explain clearly why the specific request isn't possible, without sounding defensive. I'd offer whatever alternative is actually within my authority, like a goodwill credit. If they still weren't satisfied and it was a reasonable case, I'd offer to escalate to a supervisor rather than just repeating 'no'.",
+    spanishExplanation:
+      'La respuesta ideal no es "sigo la política sin más" ni "hago una excepción para que se calme" — es mantener el límite Y ofrecer una alternativa real.',
+    usefulVocabulary: ['acknowledge', 'authority', 'escalate', 'goodwill'],
+  },
 ];
