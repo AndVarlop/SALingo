@@ -1,121 +1,108 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { RoleplayDifficulty } from '../models';
+import { AiClientService, AiChatRequestMessage, AiNotConfiguredError } from './ai-client.service';
 
 export interface RoleplayCustomerMessage {
   text: string;
   isResolved: boolean;
 }
 
-/** Everything the picker needs to react to *this* scenario and *this* answer,
- * instead of producing the same reply regardless of either. */
-export interface RoleplayTurnContext {
-  openingLine: string;
-  /** What a good agent response should actually address — drives whether the customer sounds satisfied. */
-  expectedResolution: string;
+export interface RoleplayScenarioContext {
+  customerPersona: string;
+  problem: string;
+  context: string;
   difficulty: RoleplayDifficulty;
-  turnIndex: number;
-  /** The agent's last message. Ignored on turn 0 (the opening line). */
-  agentText: string;
+  expectedResolution: string;
+  openingLine: string;
 }
 
-const IMPATIENT_FOLLOW_UPS = [
-  "Okay... but what does that actually mean for me?",
-  "I still don't feel like that's answering my problem.",
-  "Can you be more specific? I don't have all day.",
-];
+export interface RoleplayHistoryTurn {
+  role: 'customer' | 'agent';
+  text: string;
+}
 
-const NEUTRAL_FOLLOW_UPS = [
-  "Okay... but what does that actually mean for me?",
-  'I see. And how long will that take?',
-  "Alright, I guess that works. What do I need to do now?",
-];
+/** Thrown when the AI can't produce a customer reply — callers must show an
+ * honest "the customer couldn't respond" state, never a fabricated line. */
+export class RoleplayAiError extends Error {}
 
-/** Used once the agent's message shows real progress toward `expectedResolution`. */
-const ENCOURAGED_FOLLOW_UPS = [
-  'Oh, okay, that actually makes sense. What happens next?',
-  "That sounds reasonable. Can you confirm that's really going to happen?",
-  "Good, that's what I wanted to hear. Anything else I need to do?",
-];
+const MAX_TURNS_BEFORE_FORCED_RESOLUTION = 6;
 
-const CLOSINGS = [
-  'Okay, thank you for explaining that — I appreciate your help.',
-  "Alright, that sounds fair. Thanks for sorting it out.",
-  'Good, I feel better about this now. Thanks for your patience.',
-];
+function buildSystemPrompt(scenario: RoleplayScenarioContext): string {
+  const toneNote =
+    scenario.difficulty === 'Advanced' || scenario.difficulty === 'Expert'
+      ? 'You are impatient and skeptical — do not soften easily. Only sound satisfied once the agent has genuinely addressed your problem.'
+      : 'You are reasonably patient, but still a real customer with a real problem, not a pushover.';
 
-const PERSISTENT_CLOSINGS = [
-  "Fine. I still think this should've been faster, but I'll accept that.",
-  "Okay. I'm holding you to that, but thank you for finally sorting it out.",
-];
-
-const RESOLUTION_STOPWORDS = new Set([
-  'the', 'and', 'that', 'with', 'this', 'their', 'them', 'they', 'have', 'will', 'from', 'your', 'their',
-  'been', 'were', 'what', 'when', 'while', 'then', 'than', 'into', 'onto', 'about', 'before', 'after',
-]);
+  return (
+    'You are role-playing as a customer calling a customer-service / call-center agent, for English-practice ' +
+    "purposes. Stay fully in character as the customer — never break character, never mention you're an AI. " +
+    `Your persona: ${scenario.customerPersona}. Your problem: ${scenario.problem}. Context: ${scenario.context}. ` +
+    `${toneNote} You will consider the issue resolved only once the agent's response genuinely addresses: ` +
+    `${scenario.expectedResolution}. Keep replies short and natural (1-3 sentences), like a real phone call. ` +
+    'Respond with ONLY valid JSON, no markdown fences, no extra text: {"text": string, "resolved": boolean}.'
+  );
+}
 
 /**
- * Plays the "customer" side of a customer-service roleplay. Mock canned
- * responses today — but unlike a fixed script, the response now depends on
- * the specific scenario's `expectedResolution` and on whether the agent's
- * last message actually addresses it, instead of the same 3 phrases for
- * every one of the 14 scenarios regardless of difficulty or content.
- * A real implementation would call an LLM (via backend) conditioned on the
- * scenario's persona/difficulty/problem and the full conversation so far —
- * `RoleplayTurnContext` is shaped to carry exactly what that call would need.
+ * Plays the "customer" side of a customer-service roleplay via Claude,
+ * conditioned on the scenario's real persona/problem/context/difficulty and
+ * the full conversation so far — not a fixed script. The opening line stays
+ * scripted per scenario (curated, deterministic) rather than AI-generated,
+ * so every playthrough of a given scenario starts the same way.
  */
 @Injectable({ providedIn: 'root' })
 export class AiRoleplayService {
-  async getCustomerReply(context: RoleplayTurnContext): Promise<RoleplayCustomerMessage> {
-    await this.delay();
-    const { openingLine, expectedResolution, difficulty, turnIndex, agentText } = context;
+  private readonly aiClient = inject(AiClientService);
 
-    if (turnIndex === 0) {
-      return { text: openingLine, isResolved: false };
+  async getCustomerReply(
+    scenario: RoleplayScenarioContext,
+    history: RoleplayHistoryTurn[],
+  ): Promise<RoleplayCustomerMessage> {
+    if (history.length === 0) {
+      return { text: scenario.openingLine, isResolved: false };
     }
 
-    const isPersistent = difficulty === 'Advanced' || difficulty === 'Expert';
-    const addressesResolution = this.overlapsResolution(agentText, expectedResolution);
+    const messages: AiChatRequestMessage[] = history.map((turn) => ({
+      role: turn.role === 'agent' ? 'user' : 'assistant',
+      content: turn.text,
+    }));
 
-    if (addressesResolution && turnIndex >= 2) {
-      const closings = isPersistent ? PERSISTENT_CLOSINGS : CLOSINGS;
-      return { text: this.pick(closings, turnIndex), isResolved: true };
+    let raw: string;
+    try {
+      raw = await this.aiClient.complete({
+        system: buildSystemPrompt(scenario),
+        messages,
+        maxTokens: 200,
+      });
+    } catch (err) {
+      if (err instanceof AiNotConfiguredError) {
+        throw new RoleplayAiError("The AI customer isn't set up yet — this roleplay isn't available.");
+      }
+      console.error('[AiRoleplay] AI request failed', err);
+      throw new RoleplayAiError("Couldn't reach the AI customer. Please try again.");
     }
 
-    // Safety net: never loop forever even if the agent never mentions the resolution.
-    if (turnIndex >= 4) {
-      return { text: this.pick(CLOSINGS, turnIndex), isResolved: true };
+    const parsed = this.parseReply(raw);
+    if (!parsed) {
+      console.error('[AiRoleplay] Unparseable AI response', raw);
+      throw new RoleplayAiError('Got an unexpected response from the AI customer. Please try again.');
     }
 
-    const pool = addressesResolution
-      ? ENCOURAGED_FOLLOW_UPS
-      : isPersistent
-        ? IMPATIENT_FOLLOW_UPS
-        : NEUTRAL_FOLLOW_UPS;
-    return { text: this.pick(pool, turnIndex), isResolved: false };
+    // Safety net: never let a call drag on forever even if the AI keeps finding new objections.
+    const agentTurns = history.filter((t) => t.role === 'agent').length;
+    const forceResolved = agentTurns >= MAX_TURNS_BEFORE_FORCED_RESOLUTION;
+
+    return { text: parsed.text, isResolved: parsed.resolved || forceResolved };
   }
 
-  /** Word-overlap heuristic: does the agent's message actually touch on what would resolve this specific problem? */
-  private overlapsResolution(agentText: string, expectedResolution: string): boolean {
-    const resolutionWords = this.significantWords(expectedResolution);
-    if (!resolutionWords.length) return false;
-    const agentWords = new Set(this.significantWords(agentText));
-    const matched = resolutionWords.filter((w) => agentWords.has(w)).length;
-    return matched >= 2 || matched / resolutionWords.length >= 0.3;
-  }
-
-  private significantWords(text: string): string[] {
-    return text
-      .toLowerCase()
-      .replace(/[.,!?]/g, '')
-      .split(/\s+/)
-      .filter((w) => w.length >= 4 && !RESOLUTION_STOPWORDS.has(w));
-  }
-
-  private pick(pool: string[], turnIndex: number): string {
-    return pool[(turnIndex - 1) % pool.length];
-  }
-
-  private delay(): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, 400));
+  private parseReply(raw: string): { text: string; resolved: boolean } | null {
+    try {
+      const cleaned = raw.trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '');
+      const data = JSON.parse(cleaned) as Partial<{ text: string; resolved: boolean }>;
+      if (typeof data.text !== 'string' || !data.text.trim() || typeof data.resolved !== 'boolean') return null;
+      return { text: data.text, resolved: data.resolved };
+    } catch {
+      return null;
+    }
   }
 }

@@ -64,6 +64,10 @@
             <div #scrollAnchor></div>
           </div>
 
+          @if (errorMessage(); as error) {
+            <p class="rp-session__error">⚠️ {{ error }}</p>
+          }
+
           @if (resolved()) {
             <button type="button" class="btn btn--primary btn--block" (click)="finishRoleplay()">
               End roleplay &amp; get feedback

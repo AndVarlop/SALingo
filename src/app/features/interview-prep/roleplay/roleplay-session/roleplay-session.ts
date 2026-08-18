@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, computed, inject, signa
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { MOCK_ROLEPLAY_SCENARIOS } from '../../../../core/services/mock-data/mock-roleplay.data';
-import { AiRoleplayService } from '../../../../core/services/ai-roleplay.service';
+import { AiRoleplayService, RoleplayAiError, RoleplayScenarioContext } from '../../../../core/services/ai-roleplay.service';
 import { AiInterviewEvaluationService, InterviewAnswerEvaluation } from '../../../../core/services/ai-interview-evaluation.service';
 import { CallFlowScoringService } from '../../../../core/services/call-flow-scoring.service';
 import { MistakeDetectionService } from '../../../../core/services/mistake-detection.service';
@@ -10,7 +10,7 @@ import { MistakeMemoryService } from '../../../../core/services/mistake-memory.s
 import { UserStateService } from '../../../../core/services/user-state.service';
 import { InterviewSessionService } from '../../../../core/services/interview-session.service';
 import { XP_RULES } from '../../../../core/constants/xp.constant';
-import { CallPerformance } from '../../../../core/models';
+import { CallPerformance, RoleplayScenario } from '../../../../core/models';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state/empty-state';
 
 interface RoleplayMessage {
@@ -50,25 +50,23 @@ export class RoleplaySessionComponent {
   protected readonly resolved = signal(false);
   protected readonly evaluation = signal<InterviewAnswerEvaluation | null>(null);
   protected readonly callPerformance = signal<CallPerformance | null>(null);
-
-  private turnIndex = 0;
+  protected readonly errorMessage = signal<string | null>(null);
 
   protected async startRoleplay(): Promise<void> {
     const scenario = this.scenario();
     if (!scenario) return;
     this.phase.set('chatting');
     this.thinking.set(true);
-    const reply = await this.aiRoleplay.getCustomerReply({
-      openingLine: scenario.openingLine,
-      expectedResolution: scenario.expectedResolution,
-      difficulty: scenario.difficulty,
-      turnIndex: this.turnIndex,
-      agentText: '',
-    });
-    this.turnIndex += 1;
-    this.messages.set([{ role: 'customer', text: reply.text }]);
-    this.thinking.set(false);
-    this.scrollToBottom();
+    this.errorMessage.set(null);
+    try {
+      const reply = await this.aiRoleplay.getCustomerReply(this.scenarioContext(scenario), []);
+      this.messages.set([{ role: 'customer', text: reply.text }]);
+    } catch (err) {
+      this.errorMessage.set(err instanceof RoleplayAiError ? err.message : 'Something went wrong starting the call.');
+    } finally {
+      this.thinking.set(false);
+      this.scrollToBottom();
+    }
   }
 
   protected setDraft(value: string): void {
@@ -83,20 +81,32 @@ export class RoleplaySessionComponent {
     this.messages.update((m) => [...m, { role: 'agent', text }]);
     this.draft.set('');
     this.thinking.set(true);
+    this.errorMessage.set(null);
     this.scrollToBottom();
 
-    const reply = await this.aiRoleplay.getCustomerReply({
-      openingLine: scenario.openingLine,
-      expectedResolution: scenario.expectedResolution,
+    try {
+      const reply = await this.aiRoleplay.getCustomerReply(this.scenarioContext(scenario), this.messages());
+      this.messages.update((m) => [...m, { role: 'customer', text: reply.text }]);
+      this.resolved.set(reply.isResolved);
+    } catch (err) {
+      this.errorMessage.set(
+        err instanceof RoleplayAiError ? err.message : "Something went wrong reaching the customer.",
+      );
+    } finally {
+      this.thinking.set(false);
+      this.scrollToBottom();
+    }
+  }
+
+  private scenarioContext(scenario: RoleplayScenario): RoleplayScenarioContext {
+    return {
+      customerPersona: scenario.customerPersona,
+      problem: scenario.problem,
+      context: scenario.context,
       difficulty: scenario.difficulty,
-      turnIndex: this.turnIndex,
-      agentText: text,
-    });
-    this.turnIndex += 1;
-    this.messages.update((m) => [...m, { role: 'customer', text: reply.text }]);
-    this.thinking.set(false);
-    this.resolved.set(reply.isResolved);
-    this.scrollToBottom();
+      expectedResolution: scenario.expectedResolution,
+      openingLine: scenario.openingLine,
+    };
   }
 
   protected async finishRoleplay(): Promise<void> {

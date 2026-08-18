@@ -170,6 +170,16 @@
   }
 }
 
+.rp-session__error {
+  margin: 0 20px 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-danger) 12%, transparent);
+  color: var(--color-danger);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 .rp-session__composer {
   display: flex;
   gap: 8px;

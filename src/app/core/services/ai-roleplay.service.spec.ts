@@ -1,85 +1,99 @@
-import { AiRoleplayService } from './ai-roleplay.service';
+import { TestBed } from '@angular/core/testing';
+import { AiRoleplayService, RoleplayAiError, RoleplayScenarioContext } from './ai-roleplay.service';
+import { AiClientService, AiCompleteRequest, AiNotConfiguredError } from './ai-client.service';
+
+const SCENARIO: RoleplayScenarioContext = {
+  customerPersona: 'A frustrated small-business owner',
+  problem: 'Charged twice for the same subscription.',
+  context: 'Calling in about a billing error.',
+  difficulty: 'Intermediate',
+  expectedResolution: 'Acknowledge the duplicate charge and process a refund.',
+  openingLine: 'Hi, I was charged twice for my subscription.',
+};
+
+function setup(complete: (req: AiCompleteRequest) => Promise<string> = async () =>
+  JSON.stringify({ text: 'Okay, thanks.', resolved: false }),
+) {
+  TestBed.resetTestingModule();
+  TestBed.configureTestingModule({
+    providers: [{ provide: AiClientService, useValue: { complete } }],
+  });
+  return TestBed.inject(AiRoleplayService);
+}
 
 describe('AiRoleplayService.getCustomerReply', () => {
-  const service = new AiRoleplayService();
-  const base = {
-    openingLine: "Hi, I was charged twice for my subscription.",
-    expectedResolution: 'Acknowledge the charge and process a refund for the duplicate payment.',
-    difficulty: 'Intermediate' as const,
-  };
-
-  it('returns the opening line unresolved on turn 0, regardless of agentText', async () => {
-    const reply = await service.getCustomerReply({ ...base, turnIndex: 0, agentText: '' });
-    expect(reply.text).toBe(base.openingLine);
+  it('returns the scripted opening line unresolved when history is empty, without calling the AI', async () => {
+    const complete = vi.fn();
+    const service = setup(complete);
+    const reply = await service.getCustomerReply(SCENARIO, []);
+    expect(reply.text).toBe(SCENARIO.openingLine);
     expect(reply.isResolved).toBe(false);
+    expect(complete).not.toHaveBeenCalled();
   });
 
-  it('does NOT resolve when the agent response ignores the actual problem', async () => {
-    const reply = await service.getCustomerReply({
-      ...base,
-      turnIndex: 2,
-      agentText: 'Have you tried turning it off and on again?',
-    });
-    expect(reply.isResolved).toBe(false);
-  });
-
-  it('resolves once the agent response addresses the scenario-specific resolution', async () => {
-    const reply = await service.getCustomerReply({
-      ...base,
-      turnIndex: 2,
-      agentText: "I can confirm the duplicate charge and I'll process a refund right away.",
-    });
+  it('returns the AI reply and resolution flag once there is real history', async () => {
+    const service = setup(async () =>
+      JSON.stringify({ text: "I can confirm that and I'll process a refund right away.", resolved: true }),
+    );
+    const reply = await service.getCustomerReply(SCENARIO, [
+      { role: 'customer', text: SCENARIO.openingLine },
+      { role: 'agent', text: 'I can confirm the duplicate charge and refund it now.' },
+    ]);
+    expect(reply.text).toContain('refund');
     expect(reply.isResolved).toBe(true);
   });
 
-  it('does not resolve on turn 1 even with a matching answer (too early)', async () => {
-    const reply = await service.getCustomerReply({
-      ...base,
-      turnIndex: 1,
-      agentText: "I can confirm the duplicate charge and process a refund.",
+  it('maps agent turns to the "user" role and customer turns to "assistant" for the AI call', async () => {
+    let captured: AiCompleteRequest | null = null;
+    const service = setup(async (req) => {
+      captured = req;
+      return JSON.stringify({ text: 'ok', resolved: false });
     });
-    expect(reply.isResolved).toBe(false);
+    await service.getCustomerReply(SCENARIO, [
+      { role: 'customer', text: 'opening' },
+      { role: 'agent', text: 'my response' },
+    ]);
+    expect(captured!.messages).toEqual([
+      { role: 'assistant', content: 'opening' },
+      { role: 'user', content: 'my response' },
+    ]);
+    expect(captured!.system).toContain(SCENARIO.customerPersona);
+    expect(captured!.system).toContain(SCENARIO.expectedResolution);
   });
 
-  it('two different scenarios with different expectedResolution produce different acceptance criteria', async () => {
-    const billingContext = {
-      openingLine: 'x',
-      expectedResolution: 'Acknowledge the charge and process a refund for the duplicate payment.',
-      difficulty: 'Intermediate' as const,
-      turnIndex: 2,
-      agentText: 'I can confirm the duplicate charge and process a refund.',
-    };
-    const technicalContext = {
-      ...billingContext,
-      expectedResolution: 'Walk the customer through resetting the router and confirm the connection is restored.',
-    };
-
-    const billingReply = await service.getCustomerReply(billingContext);
-    const technicalReply = await service.getCustomerReply(technicalContext);
-
-    // Same agent text satisfies the billing scenario but not the unrelated technical one —
-    // proof the response depends on the scenario, not a fixed script.
-    expect(billingReply.isResolved).toBe(true);
-    expect(technicalReply.isResolved).toBe(false);
-  });
-
-  it('always resolves by turn 4 as a safety net, even without a matching answer', async () => {
-    const reply = await service.getCustomerReply({
-      ...base,
-      turnIndex: 4,
-      agentText: 'I am not sure what to tell you.',
-    });
+  it('forces resolution once the agent has taken MAX_TURNS_BEFORE_FORCED_RESOLUTION turns, as a safety net', async () => {
+    const service = setup(async () => JSON.stringify({ text: 'Still not happy.', resolved: false }));
+    const history = [
+      { role: 'customer' as const, text: 'opening' },
+      ...Array.from({ length: 6 }, (_, i) => [
+        { role: 'agent' as const, text: `attempt ${i}` },
+        { role: 'customer' as const, text: `reply ${i}` },
+      ]).flat(),
+      { role: 'agent' as const, text: 'final attempt' },
+    ];
+    const reply = await service.getCustomerReply(SCENARIO, history);
     expect(reply.isResolved).toBe(true);
   });
 
-  it('uses a more impatient tone for Expert difficulty when the agent has not resolved it', async () => {
-    const reply = await service.getCustomerReply({
-      ...base,
-      difficulty: 'Expert',
-      turnIndex: 1,
-      agentText: 'Let me look into that for you.',
+  it('is honest when the AI is not configured, instead of fabricating a customer reply', async () => {
+    const service = setup(async () => {
+      throw new AiNotConfiguredError('nope');
     });
-    expect(reply.isResolved).toBe(false);
-    expect(reply.text.length).toBeGreaterThan(0);
+    await expect(
+      service.getCustomerReply(SCENARIO, [
+        { role: 'customer', text: SCENARIO.openingLine },
+        { role: 'agent', text: 'hi' },
+      ]),
+    ).rejects.toThrow(RoleplayAiError);
+  });
+
+  it('is honest when the AI response is not valid JSON', async () => {
+    const service = setup(async () => 'not json');
+    await expect(
+      service.getCustomerReply(SCENARIO, [
+        { role: 'customer', text: SCENARIO.openingLine },
+        { role: 'agent', text: 'hi' },
+      ]),
+    ).rejects.toThrow(RoleplayAiError);
   });
 });
