@@ -11,6 +11,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Review', icon: '🧠', routerLink: '/review' },
   { label: 'Vocabulary', icon: '📖', routerLink: '/vocabulary' },
   { label: 'Grammar', icon: '✏️', routerLink: '/grammar' },
+  { label: 'Reading', icon: '📰', routerLink: '/reading' },
   { label: 'Listening', icon: '🎧', routerLink: '/listening' },
   { label: 'Speaking', icon: '🎤', routerLink: '/speaking' },
   { label: 'Pronunciation Coach', icon: '🗣️', routerLink: '/pronunciation-coach' },
@@ -28,7 +29,7 @@ export const MOBILE_NAV_ITEMS: NavItem[] = [
   NAV_ITEMS[1], // Learn
   NAV_ITEMS[2], // Review
   NAV_ITEMS[3], // Vocabulary
-  NAV_ITEMS[13], // Profile
+  NAV_ITEMS[14], // Profile
 ];
 
 export interface NavGroup {
@@ -51,10 +52,11 @@ export const NAV_GROUPS: NavGroup[] = [
       NAV_ITEMS[1], // Learn (lessons)
       NAV_ITEMS[3], // Vocabulary
       NAV_ITEMS[4], // Grammar
-      NAV_ITEMS[5], // Listening
-      NAV_ITEMS[6], // Speaking
-      NAV_ITEMS[7], // Pronunciation Coach
-      NAV_ITEMS[8], // Writing
+      NAV_ITEMS[5], // Reading
+      NAV_ITEMS[6], // Listening
+      NAV_ITEMS[7], // Speaking
+      NAV_ITEMS[8], // Pronunciation Coach
+      NAV_ITEMS[9], // Writing
     ],
   },
   {
@@ -69,21 +71,21 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Career',
     items: [
-      NAV_ITEMS[10], // Career Path
-      NAV_ITEMS[11], // Interview Prep
+      NAV_ITEMS[11], // Career Path
+      NAV_ITEMS[12], // Interview Prep
     ],
   },
   {
     label: 'Progress',
     items: [
-      NAV_ITEMS[9], // Progress
+      NAV_ITEMS[10], // Progress
     ],
   },
   {
     label: 'Account',
     items: [
-      NAV_ITEMS[12], // AI Tutor
-      NAV_ITEMS[13], // Profile
+      NAV_ITEMS[13], // AI Tutor
+      NAV_ITEMS[14], // Profile
     ],
   },
 ];

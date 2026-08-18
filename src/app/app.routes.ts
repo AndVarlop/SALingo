@@ -54,6 +54,12 @@ export const routes: Routes = [
         title: 'Listening · SALingo',
       },
       {
+        path: 'reading',
+        loadComponent: () =>
+          import('./features/reading/reading').then((m) => m.ReadingComponent),
+        title: 'Reading · SALingo',
+      },
+      {
         path: 'speaking',
         loadComponent: () =>
           import('./features/speaking/speaking').then((m) => m.SpeakingComponent),

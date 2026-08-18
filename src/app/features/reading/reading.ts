@@ -1,6 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import { MOCK_LISTENING_EXERCISES } from '../../core/services/mock-data/mock-listening.data';
+import { MOCK_READING_EXERCISES } from '../../core/services/mock-data/mock-reading.data';
 import { UserStateService } from '../../core/services/user-state.service';
 import { CefrLevel, ExerciseResult } from '../../core/models';
 import { ExercisePlayerComponent } from '../lessons/exercise-player/exercise-player';
@@ -15,21 +14,20 @@ const LEVELS_WITH_CONTENT: CefrLevel[] = [
 ];
 
 @Component({
-  selector: 'app-listening',
+  selector: 'app-reading',
   standalone: true,
-  imports: [RouterLink, ExercisePlayerComponent, LevelFilterComponent],
-  templateUrl: './listening.html',
-  styleUrl: './listening.scss',
+  imports: [ExercisePlayerComponent, LevelFilterComponent],
+  templateUrl: './reading.html',
+  styleUrl: './reading.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ListeningComponent {
+export class ReadingComponent {
   private readonly userState = inject(UserStateService);
 
-  protected readonly allExercises = MOCK_LISTENING_EXERCISES;
+  protected readonly allExercises = MOCK_READING_EXERCISES;
   protected readonly levels = LEVELS_WITH_CONTENT;
   protected readonly selectedLevel = signal<CefrLevel | null>(null);
 
-  /** Exercises for the selected level. "All" includes the untagged (A1/A2/B1-era) items plus everything tagged. */
   protected readonly exercises = computed(() => {
     const level = this.selectedLevel();
     if (level === null) return this.allExercises;
@@ -60,8 +58,8 @@ export class ListeningComponent {
     this.userState.recordActivity({
       minutes,
       xp: payload.xpEarned,
-      type: 'listening',
-      title: 'Listening practice',
+      type: 'reading',
+      title: 'Reading practice',
       accuracy,
     });
 

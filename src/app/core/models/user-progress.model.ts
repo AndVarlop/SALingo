@@ -11,7 +11,16 @@ export interface DailyActivity {
 export interface ActivityLogEntry {
   id: string;
   date: string; // ISO datetime
-  type: 'lesson' | 'review' | 'grammar' | 'listening' | 'speaking' | 'writing' | 'placement-test' | 'interview';
+  type:
+    | 'lesson'
+    | 'review'
+    | 'grammar'
+    | 'listening'
+    | 'reading'
+    | 'speaking'
+    | 'writing'
+    | 'placement-test'
+    | 'interview';
   title: string;
   xpEarned: number;
   accuracy?: number;

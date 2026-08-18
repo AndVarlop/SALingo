@@ -1,4 +1,4 @@
-import { ExerciseType, ListeningExercise } from '../../models';
+import { CefrLevel, ExerciseType, ListeningExercise } from '../../models';
 
 export const MOCK_LISTENING_EXERCISES: ListeningExercise[] = [
   {
@@ -260,5 +260,251 @@ export const MOCK_LISTENING_EXERCISES: ListeningExercise[] = [
     ],
     correctOptionIndex: 1,
     xpReward: 16,
+  },
+
+  // --------------------------------------------------------------- B2 ---
+  {
+    id: 'li-b2-1',
+    type: ExerciseType.Listening,
+    level: CefrLevel.B2,
+    prompt: 'Listen to the workplace conversation and choose what happened.',
+    audioText:
+      "Agent: I've checked your account and I can see the charge went through twice by mistake. Customer: So can you refund the extra one today? Agent: I can process it right now, but it usually takes three to five business days to appear back on your card.",
+    options: [
+      'The customer will get an immediate cash refund',
+      'The refund will be processed today but take a few business days to appear',
+      'The agent refused to issue any refund',
+      'The customer was charged only once',
+    ],
+    correctOptionIndex: 1,
+    xpReward: 12,
+  },
+  {
+    id: 'li-b2-2',
+    type: ExerciseType.Listening,
+    level: CefrLevel.B2,
+    prompt: 'Listen to the announcement and answer.',
+    audioText:
+      "Attention passengers: due to a technical issue, the 3:15 departure to Chicago has been delayed by approximately forty minutes. We apologize for the inconvenience and will provide another update by 3:00.",
+    options: [
+      'The flight has been cancelled',
+      'The flight is delayed by about forty minutes',
+      'The flight is delayed by four hours',
+      'The gate has changed',
+    ],
+    correctOptionIndex: 1,
+    xpReward: 12,
+  },
+  {
+    id: 'li-b2-3',
+    type: ExerciseType.Listening,
+    level: CefrLevel.B2,
+    prompt: 'Listen to the job interview excerpt and infer the answer.',
+    audioText:
+      "Interviewer: What would you say is your biggest weakness? Candidate: Honestly, I used to have trouble delegating tasks, but I've been working on trusting my team more and it's made a real difference.",
+    options: [
+      'The candidate refuses to answer the question',
+      'The candidate describes a real weakness and a concrete step taken to improve it',
+      'The candidate claims to have no weaknesses at all',
+      'The candidate is asking the interviewer a question',
+    ],
+    correctOptionIndex: 1,
+    xpReward: 13,
+  },
+  {
+    id: 'li-b2-4',
+    type: ExerciseType.Listening,
+    level: CefrLevel.B2,
+    prompt: "Listen to the colleagues discussing a deadline and identify the speaker's intention.",
+    audioText:
+      "I know we said Friday, but given everything that's come up this week, would it be possible to push it to Monday instead? I just want to make sure we deliver something solid rather than rushed.",
+    options: [
+      'The speaker is cancelling the project entirely',
+      'The speaker is asking to extend the deadline to protect the quality of the work',
+      'The speaker is blaming a colleague for the delay',
+      'The speaker is confirming the Friday deadline is fine',
+    ],
+    correctOptionIndex: 1,
+    xpReward: 13,
+  },
+  {
+    id: 'li-b2-5',
+    type: ExerciseType.Listening,
+    level: CefrLevel.B2,
+    prompt: 'Listen to the customer service call and choose the main issue.',
+    audioText:
+      "Customer: This is the second time this month my internet has gone down during work hours, and I work from home, so it's a real problem for me. Agent: I completely understand, and I'm sorry for the disruption — let me check if there's an outage in your area right now.",
+    options: [
+      'The customer is asking to cancel their service',
+      "The customer is frustrated about repeated internet outages affecting their work",
+      'The customer wants a discount on a different product',
+      'The agent is reporting the outage to the customer',
+    ],
+    correctOptionIndex: 1,
+    xpReward: 13,
+  },
+  {
+    id: 'li-b2-6',
+    type: ExerciseType.Listening,
+    level: CefrLevel.B2,
+    prompt: 'Listen and choose the detail that matches.',
+    audioText:
+      "We've streamlined the onboarding process, so new hires now finish it in about half the time it used to take — roughly two days instead of four.",
+    options: [
+      'Onboarding now takes about two days instead of four',
+      'Onboarding now takes four days instead of two',
+      'Onboarding has been cancelled',
+      'Onboarding now takes a full week',
+    ],
+    correctOptionIndex: 0,
+    xpReward: 12,
+  },
+
+  // --------------------------------------------------------------- C1 ---
+  {
+    id: 'li-c1-1',
+    type: ExerciseType.Listening,
+    level: CefrLevel.C1,
+    prompt: "Listen to the podcast excerpt and identify the speaker's attitude.",
+    audioText:
+      "I'll admit I was skeptical about AI tools in customer service at first, but after seeing the data from the last two quarters, I have to say the results have genuinely surprised me — in a good way.",
+    options: [
+      'The speaker remains completely skeptical',
+      'The speaker started skeptical but has been positively surprised by the results',
+      'The speaker is angry about the results',
+      'The speaker has no opinion on the topic',
+    ],
+    correctOptionIndex: 1,
+    xpReward: 15,
+  },
+  {
+    id: 'li-c1-2',
+    type: ExerciseType.Listening,
+    level: CefrLevel.C1,
+    prompt: 'Listen to the meeting excerpt and infer what is implied.',
+    audioText:
+      "I hear what you're saying about the timeline, and I'm not saying it's impossible. I just think we should go into this with our eyes open about what we'd be trading off to get there.",
+    options: [
+      'The speaker fully agrees with the proposed timeline without reservations',
+      'The speaker is cautiously raising a concern about trade-offs without directly rejecting the plan',
+      'The speaker is refusing to discuss the timeline at all',
+      'The speaker is unaware of any risks',
+    ],
+    correctOptionIndex: 1,
+    xpReward: 16,
+  },
+  {
+    id: 'li-c1-3',
+    type: ExerciseType.Listening,
+    level: CefrLevel.C1,
+    prompt: 'Listen to the presentation excerpt and choose what the speaker is arguing.',
+    audioText:
+      "It's tempting to treat customer churn purely as a pricing problem, but the data suggests something more nuanced: customers rarely leave over price alone — they leave when price stops feeling justified by the experience.",
+    options: [
+      'Price is the only reason customers leave',
+      "Churn is more about the experience justifying the price than price alone",
+      'Customer churn cannot be measured',
+      'The speaker believes pricing data is unreliable',
+    ],
+    correctOptionIndex: 1,
+    xpReward: 16,
+  },
+  {
+    id: 'li-c1-4',
+    type: ExerciseType.Listening,
+    level: CefrLevel.C1,
+    prompt: 'Listen to the debate excerpt and identify the counterargument.',
+    audioText:
+      "Speaker A: We should automate all tier-one support tickets. Speaker B: I take your point about efficiency, but if we automate everything at that level, we lose the early signals that tell us a customer is about to churn.",
+    options: [
+      'Speaker B fully agrees with Speaker A and adds nothing new',
+      'Speaker B raises a specific risk — losing early churn signals — as a counterargument to full automation',
+      'Speaker B is discussing an unrelated topic',
+      'Speaker B proposes firing the support team',
+    ],
+    correctOptionIndex: 1,
+    xpReward: 16,
+  },
+  {
+    id: 'li-c1-5',
+    type: ExerciseType.Listening,
+    level: CefrLevel.C1,
+    prompt: 'Listen to the interview excerpt and infer the tone.',
+    audioText:
+      "Sure, we hit our targets — technically. Whether we're proud of how we got there is a separate conversation.",
+    options: [
+      'The speaker is straightforwardly celebrating the results',
+      'The speaker is implying dissatisfaction with how the targets were achieved, despite meeting them',
+      'The speaker is confused about the targets',
+      'The speaker is congratulating a colleague sincerely',
+    ],
+    correctOptionIndex: 1,
+    xpReward: 17,
+  },
+
+  // --------------------------------------------------------------- C2 ---
+  {
+    id: 'li-c2-1',
+    type: ExerciseType.Listening,
+    level: CefrLevel.C2,
+    prompt: 'Listen and identify the tone — is the speaker being sincere or ironic?',
+    audioText:
+      "Oh, fantastic. Another 'quick call' that's somehow going to take an hour. I can't wait.",
+    options: [
+      'The speaker is genuinely enthusiastic about the call',
+      'The speaker is being ironic — the enthusiastic words mean the opposite of how they actually feel',
+      'The speaker has no opinion about the call',
+      'The speaker is confused about the meeting time',
+    ],
+    correctOptionIndex: 1,
+    xpReward: 18,
+  },
+  {
+    id: 'li-c2-2',
+    type: ExerciseType.Listening,
+    level: CefrLevel.C2,
+    prompt: 'Listen to the lecture excerpt and identify the implied meaning.',
+    audioText:
+      "Some would call this approach 'bold.' I'd call it a decision made by people who never have to deal with the consequences themselves.",
+    options: [
+      'The speaker is praising the decision as genuinely bold and admirable',
+      'The speaker is subtly criticizing the decision, implying it was made irresponsibly by people insulated from its effects',
+      'The speaker made the decision themselves',
+      'The speaker has no opinion about the decision',
+    ],
+    correctOptionIndex: 1,
+    xpReward: 19,
+  },
+  {
+    id: 'li-c2-3',
+    type: ExerciseType.Listening,
+    level: CefrLevel.C2,
+    prompt: 'Listen to the spontaneous exchange and infer the underlying attitude.',
+    audioText:
+      "Well, that's one way to handle it. Not the way I would have chosen, but sure, one way.",
+    options: [
+      'The speaker fully endorses how the situation was handled',
+      'The speaker is expressing polite but clear disapproval, without stating it outright',
+      'The speaker is asking for instructions',
+      'The speaker is thanking someone sincerely',
+    ],
+    correctOptionIndex: 1,
+    xpReward: 18,
+  },
+  {
+    id: 'li-c2-4',
+    type: ExerciseType.Listening,
+    level: CefrLevel.C2,
+    prompt: 'Listen to the presentation excerpt and identify the rhetorical function.',
+    audioText:
+      "We could call this a 'temporary adjustment.' We could also just call it what it is.",
+    options: [
+      'The speaker is confirming that "temporary adjustment" is an accurate, neutral description',
+      "The speaker is implying that the phrase 'temporary adjustment' is a euphemism hiding a less comfortable truth",
+      'The speaker is introducing an unrelated new topic',
+      'The speaker is asking the audience a factual question',
+    ],
+    correctOptionIndex: 1,
+    xpReward: 19,
   },
 ];

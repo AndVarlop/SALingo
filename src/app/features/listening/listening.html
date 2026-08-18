@@ -4,14 +4,19 @@
       <div class="card listening__idle">
         <span class="listening__icon" aria-hidden="true">🎧</span>
         <h1>Listening practice</h1>
-        <p>{{ exercises.length }} short audio clips. Listen, then choose what you heard.</p>
-        <button type="button" class="btn btn--primary" (click)="start()">Start practice</button>
+        <p>{{ exercises().length }} clips at this level. Listen, then choose what you heard.</p>
+        <app-level-filter [levels]="levels" [selected]="selectedLevel()" (selectedChange)="setLevel($event)" />
+        @if (exercises().length === 0) {
+          <p class="listening__empty">No clips at this level yet — try another one.</p>
+        } @else {
+          <button type="button" class="btn btn--primary" (click)="start()">Start practice</button>
+        }
         <a class="btn btn--ghost" routerLink="/exam/listening-exam">Take the Listening Exam</a>
       </div>
     }
 
     @case ('playing') {
-      <app-exercise-player [exercises]="exercises" (finished)="onFinished($event)" />
+      <app-exercise-player [exercises]="exercises()" (finished)="onFinished($event)" />
     }
 
     @case ('summary') {

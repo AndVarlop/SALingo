@@ -1,3 +1,5 @@
+import { CefrLevel } from './language.model';
+
 export enum ExerciseType {
   MultipleChoice = 'multiple-choice',
   Translation = 'translation',
@@ -16,6 +18,8 @@ interface BaseExercise {
   prompt: string;
   explanation?: string;
   xpReward: number;
+  /** Optional CEFR level tag, used by standalone skill modules (Reading/Listening/Speaking) to filter by level. Lessons carry their level on the parent Lesson instead. */
+  level?: CefrLevel;
 }
 
 export interface MultipleChoiceExercise extends BaseExercise {

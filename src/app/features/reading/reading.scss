@@ -1,9 +1,9 @@
-.listening {
+.reading {
   max-width: 480px;
   margin: 0 auto;
 }
 
-.listening__idle {
+.reading__idle {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -24,15 +24,15 @@
   }
 }
 
-.listening__icon {
+.reading__icon {
   font-size: 2.6rem;
 }
 
-.listening__xp {
+.reading__xp {
   color: var(--color-success);
   font-weight: 700;
 }
 
-.listening__empty {
+.reading__empty {
   font-size: 0.85rem;
 }
