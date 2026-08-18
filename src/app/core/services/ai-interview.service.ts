@@ -2,11 +2,6 @@ import { Injectable } from '@angular/core';
 import { CandidateProfile } from '../models/career-coach.model';
 import { InterviewQuestion } from '../models';
 
-export interface MockInterviewQuestionPrompt {
-  question: string;
-  isFollowUp: boolean;
-}
-
 /** Keyword groups used to steer which question comes next. Rule-based today —
  * swap `pickNextQuestion`'s body for a real LLM call later without touching callers. */
 const TOPIC_KEYWORDS: Record<string, string[]> = {
@@ -34,17 +29,6 @@ function detectTopics(answerText: string): string[] {
  */
 @Injectable({ providedIn: 'root' })
 export class AiInterviewService {
-  async getNextQuestion(askedCount: number, position: string): Promise<MockInterviewQuestionPrompt> {
-    await this.delay();
-    if (askedCount === 0) {
-      return { question: 'Thanks for being here today. Could you please introduce yourself?', isFollowUp: false };
-    }
-    return {
-      question: `Tell me more about how you'd handle a typical day in a ${position} role.`,
-      isFollowUp: false,
-    };
-  }
-
   /**
    * Adaptively selects the next question out of `pool`. If the previous
    * answer mentions a detectable topic (sales, no experience, conflict,
@@ -71,9 +55,5 @@ export class AiInterviewService {
     }
 
     return pool[Math.floor(Math.random() * pool.length)];
-  }
-
-  private delay(): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, 400));
   }
 }
