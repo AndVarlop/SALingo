@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { MOCK_WRITING_PROMPTS, WritingPrompt } from '../../core/services/mock-data/mock-writing.data';
-import { AiEvaluationService } from '../../core/services/ai-evaluation.service';
+import { AiEvaluationService, WritingEvaluationError } from '../../core/services/ai-evaluation.service';
 import { MistakeMemoryService } from '../../core/services/mistake-memory.service';
 import { UserStateService } from '../../core/services/user-state.service';
 import { WritingEvaluation } from '../../core/models';
@@ -25,6 +25,7 @@ export class WritingComponent {
   protected readonly text = signal('');
   protected readonly evaluating = signal(false);
   protected readonly evaluation = signal<WritingEvaluation | null>(null);
+  protected readonly evaluationError = signal<string | null>(null);
 
   protected readonly wordCount = () => this.text().trim().split(/\s+/).filter(Boolean).length;
 
@@ -43,8 +44,9 @@ export class WritingComponent {
     if (!prompt || this.wordCount() < 10) return;
 
     this.evaluating.set(true);
+    this.evaluationError.set(null);
     try {
-      const result = await this.aiEvaluation.evaluateWriting(this.text());
+      const result = await this.aiEvaluation.evaluateWriting(this.text(), prompt.title);
       this.evaluation.set(result);
 
       if (result.grammarMistakes.length) {
@@ -61,6 +63,10 @@ export class WritingComponent {
       });
 
       this.phase.set('result');
+    } catch (err) {
+      this.evaluationError.set(
+        err instanceof WritingEvaluationError ? err.message : 'Something went wrong evaluating your text. Please try again.',
+      );
     } finally {
       this.evaluating.set(false);
     }

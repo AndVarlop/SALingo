@@ -91,6 +91,16 @@
   font-weight: 600;
 }
 
+.writing__error {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-danger) 12%, transparent);
+  color: var(--color-danger);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
 .writing__result {
   text-align: center;
 }

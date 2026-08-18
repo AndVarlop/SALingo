@@ -42,6 +42,10 @@
               {{ evaluating() ? 'Evaluating…' : 'Submit for feedback' }}
             </button>
           </div>
+
+          @if (evaluationError(); as error) {
+            <p class="writing__error">⚠️ {{ error }}</p>
+          }
         </div>
       }
     }
