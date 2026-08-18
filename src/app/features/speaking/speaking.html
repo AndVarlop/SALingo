@@ -1,30 +1,144 @@
 <section class="speaking">
-  @switch (phase()) {
-    @case ('idle') {
-      <div class="card speaking__idle">
-        <span class="speaking__icon" aria-hidden="true">🎤</span>
-        <h1>Speaking practice</h1>
-        <p>{{ exercises.length }} sentences to say out loud. We'll score your pronunciation.</p>
-        @if (!isSupported) {
-          <p class="speaking__warning">
-            ⚠️ Your browser doesn't support speech recognition — you'll self-report each answer instead.
-          </p>
+  <app-level-filter [levels]="levels" [selected]="selectedLevel()" (selectedChange)="setLevel($event)" />
+
+  @if (!isOpenMode()) {
+    <!-- Guided mode: fixed-sentence practice, scored by match (or self-report). -->
+    @switch (phase()) {
+      @case ('idle') {
+        <div class="card speaking__idle">
+          <span class="speaking__icon" aria-hidden="true">🎤</span>
+          <h1>Speaking practice</h1>
+          <p>{{ exercises().length }} sentences to say out loud. We'll score your pronunciation.</p>
+          @if (!isSupported) {
+            <p class="speaking__warning">
+              ⚠️ Your browser doesn't support speech recognition — you'll self-report each answer instead.
+            </p>
+          }
+          @if (exercises().length === 0) {
+            <p class="speaking__empty">No guided sentences at this level yet — try another one.</p>
+          } @else {
+            <button type="button" class="btn btn--primary" (click)="start()">Start practice</button>
+          }
+        </div>
+      }
+
+      @case ('playing') {
+        <app-exercise-player [exercises]="exercises()" (finished)="onFinished($event)" />
+      }
+
+      @case ('summary') {
+        <div class="card speaking__idle">
+          <span class="speaking__icon" aria-hidden="true">{{ lastAccuracy() >= 70 ? '🎉' : '🎤' }}</span>
+          <h1>Practice complete!</h1>
+          <p class="speaking__xp">+{{ lastXp() }} XP · {{ lastAccuracy() }}% accuracy</p>
+          <button type="button" class="btn btn--primary" (click)="reset()">Practice again</button>
+        </div>
+      }
+    }
+  } @else {
+    <!-- Open mode (C1/C2): free spontaneous response, real transcript, AI-judged. -->
+    @switch (openPhase()) {
+      @case ('selecting') {
+        <div class="speaking__open-list">
+          @for (prompt of openPrompts(); track prompt.id) {
+            <button type="button" class="card speaking__prompt" (click)="selectPrompt(prompt)">
+              <span class="speaking__prompt-level">{{ prompt.level }}</span>
+              <strong>{{ prompt.title }}</strong>
+              <span>{{ prompt.instructions }}</span>
+            </button>
+          } @empty {
+            <p class="speaking__empty">No open-speaking prompts at this level yet.</p>
+          }
+        </div>
+      }
+
+      @case ('ready') {
+        @if (selectedPrompt(); as prompt) {
+          <div class="card speaking__editor">
+            <span class="card__eyebrow">{{ prompt.title }}</span>
+            <p class="speaking__description">{{ prompt.instructions }}</p>
+            @if (prompt.hint) {
+              <p class="speaking__hint">💡 {{ prompt.hint }}</p>
+            }
+
+            @if (!isSupported) {
+              <p class="speaking__warning">
+                ⚠️ Your browser doesn't support speech recognition. Open-ended speaking practice needs it — try Chrome on desktop.
+              </p>
+            } @else {
+              <button type="button" class="btn btn--primary" (click)="record()">
+                🎙️ {{ transcript() ? 'Record again' : 'Start speaking' }}
+              </button>
+            }
+
+            @if (recordingError(); as error) {
+              <p class="speaking__error">⚠️ {{ error }}</p>
+            }
+
+            @if (transcript()) {
+              <div class="speaking__transcript">
+                <span class="card__eyebrow">What we heard</span>
+                <p>{{ transcript() }}</p>
+              </div>
+              <button
+                type="button"
+                class="btn btn--primary btn--block"
+                [disabled]="evaluating()"
+                (click)="submitOpenSpeaking()"
+              >
+                {{ evaluating() ? 'Evaluating…' : 'Submit for feedback' }}
+              </button>
+            }
+
+            @if (evaluationError(); as error) {
+              <p class="speaking__error">⚠️ {{ error }}</p>
+            }
+          </div>
         }
-        <button type="button" class="btn btn--primary" (click)="start()">Start practice</button>
-      </div>
-    }
+      }
 
-    @case ('playing') {
-      <app-exercise-player [exercises]="exercises" (finished)="onFinished($event)" />
-    }
+      @case ('recording') {
+        <div class="card speaking__idle">
+          <span class="speaking__icon speaking__icon--pulse" aria-hidden="true">🎙️</span>
+          <h1>Listening…</h1>
+          <p>Speak now. We'll stop automatically when you pause.</p>
+        </div>
+      }
 
-    @case ('summary') {
-      <div class="card speaking__idle">
-        <span class="speaking__icon" aria-hidden="true">{{ lastAccuracy() >= 70 ? '🎉' : '🎤' }}</span>
-        <h1>Practice complete!</h1>
-        <p class="speaking__xp">+{{ lastXp() }} XP · {{ lastAccuracy() }}% accuracy</p>
-        <button type="button" class="btn btn--primary" (click)="reset()">Practice again</button>
-      </div>
+      @case ('result') {
+        @if (evaluation(); as evaluation) {
+          <div class="card speaking__result">
+            <span class="card__eyebrow">Your feedback</span>
+            <div class="speaking__score-circle">{{ evaluation.overallScore }}%</div>
+
+            <div class="speaking__scores">
+              <div>
+                <span>Grammar</span>
+                <strong>{{ evaluation.grammarScore }}%</strong>
+              </div>
+              <div>
+                <span>Vocabulary</span>
+                <strong>{{ evaluation.vocabularyScore }}%</strong>
+              </div>
+              <div>
+                <span>Coherence</span>
+                <strong>{{ evaluation.coherenceScore }}%</strong>
+              </div>
+            </div>
+
+            <h3>Suggestions</h3>
+            <ul class="speaking__suggestions">
+              @for (suggestion of evaluation.suggestions; track suggestion) {
+                <li>💡 {{ suggestion }}</li>
+              }
+            </ul>
+
+            <button type="button" class="btn btn--primary btn--block" (click)="speakAnother()">
+              Speak again
+            </button>
+          </div>
+        }
+      }
     }
   }
 </section>

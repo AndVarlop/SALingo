@@ -1,4 +1,4 @@
-import { ExerciseType, SpeakingExercise } from '../../models';
+import { CefrLevel, ExerciseType, SpeakingExercise } from '../../models';
 
 export const MOCK_SPEAKING_EXERCISES: SpeakingExercise[] = [
   {
@@ -118,5 +118,61 @@ export const MOCK_SPEAKING_EXERCISES: SpeakingExercise[] = [
     prompt: 'Practice a formal introduction in a meeting.',
     expectedSentence: 'Good morning everyone, thank you for joining the call on such short notice.',
     xpReward: 19,
+  },
+
+  // ------------------------------------------------------- B2 (guided) ---
+  {
+    id: 'sp-b2-1',
+    type: ExerciseType.Speaking,
+    level: CefrLevel.B2,
+    prompt: 'Describe a problem and its likely cause.',
+    expectedSentence: "The system keeps logging me out, and I think it's because of a session timeout that's set too short.",
+    hint: 'Describe the problem, then explain what you think is causing it.',
+    xpReward: 20,
+  },
+  {
+    id: 'sp-b2-2',
+    type: ExerciseType.Speaking,
+    level: CefrLevel.B2,
+    prompt: 'Give advice to a coworker who is overwhelmed.',
+    expectedSentence: 'I think you should prioritize the urgent tickets first and ask for help with the rest.',
+    hint: '"I think you should..." is a natural way to give advice.',
+    xpReward: 20,
+  },
+  {
+    id: 'sp-b2-3',
+    type: ExerciseType.Speaking,
+    level: CefrLevel.B2,
+    prompt: 'Compare two solutions to a problem.',
+    expectedSentence: 'Outsourcing this task would be faster, but handling it in-house would give us more control.',
+    hint: 'Use "would" to compare hypothetical options.',
+    xpReward: 21,
+  },
+  {
+    id: 'sp-b2-4',
+    type: ExerciseType.Speaking,
+    level: CefrLevel.B2,
+    prompt: 'Explain a process step by step.',
+    expectedSentence: 'First, you verify the account, then you check the order history, and finally you process the refund.',
+    hint: 'Use sequencing words: first, then, finally.',
+    xpReward: 21,
+  },
+  {
+    id: 'sp-b2-5',
+    type: ExerciseType.Speaking,
+    level: CefrLevel.B2,
+    prompt: 'Tell a short story about overcoming a challenge at work.',
+    expectedSentence: 'Last month I had to handle three escalations in one day, but I stayed calm and resolved all of them by the end of my shift.',
+    hint: 'Use Past Simple to narrate what happened.',
+    xpReward: 22,
+  },
+  {
+    id: 'sp-b2-6',
+    type: ExerciseType.Speaking,
+    level: CefrLevel.B2,
+    prompt: 'Explain your opinion about working under pressure.',
+    expectedSentence: 'In my opinion, a bit of pressure can actually improve focus, as long as it does not become constant.',
+    hint: '"In my opinion..." followed by a reason.',
+    xpReward: 22,
   },
 ];

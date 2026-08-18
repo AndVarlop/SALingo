@@ -55,6 +55,26 @@
   color: var(--color-primary) !important;
 }
 
+.writing__prompt-level {
+  font-size: 0.68rem !important;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--color-primary) !important;
+  text-transform: uppercase;
+}
+
+.writing__empty {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 16px 0;
+}
+
+.writing__header app-level-filter {
+  display: block;
+  margin-top: 12px;
+}
+
 .writing__description {
   color: var(--color-text-muted);
   font-size: 0.88rem;

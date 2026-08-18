@@ -1,15 +1,23 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { MOCK_WRITING_PROMPTS, WritingPrompt } from '../../core/services/mock-data/mock-writing.data';
 import { AiEvaluationService, WritingEvaluationError } from '../../core/services/ai-evaluation.service';
 import { MistakeMemoryService } from '../../core/services/mistake-memory.service';
 import { UserStateService } from '../../core/services/user-state.service';
-import { WritingEvaluation } from '../../core/models';
+import { CefrLevel, WritingEvaluation } from '../../core/models';
+import { LevelFilterComponent } from '../../shared/components';
 
 type Phase = 'selecting' | 'writing' | 'result';
+
+const LEVELS_WITH_CONTENT: CefrLevel[] = [
+  CefrLevel.B2,
+  CefrLevel.C1,
+  CefrLevel.C2,
+];
 
 @Component({
   selector: 'app-writing',
   standalone: true,
+  imports: [LevelFilterComponent],
   templateUrl: './writing.html',
   styleUrl: './writing.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,7 +27,19 @@ export class WritingComponent {
   private readonly mistakeMemory = inject(MistakeMemoryService);
   private readonly userState = inject(UserStateService);
 
-  protected readonly prompts = MOCK_WRITING_PROMPTS;
+  protected readonly allPrompts = MOCK_WRITING_PROMPTS;
+  protected readonly levels = LEVELS_WITH_CONTENT;
+  protected readonly selectedLevel = signal<CefrLevel | null>(null);
+  protected readonly prompts = computed(() => {
+    const level = this.selectedLevel();
+    if (level === null) return this.allPrompts;
+    return this.allPrompts.filter((p) => p.level === level);
+  });
+
+  protected setLevel(level: CefrLevel | null): void {
+    this.selectedLevel.set(level);
+  }
+
   protected readonly phase = signal<Phase>('selecting');
   protected readonly selectedPrompt = signal<WritingPrompt | null>(null);
   protected readonly text = signal('');
@@ -46,7 +66,7 @@ export class WritingComponent {
     this.evaluating.set(true);
     this.evaluationError.set(null);
     try {
-      const result = await this.aiEvaluation.evaluateWriting(this.text(), prompt.title);
+      const result = await this.aiEvaluation.evaluateWriting(this.text(), prompt.title, prompt.level);
       this.evaluation.set(result);
 
       if (result.grammarMistakes.length) {
