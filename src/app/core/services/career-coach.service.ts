@@ -5,7 +5,7 @@ import { InterviewSessionService } from './interview-session.service';
 import { InterviewProgressService } from './interview-progress.service';
 import { RecommendationService } from './recommendation.service';
 import { GrammarService } from './grammar.service';
-import { CEFR_LEVEL_ORDER, JobReadyScore, RecommendedActivity, Skill, Weakness } from '../models';
+import { CEFR_LEVEL_ORDER, JobReadyScore, RecommendedActivity, Skill, StudyRecommendation, Weakness } from '../models';
 import { SKILL_ICON, SKILL_LABEL } from '../models/skill.model';
 import { humanizeSkillTag } from '../utils/skill-tag.util';
 
@@ -201,7 +201,7 @@ export class CareerCoachService {
   readonly recommendedActivities = computed<RecommendedActivity[]>(() => {
     const base: RecommendedActivity[] = this.recommendationService.recommendations().map((r) => ({
       id: r.id,
-      type: this.inferType(r.id),
+      type: this.inferType(r),
       title: r.title,
       reason: r.description,
       iconEmoji: r.iconEmoji,
@@ -237,11 +237,23 @@ export class CareerCoachService {
     return base;
   });
 
-  private inferType(recId: string): RecommendedActivity['type'] {
-    if (recId === 'rec-review') return 'review';
-    if (recId === 'rec-lesson') return 'grammar';
-    if (recId === 'rec-skill') return 'speaking';
-    if (recId === 'rec-weak-tag') return 'grammar';
+  /**
+   * Prefers the recommendation's own routerLink over guessing from its id —
+   * 'rec-weak-tag' and 'rec-skill' can point at Grammar, Vocabulary,
+   * Listening, Reading, Speaking or Writing depending on the user's actual
+   * weak spot, so an id-only guess was wrong whenever it wasn't grammar.
+   */
+  private inferType(rec: StudyRecommendation): RecommendedActivity['type'] {
+    if (rec.id === 'rec-review') return 'review';
+    if (rec.id === 'rec-final-assessment') return 'final-assessment';
+
+    const route = rec.routerLink[0];
+    if (route === '/vocabulary' || route === '/vocabulary-rush') return 'vocabulary';
+    if (route === '/grammar' || route === '/grammar-battle' || route === '/find-the-mistake') return 'grammar';
+    if (route === '/listening') return 'listening';
+    if (route === '/reading') return 'reading';
+    if (route === '/speaking') return 'speaking';
+    if (route === '/writing') return 'writing';
     return 'review';
   }
 
@@ -250,6 +262,7 @@ export class CareerCoachService {
     if (recId === 'rec-lesson') return 10;
     if (recId === 'rec-skill') return 10;
     if (recId === 'rec-weak-tag') return 5;
+    if (recId === 'rec-final-assessment') return 25;
     return 10;
   }
 }

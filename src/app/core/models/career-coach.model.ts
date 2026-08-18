@@ -70,9 +70,11 @@ export type RecommendedActivityType =
   | 'grammar'
   | 'vocabulary'
   | 'listening'
+  | 'reading'
   | 'writing'
   | 'roleplay'
   | 'interview'
+  | 'final-assessment'
   | 'review';
 
 export interface RecommendedActivity {

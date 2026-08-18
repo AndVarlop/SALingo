@@ -2,18 +2,22 @@ import { Injectable, computed, inject } from '@angular/core';
 import { UserStateService } from './user-state.service';
 import { MockLessonService } from './mock-lesson.service';
 import { SpacedRepetitionService } from './spaced-repetition.service';
-import { Skill, StudyRecommendation } from '../models';
+import { LevelProgressService } from './level-progress.service';
+import { CefrLevel, Skill, StudyRecommendation } from '../models';
 import { SKILL_ICON, SKILL_LABEL } from '../models/skill.model';
 import { humanizeSkillTag } from '../utils/skill-tag.util';
 
-/** Not every skill has its own route yet (Reading lives inside Lessons). */
 const SKILL_ROUTE: Partial<Record<Skill, string>> = {
   [Skill.Vocabulary]: '/vocabulary',
   [Skill.Grammar]: '/grammar',
+  [Skill.Reading]: '/reading',
   [Skill.Listening]: '/listening',
   [Skill.Speaking]: '/speaking',
   [Skill.Writing]: '/writing',
 };
+
+/** B2/C1/C2 Final Assessments, in gate order — checked first-unlocked-but-unpassed wins. */
+const ADVANCED_LEVELS: CefrLevel[] = [CefrLevel.B2, CefrLevel.C1, CefrLevel.C2];
 
 /**
  * Rule-based "what should I study next" engine. Deliberately simple today
@@ -26,6 +30,7 @@ export class RecommendationService {
   private readonly userState = inject(UserStateService);
   private readonly lessons = inject(MockLessonService);
   private readonly spacedRepetition = inject(SpacedRepetitionService);
+  private readonly levelProgress = inject(LevelProgressService);
 
   readonly recommendations = computed<StudyRecommendation[]>(() => {
     const items: StudyRecommendation[] = [];
@@ -71,8 +76,36 @@ export class RecommendationService {
     const weakTag = this.weakestTagRecommendation();
     if (weakTag) items.push(weakTag);
 
+    const finalAssessment = this.finalAssessmentRecommendation();
+    if (finalAssessment) items.push(finalAssessment);
+
     return items;
   });
+
+  /**
+   * Spec §9/§14: once a level is genuinely reachable (LevelProgressService)
+   * but its Final Assessment hasn't been passed yet, that's a concrete,
+   * real "what's next" — never suggested for a level still locked, so this
+   * can never point at a route the user can't actually act on yet.
+   */
+  private finalAssessmentRecommendation(): StudyRecommendation | null {
+    for (const level of ADVANCED_LEVELS) {
+      if (this.levelProgress.isLocked(level)) continue;
+      if (this.levelProgress.passedFinalAssessment(level)) continue;
+      const attempted = this.levelProgress.finalAssessmentScore(level);
+      return {
+        id: 'rec-final-assessment',
+        title: `Take the ${level} Final Assessment`,
+        description: attempted
+          ? `Your last attempt scored ${attempted}% — try again to unlock the next level.`
+          : `Pass this to unlock the next level and advance your Career Path.`,
+        iconEmoji: '🏁',
+        actionLabel: 'Start assessment',
+        routerLink: ['/exam', `${level.toLowerCase()}-final-assessment`],
+      };
+    }
+    return null;
+  }
 
   /**
    * Skill Engine, sub-skill level: points at the specific mini-game that
@@ -108,6 +141,26 @@ export class RecommendationService {
         iconEmoji: '⚡',
         actionLabel: 'Start Vocabulary Rush',
         routerLink: ['/vocabulary-rush'],
+      };
+    }
+    if (weakest.tag.startsWith('listening:')) {
+      return {
+        id: 'rec-weak-tag',
+        title: `Practice listening: ${label}`,
+        description: `You're at ${weakest.percent}% on ${label} — a focused listening session will help.`,
+        iconEmoji: '🎧',
+        actionLabel: 'Practice Listening',
+        routerLink: ['/listening'],
+      };
+    }
+    if (weakest.tag.startsWith('reading:')) {
+      return {
+        id: 'rec-weak-tag',
+        title: `Practice reading: ${label}`,
+        description: `You're at ${weakest.percent}% on ${label} — another passage will help.`,
+        iconEmoji: '📖',
+        actionLabel: 'Practice Reading',
+        routerLink: ['/reading'],
       };
     }
     return {
