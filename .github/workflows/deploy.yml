@@ -1,17 +1,29 @@
-name: Build and Deploy SALingo
+name: Build and Deploy SALingo (GitHub Pages)
 
-# Runs on every push to main: build, verify, then deploy dist/lingo-app/browser
-# to Hostinger over FTP. The deploy step only runs once the required secrets
-# exist in the repo (see DEPLOYMENT.md) — until then this workflow still
-# builds and tests every push, it just skips the actual upload.
+# Every push to main: build, verify, deploy dist/lingo-app/browser to
+# GitHub Pages, which serves it at the custom domain configured in the
+# repo's CNAME file (salingo.devandvar.com). Follows GitHub's official
+# two-job build/deploy pattern for Pages via Actions.
+#
+# One-time manual step required (cannot be done from this workflow):
+# repo Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
 
 on:
   push:
     branches: [main]
   workflow_dispatch: {}
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -38,23 +50,18 @@ jobs:
       - name: Build (production)
         run: npm run build
 
-      - name: Check FTP secrets are configured
-        id: check_secrets
-        run: |
-          if [ -n "${{ secrets.FTP_SERVER }}" ] && [ -n "${{ secrets.FTP_USERNAME }}" ] && [ -n "${{ secrets.FTP_PASSWORD }}" ]; then
-            echo "ready=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::FTP_SERVER / FTP_USERNAME / FTP_PASSWORD secrets are not set yet — build succeeded but the deploy step is skipped. See DEPLOYMENT.md."
-          fi
-
-      - name: Deploy to Hostinger (FTP)
-        if: steps.check_secrets.outputs.ready == 'true'
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./dist/lingo-app/browser/
-          server-dir: ${{ secrets.FTP_SERVER_DIR || '/public_html/' }}
-          dangerous-clean-slate: false
+          path: dist/lingo-app/browser
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,35 @@
+<!doctype html>
+<!--
+  GitHub Pages has no server-side rewrite rules — a direct load or refresh
+  of a deep Angular route (e.g. /dashboard) has no matching file on disk,
+  so GitHub Pages serves this file with a 404 status. This script encodes
+  the real path into a query string and redirects to the site root, where
+  the matching script in index.html decodes it and restores the real URL
+  via history.replaceState before Angular Router boots — so the user ends
+  up on the right route with a clean URL, not a hash-routed one.
+  pathSegmentsToKeep = 0 because this is a custom-domain root deployment
+  (salingo.devandvar.com), not a project page under a /repo-name/ subpath.
+  See https://github.com/rafgraph/spa-github-pages
+-->
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>SALingo</title>
+    <script type="text/javascript">
+      var pathSegmentsToKeep = 0;
+      var l = window.location;
+      l.replace(
+        l.protocol +
+          '//' +
+          l.hostname +
+          (l.port ? ':' + l.port : '') +
+          l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') +
+          '/?/' +
+          l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+          (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+          l.hash,
+      );
+    </script>
+  </head>
+  <body></body>
+</html>
