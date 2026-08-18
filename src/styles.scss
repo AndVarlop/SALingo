@@ -300,3 +300,25 @@ a {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+
+// Global responsive-safety rules (see RESPONSIVE_AUDIT in
+// DEVELOPMENT_REPORT.md) — applied once here instead of per-component so
+// every animation/transition in the app respects it automatically.
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+// Prevent accidental horizontal scroll from any stray overflow anywhere
+// in the app — a real, page-wide safety net, not a per-page patch.
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}

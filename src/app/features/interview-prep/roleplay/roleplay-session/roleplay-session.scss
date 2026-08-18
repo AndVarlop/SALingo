@@ -74,6 +74,7 @@
   display: flex;
   flex-direction: column;
   height: 70vh;
+  height: 70dvh; // accounts for mobile browser chrome; falls back to vh
   padding: 0;
   overflow: hidden;
 }

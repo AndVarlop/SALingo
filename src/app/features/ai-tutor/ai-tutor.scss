@@ -4,10 +4,14 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  // dvh accounts for mobile browser chrome (address bar) showing/hiding,
+  // which 100vh does not — falls back to vh on browsers that lack it.
   height: calc(100vh - var(--topbar-height) - 56px);
+  height: calc(100dvh - var(--topbar-height) - 56px);
 
   @media (max-width: 900px) {
     height: calc(100vh - var(--topbar-height) - var(--bottom-nav-height) - 40px);
+    height: calc(100dvh - var(--topbar-height) - var(--bottom-nav-height) - 40px);
   }
 }
 
