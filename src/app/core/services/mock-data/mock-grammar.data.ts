@@ -486,4 +486,620 @@ export const MOCK_GRAMMAR_TOPICS: GrammarTopic[] = [
       },
     ],
   },
+
+  // ---------------------------------------------------------------- B2 ----
+  {
+    id: 'gr-b2-mixed-conditionals',
+    language: 'en',
+    level: CefrLevel.B2,
+    title: 'Mixed conditionals',
+    summary: 'Connect a past condition to a present result, or the reverse.',
+    explanation:
+      'Mixed conditionals combine time frames. A past condition can affect the present: "If I had studied medicine, I would be a doctor now" (past condition + present result). A present/general condition can explain a past result: "If she weren\'t so shy, she would have spoken up in the meeting" (present condition + past result).',
+    examples: [
+      "If I hadn't missed the flight, I would be at the conference right now.",
+      "If he were more organized, he wouldn't have lost the file.",
+      "If we lived closer, we would have visited more often.",
+    ],
+    commonMistakes: [
+      'Forcing both clauses into the same tense: "If I had studied medicine, I would have been a doctor now" mixes two past forms when the result is about the present.',
+    ],
+    order: 16,
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.MultipleChoice,
+        prompt: 'A colleague missed a deadline yesterday and is now behind on everything today. Which sentence describes this correctly?',
+        options: [
+          'If she had finished on time, she wouldn\'t be behind now.',
+          'If she finishes on time, she wouldn\'t have been behind now.',
+          'If she had finished on time, she hadn\'t been behind now.',
+          'If she finished on time, she wouldn\'t be behind yesterday.',
+        ],
+        correctOptionIndex: 0,
+        xpReward: 12,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.TrueFalse,
+        prompt: 'True or false?',
+        statement: 'A mixed conditional can link a condition in one time period to a result in a different time period.',
+        correctAnswer: true,
+        xpReward: 12,
+      },
+    ],
+  },
+  {
+    id: 'gr-b2-passive-advanced',
+    language: 'en',
+    level: CefrLevel.B2,
+    title: 'Advanced passive voice',
+    summary: 'Use passive forms with modals, perfect tenses, and reporting structures.',
+    explanation:
+      'Beyond the simple passive, English uses passive forms after modals ("The issue should be resolved by Friday"), in perfect tenses ("The order has been shipped"), and with reporting verbs ("The customer is said to have complained twice"). These sound more objective and formal — common in business writing, reports, and customer-service updates where the focus is the action, not who did it.',
+    examples: [
+      'Your refund will have been processed by the time you check your account.',
+      'The server is being upgraded this weekend.',
+      'It is believed that the outage was caused by a software update.',
+    ],
+    commonMistakes: [
+      'Overusing "by someone" when the agent is obvious or irrelevant: "The email was sent by me" instead of just "The email was sent."',
+    ],
+    order: 17,
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.FillBlank,
+        prompt: 'Complete the sentence with the correct passive form.',
+        sentenceWithBlank: 'By next Monday, your account ___ (verify).',
+        options: ['will have been verified', 'will be verify', 'has verified', 'is verifying'],
+        correctOptionIndex: 0,
+        xpReward: 12,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.MultipleChoice,
+        prompt: 'Which sentence is the most natural, objective way to report an unconfirmed cause in a formal update?',
+        options: [
+          'We think someone broke the server.',
+          'It is believed that a configuration error caused the issue.',
+          'Someone probably broke something.',
+          'The issue happening was because of somebody.',
+        ],
+        correctOptionIndex: 1,
+        xpReward: 12,
+      },
+    ],
+  },
+  {
+    id: 'gr-b2-relative-clauses',
+    language: 'en',
+    level: CefrLevel.B2,
+    title: 'Advanced relative clauses',
+    summary: 'Add extra information precisely, with the right punctuation and pronoun.',
+    explanation:
+      'Defining relative clauses identify which person/thing you mean and need no commas: "The agent who answered my call was very helpful." Non-defining clauses add extra, non-essential information and ARE separated by commas: "My manager, who has worked here for ten years, approved the request." Removing a non-defining clause never changes who/what is being talked about; removing a defining clause does.',
+    examples: [
+      'The customer whose order was delayed received a discount.',
+      'This is the department where complaints are handled.',
+      'The policy, which was updated last month, now covers international orders.',
+    ],
+    commonMistakes: [
+      'Adding commas around a defining clause and losing the essential meaning: "The employees, who arrived late, were warned" wrongly implies ALL employees arrived late.',
+    ],
+    order: 18,
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.TrueFalse,
+        prompt: 'True or false?',
+        statement: 'In "My laptop, which is three years old, still works fine," removing the relative clause changes which laptop is being talked about.',
+        correctAnswer: false,
+        xpReward: 12,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.MultipleChoice,
+        prompt: 'Choose the sentence that correctly implies only SOME employees were late (not all of them).',
+        options: [
+          'The employees, who arrived late, were warned.',
+          'The employees who arrived late were warned.',
+          'The employees whom arrived late were warned.',
+          'The employees, whom arrived late, were warned.',
+        ],
+        correctOptionIndex: 1,
+        xpReward: 12,
+      },
+    ],
+  },
+  {
+    id: 'gr-b2-modals-deduction',
+    language: 'en',
+    level: CefrLevel.B2,
+    title: 'Modals of deduction and speculation',
+    summary: 'Say how certain you are about something, past or present.',
+    explanation:
+      'Modals let you express degrees of certainty. Present: "must" (very sure it\'s true), "might/could" (possible), "can\'t" (very sure it\'s not true). Past: use "must have / might have / can\'t have + past participle": "She must have left already — her desk is empty." Choosing the right modal signals how confident you are, which matters a lot in professional communication.',
+    examples: [
+      "He isn't answering — he must be in a meeting.",
+      "The package could have been lost in transit.",
+      "She can't have forgotten; she mentioned it this morning.",
+    ],
+    commonMistakes: [
+      'Using "must" for the past instead of "must have": "He must left already" instead of "He must have left already."',
+    ],
+    order: 19,
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.MultipleChoice,
+        prompt: 'The customer says the charge appeared twice, but your system shows only one charge. Which response expresses strong doubt appropriately?',
+        options: [
+          'You must be right.',
+          'That can\'t be right — our system only shows one charge.',
+          'That might be right, maybe, I guess.',
+          'That mustn\'t be right, probably.',
+        ],
+        correctOptionIndex: 1,
+        xpReward: 12,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.FillBlank,
+        prompt: 'Complete with the correct past modal.',
+        sentenceWithBlank: 'The email bounced back, so she ___ (must / typo) the address wrong.',
+        options: ['must have typed', 'must type', 'must typed', 'must to type'],
+        correctOptionIndex: 0,
+        xpReward: 12,
+      },
+    ],
+  },
+  {
+    id: 'gr-b2-future-forms',
+    language: 'en',
+    level: CefrLevel.B2,
+    title: 'Future perfect and future continuous',
+    summary: 'Talk about what will be finished, or what will be in progress, at a future point.',
+    explanation:
+      'Future perfect ("will have + past participle") describes something completed before a future moment: "By 6pm, I will have finished the report." Future continuous ("will be + -ing") describes something in progress at a future moment: "This time tomorrow, I will be flying to the conference." Both are common in project updates, deadlines, and scheduling.',
+    examples: [
+      'By the end of the shift, we will have resolved over fifty tickets.',
+      'At 3pm I will be presenting to the client, so I can\'t join the call.',
+      'She will have completed her training by next week.',
+    ],
+    commonMistakes: [
+      'Using future simple where the completed-by-a-deadline meaning is needed: "By Friday I will finish it" sounds less precise than "By Friday I will have finished it."',
+    ],
+    order: 20,
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.MultipleChoice,
+        prompt: 'Which sentence best expresses that something will be IN PROGRESS at a specific future time?',
+        options: [
+          'This time next week, I will have started the new project.',
+          'This time next week, I will be starting the new project.',
+          'This time next week, I start the new project.',
+          'This time next week, I will start the new project already.',
+        ],
+        correctOptionIndex: 1,
+        xpReward: 12,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.TrueFalse,
+        prompt: 'True or false?',
+        statement: '"By the time you arrive, I will have left" means you leave AFTER the other person arrives.',
+        correctAnswer: false,
+        xpReward: 12,
+      },
+    ],
+  },
+  {
+    id: 'gr-b2-wish',
+    language: 'en',
+    level: CefrLevel.B2,
+    title: 'Wish / If only',
+    summary: 'Express regret about the past or dissatisfaction with the present.',
+    explanation:
+      'Use "wish/if only + past simple" for present situations you\'d like to be different ("I wish I spoke French"), and "wish/if only + past perfect" for past regrets ("If only I had backed up the file"). "Wish + would" expresses frustration about someone else\'s behavior not changing: "I wish he would stop interrupting."',
+    examples: [
+      'I wish I had more time to prepare.',
+      'If only she had called before the deadline.',
+      'I wish you would answer emails faster.',
+    ],
+    commonMistakes: [
+      'Using present simple after "wish" for a current wish: "I wish I have more time" instead of "I wish I had more time."',
+    ],
+    order: 21,
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.FillBlank,
+        prompt: 'Complete the sentence about a past regret.',
+        sentenceWithBlank: 'If only I ___ (check) the contract before signing it.',
+        options: ['had checked', 'checked', 'have checked', 'would check'],
+        correctOptionIndex: 0,
+        xpReward: 12,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.MultipleChoice,
+        prompt: 'Which sentence expresses frustration that someone keeps doing something annoying, not just a wish for change?',
+        options: [
+          'I wish he arrived on time.',
+          'I wish he would arrive on time.',
+          'I wish he had arrived on time.',
+          'I wish he arrives on time.',
+        ],
+        correctOptionIndex: 1,
+        xpReward: 12,
+      },
+    ],
+  },
+
+  // ---------------------------------------------------------------- C1 ----
+  {
+    id: 'gr-c1-inversion',
+    language: 'en',
+    level: CefrLevel.C1,
+    title: 'Inversion for emphasis',
+    summary: 'Reverse subject and verb after negative/limiting expressions for a formal, emphatic effect.',
+    explanation:
+      'When a sentence starts with a negative or limiting adverbial ("Never", "Rarely", "Not only", "Under no circumstances", "Little"), the subject and auxiliary invert, like in a question: "Never have I seen such a chaotic handover." This is a hallmark of formal, persuasive, or dramatic register — common in presentations, reports, and formal writing, rare in casual speech.',
+    examples: [
+      'Not only did the team miss the deadline, but they also went over budget.',
+      'Rarely does a client ask for a full refund without explanation.',
+      'Under no circumstances should this information be shared externally.',
+    ],
+    commonMistakes: [
+      'Forgetting to invert after the negative opener: "Never I have seen" instead of "Never have I seen."',
+    ],
+    order: 22,
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.MultipleChoice,
+        prompt: 'Which sentence uses inversion correctly for a formal report?',
+        options: [
+          'Rarely we receive complaints about this feature.',
+          'Rarely do we receive complaints about this feature.',
+          'Rarely we do receive complaints about this feature.',
+          'We rarely do receive complaints about this feature.',
+        ],
+        correctOptionIndex: 1,
+        xpReward: 15,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.TrueFalse,
+        prompt: 'True or false?',
+        statement: 'Inversion after negative adverbials is typical of casual, everyday speech.',
+        correctAnswer: false,
+        xpReward: 15,
+      },
+    ],
+  },
+  {
+    id: 'gr-c1-cleft-sentences',
+    language: 'en',
+    level: CefrLevel.C1,
+    title: 'Cleft sentences',
+    summary: 'Restructure a sentence to put the focus exactly where you want it.',
+    explanation:
+      'Cleft sentences split one idea into two clauses to highlight a specific piece of information. "It-clefts" emphasize a specific element: "It was the shipping delay that caused the complaint" (not something else). "What-clefts" emphasize an action or need: "What we need is a faster response time." This is a precise way to control what the listener focuses on, without changing the facts.',
+    examples: [
+      'It was the manager who approved the exception.',
+      'What surprised the team was how quickly the client responded.',
+      "It isn't the price that bothers customers — it's the wait time.",
+    ],
+    commonMistakes: [
+      'Using a cleft sentence when a simple sentence would be clearer — cleft structures work best when you genuinely need to emphasize or contrast one specific element.',
+    ],
+    order: 23,
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.FillBlank,
+        prompt: 'Complete the cleft sentence to emphasize "the delay", not any other cause.',
+        sentenceWithBlank: '___ was the delay that caused the client to escalate, not the price.',
+        options: ['It', 'What', 'This', 'That'],
+        correctOptionIndex: 0,
+        xpReward: 15,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.MultipleChoice,
+        prompt: 'Which sentence best emphasizes what the team needs (an action/thing), rather than who needs it?',
+        options: [
+          'The team needs more training.',
+          'It is the team that needs more training.',
+          'What the team needs is more training.',
+          'Training is needed by the team.',
+        ],
+        correctOptionIndex: 2,
+        xpReward: 15,
+      },
+    ],
+  },
+  {
+    id: 'gr-c1-participle-clauses',
+    language: 'en',
+    level: CefrLevel.C1,
+    title: 'Participle clauses',
+    summary: 'Combine ideas concisely using -ing and -ed clauses instead of full clauses with a subject.',
+    explanation:
+      'Participle clauses condense information: "Having reviewed the contract, she approved it" (= After she had reviewed the contract...). Present participles (-ing) often show an action happening at the same time or causing something; past participles (-ed) usually have a passive meaning. This is a hallmark of fluent, economical writing — reports, emails, narratives.',
+    examples: [
+      'Realizing the mistake, he corrected the invoice immediately.',
+      'Written in a rush, the report contained several errors.',
+      'Having worked in support for years, she handles difficult calls calmly.',
+    ],
+    commonMistakes: [
+      'Creating a dangling participle where the implied subject doesn\'t match: "Walking into the office, the phone was ringing" (the phone didn\'t walk in).',
+    ],
+    order: 24,
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.MultipleChoice,
+        prompt: 'Which sentence avoids a dangling participle?',
+        options: [
+          'Arriving late, the meeting had already started.',
+          'Arriving late, she found the meeting had already started.',
+          'The meeting, arriving late, had already started.',
+          'Arriving late started the meeting.',
+        ],
+        correctOptionIndex: 1,
+        xpReward: 15,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.TrueFalse,
+        prompt: 'True or false?',
+        statement: '"Having reviewed the contract, she approved it" means the review happened before the approval.',
+        correctAnswer: true,
+        xpReward: 15,
+      },
+    ],
+  },
+  {
+    id: 'gr-c1-reported-advanced',
+    language: 'en',
+    level: CefrLevel.C1,
+    title: 'Advanced reporting structures',
+    summary: 'Report requests, suggestions, and insistence with the right verb pattern, not just "said that".',
+    explanation:
+      'Sophisticated reporting uses precise verbs and matching structures: "suggest/recommend + -ing or that + subjunctive" ("She suggested rescheduling" / "She suggested that we reschedule"), "insist + that" ("He insisted that the refund be processed"), "deny + -ing" ("She denied making the promise"). Using varied reporting verbs (suggest, urge, warn, admit, deny, insist) instead of always "said" makes writing far more precise about the speaker\'s intention.',
+    examples: [
+      'The manager recommended that the policy be reviewed.',
+      'She admitted forgetting to follow up.',
+      'He denied having received the complaint.',
+    ],
+    commonMistakes: [
+      'Using the wrong pattern after "suggest": "She suggested me to reschedule" is incorrect — it should be "suggested rescheduling" or "suggested that I reschedule."',
+    ],
+    order: 25,
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.FillBlank,
+        prompt: 'Complete the sentence with the correct pattern.',
+        sentenceWithBlank: 'The client denied ___ (receive) the confirmation email.',
+        options: ['having received', 'to receive', 'receive', 'received'],
+        correctOptionIndex: 0,
+        xpReward: 15,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.MultipleChoice,
+        prompt: 'Which verb best reports someone strongly demanding something, not just mentioning it?',
+        options: ['mentioned', 'wondered', 'insisted', 'noticed'],
+        correctOptionIndex: 2,
+        xpReward: 15,
+      },
+    ],
+  },
+  {
+    id: 'gr-c1-modals-nuance',
+    language: 'en',
+    level: CefrLevel.C1,
+    title: 'Hedging and softening with modals',
+    summary: 'Sound diplomatic and professional by softening how directly you state things.',
+    explanation:
+      'Advanced speakers soften claims and requests to sound less blunt: "This might not be the best approach" is softer than "This is wrong." Modals and phrases like "would", "could", "I was wondering if", "it might be worth" reduce directness without losing clarity — essential for disagreeing with a manager, giving feedback, or pushing back on a client diplomatically.',
+    examples: [
+      'It might be worth double-checking the figures before we send this.',
+      'I was wondering if we could revisit the deadline.',
+      'This approach could perhaps be improved.',
+    ],
+    commonMistakes: [
+      'Over-hedging until the message loses all clarity — softening tone should never make the actual point disappear.',
+    ],
+    order: 26,
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.MultipleChoice,
+        prompt: 'You disagree with your manager\'s plan. Which response is diplomatic but still clear?',
+        options: [
+          "That's wrong.",
+          "I don't think that's a good idea, and I won't do it.",
+          "I see the reasoning, but I wonder if we might run into issues with timing.",
+          'Whatever you say.',
+        ],
+        correctOptionIndex: 2,
+        xpReward: 15,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.TrueFalse,
+        prompt: 'True or false?',
+        statement: 'Hedging language is meant to hide your actual opinion completely.',
+        correctAnswer: false,
+        xpReward: 15,
+      },
+    ],
+  },
+
+  // ---------------------------------------------------------------- C2 ----
+  {
+    id: 'gr-c2-ellipsis',
+    language: 'en',
+    level: CefrLevel.C2,
+    title: 'Ellipsis and substitution',
+    summary: 'Omit or replace repeated words the way native speakers naturally do, without losing clarity.',
+    explanation:
+      'Fluent English avoids repetition through ellipsis (omitting understood words: "She can speak French and he can [speak French] too" → "She can speak French and he can too") and substitution (replacing a phrase with "one/do so/so": "If you need help, let me know and I will [help you] too" → "...and I will do so"). Overusing full repetition sounds stilted; natural C2 speech relies on these shortcuts constantly.',
+    examples: [
+      "I haven't finished the report, but I will [finish it] by tomorrow.",
+      'She wanted to escalate the issue, and eventually did so.',
+      "I don't think he called, but he might have [called].",
+    ],
+    commonMistakes: [
+      'Repeating the full phrase unnecessarily in fluent speech: "I will finish it by tomorrow" every time instead of the more natural "I will by tomorrow" once context is clear.',
+    ],
+    order: 27,
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.MultipleChoice,
+        prompt: 'Which response sounds the most natural in fluent conversation, given "Did you call the client?"',
+        options: [
+          'I did not call the client yet, but I will call the client soon.',
+          'I did not call the client yet, but I will soon.',
+          'I did not call yet, but I will call soon the client.',
+          'Not yet, I will do the calling to the client.',
+        ],
+        correctOptionIndex: 1,
+        xpReward: 18,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.TrueFalse,
+        prompt: 'True or false?',
+        statement: '"She wanted to escalate the issue, and eventually did so" uses substitution to avoid repeating "escalate the issue".',
+        correctAnswer: true,
+        xpReward: 18,
+      },
+    ],
+  },
+  {
+    id: 'gr-c2-emphasis',
+    language: 'en',
+    level: CefrLevel.C2,
+    title: 'Emphasis and fronting',
+    summary: 'Reorder a sentence to foreground the most important information for rhetorical effect.',
+    explanation:
+      'Fronting moves an element to the start of a sentence for emphasis, common in persuasive and literary register: "Exhausted, the whole team finally left the office" (adjective fronted), "Such was the pressure that she considered quitting" (result clause fronted). Combined with intonation in speech, fronting signals what the speaker considers most significant — a subtle but powerful C2 tool.',
+    examples: [
+      'Little did we know the merger would fail within a year.',
+      'So convincing was her argument that the board approved it immediately.',
+      'Gone are the days when customers tolerated long hold times.',
+    ],
+    commonMistakes: [
+      'Using fronting so often that every sentence sounds dramatic — it works precisely because it is used sparingly, at genuinely significant moments.',
+    ],
+    order: 28,
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.MultipleChoice,
+        prompt: 'Which sentence uses fronting to emphasize how unexpected something was?',
+        options: [
+          'We did not know the merger would fail.',
+          'Little did we know the merger would fail.',
+          'The merger failed, and we did not know.',
+          'We did not know that the merger would fail within a year, unfortunately.',
+        ],
+        correctOptionIndex: 1,
+        xpReward: 18,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.TrueFalse,
+        prompt: 'True or false?',
+        statement: 'Fronting is most effective when used in almost every sentence of a text.',
+        correctAnswer: false,
+        xpReward: 18,
+      },
+    ],
+  },
+  {
+    id: 'gr-c2-register',
+    language: 'en',
+    level: CefrLevel.C2,
+    title: 'Register shifts',
+    summary: 'Choose grammatical structures, not just vocabulary, to match formal or informal register.',
+    explanation:
+      'Register isn\'t only about word choice — grammar shifts too. Formal register favors full forms, passive voice, and nominalization ("The decision was made following careful consideration" instead of "We thought about it and decided"). Informal register favors contractions, active voice, and phrasal verbs ("We figured it out and went with it"). A C2 speaker adjusts structure, not just individual words, to fit the audience.',
+    examples: [
+      "Formal: 'We regret to inform you that your request cannot be approved.'",
+      "Informal: 'Sorry, but we can't approve that.'",
+      "Formal: 'Should you require further assistance, please do not hesitate to contact us.'",
+    ],
+    commonMistakes: [
+      'Mixing registers within the same message — starting formally and drifting into casual phrasing (or the reverse) reads as inconsistent, not natural.',
+    ],
+    order: 29,
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.MultipleChoice,
+        prompt: 'Which version is appropriate for a formal written complaint response?',
+        options: [
+          "Yeah, sorry about that, we'll sort it out.",
+          "We apologize for the inconvenience and will resolve this promptly.",
+          "My bad, we'll fix it soon.",
+          "Oops, that's on us, we'll get it fixed.",
+        ],
+        correctOptionIndex: 1,
+        xpReward: 18,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.TrueFalse,
+        prompt: 'True or false?',
+        statement: 'Register is determined only by which words you choose, never by grammatical structure.',
+        correctAnswer: false,
+        xpReward: 18,
+      },
+    ],
+  },
+  {
+    id: 'gr-c2-discourse-markers',
+    language: 'en',
+    level: CefrLevel.C2,
+    title: 'Advanced discourse markers',
+    summary: 'Connect ideas with precision — markers that concede, contrast, or reframe, not just "but" and "and".',
+    explanation:
+      'Sophisticated discourse markers signal exact logical relationships: "That said" (concession), "Be that as it may" (concession, more formal), "In light of" (cause/reason), "Notwithstanding" (contrast, formal), "That having been said" (transition after acknowledging a point). Choosing the precise marker — rather than defaulting to "but" or "however" every time — is a clear sign of C2 fluency.',
+    examples: [
+      "The results were disappointing. That said, we learned a great deal.",
+      "In light of the recent complaints, we are revising the policy.",
+      "The plan has risks. Notwithstanding, the board approved it.",
+    ],
+    commonMistakes: [
+      'Treating all discourse markers as interchangeable — "notwithstanding" and "however" both signal contrast but differ sharply in formality and rhythm.',
+    ],
+    order: 30,
+    exercises: [
+      {
+        id: 'ex-1',
+        type: ExerciseType.MultipleChoice,
+        prompt: 'Which marker best introduces a reason or cause in a formal report?',
+        options: ['That said', 'In light of', 'By the way', 'Anyway'],
+        correctOptionIndex: 1,
+        xpReward: 18,
+      },
+      {
+        id: 'ex-2',
+        type: ExerciseType.TrueFalse,
+        prompt: 'True or false?',
+        statement: '"That said" and "however" always carry exactly the same level of formality.',
+        correctAnswer: false,
+        xpReward: 18,
+      },
+    ],
+  },
 ];
