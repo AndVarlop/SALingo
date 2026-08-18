@@ -401,15 +401,26 @@ User decided to pause Claude/AI setup (no Anthropic plan yet — fine, everythin
 ### Build/verification
 `tsc --noEmit` clean, `ng lint` 0 errors, `ng test` 96/96 passing, `ng build` clean (same pre-existing non-blocking budget warning) on every commit. Full details and the exact `curl` evidence are in `DEPLOYMENT.md`.
 
+## 22. Pivot: GitHub Pages instead of Hostinger, domain typo fixed
+
+After §21 was pushed, the user created a `CNAME` file directly via GitHub's web UI (the standard mechanism for GitHub Pages custom domains) and, when asked to confirm, chose GitHub Pages over Hostinger — simpler, free, no FTP credentials, deploys automatically on every push. Also caught and fixed a real domain typo in the process: the correct domain is `salingo.devandvar.com` (not `.devanvar.com` as originally stated) — fixed everywhere (meta tags, `robots.txt`, `sitemap.xml`, `DEPLOYMENT.md`).
+
+**A real bug was found and fixed before it could break the deploy**: the `CNAME` file the user created lived at the repo root, which only matters for GitHub Pages' classic "deploy from a branch" mode. This setup uses the Actions-based deploy (uploads `dist/lingo-app/browser/` as the artifact), so a repo-root `CNAME` never actually reaches the deployed site — confirmed this by rebuilding and checking it was genuinely missing from `dist/lingo-app/browser/`, not assumed. Moved it to `public/CNAME` so Angular's existing asset glob includes it in every build automatically, same as `robots.txt`/`404.html`/etc., and removed the now-redundant repo-root copy.
+
+Replaced `.github/workflows/deploy.yml`'s FTP-based deploy with GitHub's official two-job Pages pattern (build → `tsc`/lint/test/build → upload Pages artifact; deploy → `actions/deploy-pages`) — authenticates via GitHub's own OIDC token, zero secrets to configure, a genuine simplification over the FTP plan.
+
+Angular SPA routing needed a completely different fix on GitHub Pages than Apache's `.htaccess` (left in the repo, harmless/unused, in case of a future self-hosted move) — GitHub Pages has no server-side rewrite capability at all. Implemented the standard [spa-github-pages](https://github.com/rafgraph/spa-github-pages) technique: `public/404.html` (served by GitHub Pages for any unmatched path — a deep link like `/dashboard` on direct load/refresh — encodes the real path into a query string and redirects to the root) plus a matching script in `src/index.html`'s `<head>` that decodes it back via `history.replaceState` before Angular Router boots. Confirmed both files land in a real rebuild of `dist/lingo-app/browser/`. **Honestly flagged as not fully verifiable from this environment**: unlike the Hostinger `.htaccess` plan (which got a real local `curl` test against `serve -s`), this specific redirect trick only round-trips through GitHub Pages' actual 404 handling once genuinely deployed there — there's no accurate way to simulate GitHub Pages' infrastructure locally. `DEPLOYMENT.md` says this explicitly instead of claiming it was verified.
+
+### Build/verification
+`tsc --noEmit` clean, `ng lint` 0 errors, `ng test` 96/96 passing, `ng build` clean (same pre-existing non-blocking budget warning) — confirmed on the rebuild after every change in this pivot, including the CNAME relocation. Pushed to `origin/main` successfully.
+
 ## ACTION REQUIRED FROM YOU
 
 Everything else is done and pushed. These are the only steps that need you specifically:
 
-1. **Hostinger FTP**: hPanel → Files → FTP Accounts → get the hostname/username/password and the exact document-root path for `salingo.devanvar.com`.
-2. **Add GitHub secrets** (repo → Settings → Secrets and variables → Actions): `FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`, and `FTP_SERVER_DIR` if the document root isn't `/public_html/`. Once set, every push to `main` deploys automatically.
-3. **Enable SSL** for the subdomain specifically in hPanel → SSL (don't assume it's inherited from the main domain).
-4. **Confirm DNS** for `salingo.devanvar.com` actually resolves to Hostinger (you said it's already configured — worth a final check with `nslookup salingo.devanvar.com` once SSL is on).
-5. **Supabase Dashboard** → Authentication → URL Configuration: set Site URL to `https://salingo.devanvar.com` and add it to the Redirect URLs allow-list. Without this, password-reset emails will be rejected even though the app code already sends the right URL.
+1. **Enable GitHub Pages** (one-time): repo → Settings → Pages → **Build and deployment → Source: "GitHub Actions"**. Until this is set, the deploy job in `deploy.yml` will fail even though the build job succeeds — Pages isn't listening for a deployment yet.
+2. **DNS**: add a `CNAME` DNS record for the `salingo` subdomain pointing at `AndVarlop.github.io`, wherever `devandvar.com`'s DNS is managed. Cannot be verified or performed from this environment.
+3. **Enforce HTTPS**: once DNS propagates and GitHub verifies the domain (can take up to ~24h), go to repo → Settings → Pages and check "Enforce HTTPS" — it's greyed out until then.
+4. **Supabase Dashboard** → Authentication → URL Configuration: set Site URL to `https://salingo.devandvar.com` and add it to the Redirect URLs allow-list. Without this, password-reset emails will be rejected even though the app code already sends the right URL.
+5. **Test the deep-link fix once actually live**: hard-refresh `https://salingo.devandvar.com/dashboard` directly — this is the one piece of this pivot that could not be verified from this environment (see §22).
 6. *(Paused by your choice, not urgent)* When ready to enable real AI: the 3 commands from `supabase/functions/ai-proxy/README.md`.
-
-If you'd rather deploy manually the first time instead of waiting on GitHub Actions secrets: `npm run build`, then upload the **contents of** `dist/lingo-app/browser/` via Hostinger's File Manager — no waiting on step 1/2 above.
