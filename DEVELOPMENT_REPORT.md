@@ -345,3 +345,36 @@ Every item above went through its own `tsc --noEmit` → `ng lint` → `ng test`
 **External dependencies**: Task #63 — the AI backend/provider decision — is now the only thing gating further product work. Every AI-adjacent service in the app already follows "Angular → documented mock/interface, never an API key in the client," so this is additive work whenever it's resolved, not a rewrite.
 
 **Recommended next step**: resolve #63.
+
+## 20. Task #63 resolved — AI backend built and wired
+
+User's decisions: Claude API (Anthropic), hosted as a Supabase Edge Function (reuses the existing Supabase project, zero new infra), user has their own API key and configures it themselves (never seen by this session).
+
+**Foundation**: `supabase/functions/ai-proxy` (Deno) — the only place the Anthropic key will ever exist. Generic contract shared by every AI feature (`{system, messages, maxTokens?} -> {text}`) instead of one function per feature. Requires a valid Supabase-authenticated JWT before touching the AI provider. Distinguishes "not configured yet" (503) from "provider failed" (502) so the client can show the right message. `core/services/ai-client.service.ts` is the one place in Angular that calls it. Deploy steps are in `supabase/functions/ai-proxy/README.md` — not yet run by the user as of this entry, so every feature below currently fails honestly rather than working end-to-end; that failure path is exactly what got live-verified for each one.
+
+**Five real AI features wired**, each following the same pattern established with AI Tutor (the first one): a typed error class per service, JSON-structured AI responses with defensive parsing (strips markdown fences, validates shape, never trusts the AI blindly), every failure path logs the real cause via `console.error` and surfaces an honest in-UI message — never a fabricated result — and the user's input/progress is never lost on failure so they can retry:
+
+1. **AI Tutor** — grammar/speaking/vocabulary/conversation topics now call Claude with a topic-specific system prompt and real conversation history; "correction" stays rule-based (free, already honest).
+2. **Writing evaluation** — vocabulary/coherence scores and suggestions now come from Claude; grammarScore stays rule-based (grounded in the same mistakes shown in the UI and fed to Mistake Memory).
+3. **Roleplay customer AI** — replaced the word-overlap heuristic entirely. Claude plays the customer, conditioned on the scenario's real persona/problem/context/difficulty and the full conversation so far, returning `{text, resolved}` JSON. Opening line stays scripted per scenario. Kept a hard turn-count safety net.
+4. **Interview evaluation** — used by both Mock Interview and Roleplay's final scoring. Evaluates a whole session in **one** AI call (`evaluateInterview`), not one call per question — the old per-question-then-average design would have been up to 15 parallel API calls per Mock Interview completion, which is both slow and a real rate-limit risk. `evaluateAnswer` is a single-pair wrapper over the same method for Roleplay.
+5. **Company Prep job analysis** — real Claude analysis of the pasted company + job description, replacing keyword-triggered templates. `suggestedPreparation` stays a fixed list of real SALingo feature names (deliberately not AI-generated, to avoid the model hallucinating a feature that doesn't exist).
+
+**Housekeeping found along the way**: `AiExerciseService` was unused anywhere in the app and always returned the literal same hardcoded question while claiming to be "AI-generated" — deleted rather than wired up, since building real AI backing for a dead code path is waste. `AiInterviewService.getNextQuestion` (also unused) and its `MockInterviewQuestionPrompt` type were removed too. `pickNextQuestion` (the one actually used, for adaptive question selection) was deliberately left as a keyword heuristic — it always returns real curated content and was never dishonest, so upgrading it to AI is a future nice-to-have, not a correctness fix.
+
+Every mock/heuristic that got replaced this round was flagged in the original 40-point audit as either measuring the wrong thing (Writing's old grammarScore, already fixed earlier) or producing the same output regardless of real input (Roleplay's 3-phrase script, Job Analysis's keyword templates, Interview Evaluation's word-count-only scoring) — this closes that entire class of finding.
+
+### Build/verification
+Each of the 5 features went through its own full cycle: `tsc --noEmit` (both tsconfig.json and tsconfig.spec.json) → `ng lint` → `ng test` → `ng build` → live Chrome verification against the still-undeployed function (proving the honest-failure path actually works, not just assuming it). Current state: `ng test` 96/96 passing, `ng lint` 0 errors, `ng build` clean (same pre-existing non-blocking budget warning).
+
+## FINAL STATUS (updated)
+
+**Completed**: the entire non-AI backlog (see §19) plus the full AI backend (this section) — Edge Function, Angular client, and all 5 real AI feature integrations, each with an honest failure mode verified live.
+
+**Remaining**: two things, both requiring the user's own terminal, not this session:
+1. Run the 3 deploy commands in `supabase/functions/ai-proxy/README.md` (`supabase link`, `supabase secrets set ANTHROPIC_API_KEY=...`, `supabase functions deploy ai-proxy`). Until this happens, all 5 AI features correctly show their honest "not available" states instead of working.
+2. After deploying: spend a little real time in each of the 5 features to sanity-check Claude's actual output quality/tone now that it's live traffic, not just the failure path — the failure path is thoroughly verified, the happy path has not been (there is no way to verify it without the function actually being deployed).
+
+**Known limitations**: same as §19, plus — no per-user rate limiting beyond the Edge Function's fixed `MAX_TOKENS_CEILING`/`MAX_MESSAGES` caps; worth adding before opening AI features up beyond testing, per the README's cost note. `pickNextQuestion`'s keyword-based adaptive selection was not upgraded to AI (legitimate heuristic, not a correctness issue — see §20).
+
+**External dependencies**: none blocking further work — task #63 is resolved. The only outstanding item is the user completing deployment (item 1 above), which this session cannot do (no Supabase CLI credentials/access).
