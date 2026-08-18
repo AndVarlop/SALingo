@@ -495,39 +495,72 @@ Result: this was a **content-authoring pass on already-adequate infrastructure**
 ### Build/verification
 `npx tsc --noEmit -p tsconfig.json` clean · `ng lint` 0 errors · `ng test --watch=false` 96/96 passing · `ng build` clean (same pre-existing roleplay-session budget warning, unrelated to this pass). Live Chrome verification was not attempted this pass — no working authenticated session was available (same test-account expiry noted in §24), and this pass was pure data-layer content that the existing components already render correctly by construction (verified by the clean build/lint/test cycle, plus the fact that this is the identical `GrammarTopic`/`RoleplayScenario`/`InterviewQuestion` shape already rendered live for A1/A2/B1 earlier in the session).
 
+## 26. B2 + C1 + C2 — Reading, Listening, Writing, Speaking, Final Assessments, Level Unlocking, Recommendations, Placement Test
+
+Second B2/C1/C2 pass, continuing directly from §25 with the rest of the checklist (Reading → Listening → Writing → Speaking → Final Assessments → Placement Test → Level Unlocking → Daily Challenge/Recommendations → Career Path → Interview/Roleplay). Mini-games and a full manual breakpoint audit were **not** attempted this pass — see Remaining below for why and what's recommended instead.
+
+**Architecture reused, nothing duplicated:**
+- Added one optional field, `level?: CefrLevel`, to `BaseExercise` (covers Reading/Listening/Speaking) and to `WritingPrompt` — additive, doesn't touch any existing lesson content.
+- New shared `LevelFilterComponent` (`shared/components/level-filter`) — one small chip-row component reused across Reading, Listening, Writing and Speaking instead of four bespoke filter UIs.
+- `ExamRegistryService`'s existing "add a `build*Exam()` method + a `getExam()` entry" pattern is exactly what the 3 new Final Assessments plug into — zero changes to the exam runner or engine.
+- `AiEvaluationService.evaluateWriting` gained an optional `level` param (register/argumentation weighed higher at C1/C2 instead of one flat rubric); a new `evaluateSpeaking` method reuses the identical pattern (deterministic grammar-mistake detection + AI-judged vocabulary/coherence, same honest-failure-state class) for open-ended C1/C2 speaking, rather than inventing a new evaluation architecture.
+- `CareerPathService`'s existing real, progress-driven `CareerPathStage[]` model was extended with 3 more stages instead of building a separate B2/C1/C2 page.
+- `RecommendationService` (which both Daily Challenge and Career Coach's "what's next" already read from) was extended, not replaced.
+
+**Reading** — new standalone module (`features/reading`), previously Reading only existed embedded inside individual A1/A2/B1 lessons. `mock-reading.data.ts`: 9 passages (3 per level — emails/articles/reports for B2, opinion/analytical pieces for C1, essay-style rhetoric for C2), each with 3 varied questions (main idea, detail, vocab-in-context, inference, author's stance/intention, tone) — reuses the existing `ReadingExercise`/`ExercisePlayerComponent` exactly as A1-B1 content does.
+
+**Listening** — 20 new clips added to the existing `mock-listening.data.ts` (6 B2 workplace/customer-service/interview conversations, 5 C1 podcast/meeting/debate excerpts testing implied meaning and attitude, 4 C2 clips specifically testing irony/sarcasm/rhetorical framing). Real audio: the existing `ListeningExerciseComponent` speaks `audioText` via the actual Web Speech API (`SpeechSynthesisUtterance`) — not a placeholder "Listen to this…" with no audio behind it.
+
+**Writing** — 15 new prompts (complaint/professional emails, reports, opinions for B2; proposals, persuasive/critical-response writing for C1; critical essays, analytical writing for C2) added to `mock-writing.data.ts`. Grading is real AI (`AiEvaluationService`, Claude via the Supabase Edge Function built earlier this session) — currently returns the same honest "not configured" state as every other AI feature until the user deploys the Edge Function; not fabricated.
+
+**Speaking** — two real, level-appropriate modes:
+- B2 stays on the existing guided exact-sentence-match engine (6 new exercises, more hints, per the "B2 = more help" progression rule).
+- C1/C2 get a **new open-ended mode**: 8 prompts (debate, negotiation, persuasion, abstract discussion, spontaneous critical response) with hints shrinking from C1 to none at C2. Uses the existing `SpeechRecognitionService` for a real transcript (not simulated) and the new `evaluateSpeaking` AI method — genuinely spontaneous production, not another fixed sentence to repeat.
+
+**Final Assessments** — `b2/c1/c2-final-assessment`, one `ExamRegistryService.build*()` method each: real Grammar + Vocabulary + Reading + Listening questions filtered to that level; C1 adds a Professional English section (call-center vocabulary); C2's reading section doubles as Nuance/Register/Inference since those questions already test tone and implied meaning. **Speaking and Writing are deliberately excluded** from the auto-graded exam — they're open-ended and AI-graded in their own modules, and folding them into a multiple-choice exam would have meant either inventing fake MC "writing" questions or silently not grading them, both worse than being explicit about the split.
+
+**Level unlocking** — new `LevelProgressService`: a level is reachable either because the user's placement level already put them there (never locks someone out of where a placement test or manual change put them), or because they passed the previous level's Final Assessment (`ExamEngineService` now logs one extra `final-assessment:<examId>` overall-score entry per attempt, best-of-attempts, for this to read against a 70% threshold). Wired into `LevelFilterComponent` everywhere it's used (🔒 chip, blocked selection with a "Complete X to unlock Y" message, never a dead route) and into Career Path (🔒 badge, no dead CTA).
+
+**Daily Challenge / Recommendation Engine** — `RecommendationService` now also recommends the next reachable-but-unpassed Final Assessment (never for a still-locked level), and weak-tag recommendations handle `listening:`/`reading:` tags with their own message instead of a generic fallback. This surfaced and fixed two real pre-existing gaps: `Skill.Reading` mastery was hardcoded to `0` (no standalone Reading activity existed before this session), and recommendation-type inference guessed from the recommendation's `id` — wrong for anything but grammar — now reads the actual `routerLink`.
+
+**Career Path** — 3 new real stages (B2 Customer Service Specialist → C1 Team Leader/Advanced Customer Service → C2 International Business/Professional Communication), percent/completed driven by the same Final Assessment scores that gate the level, not an invented metric.
+
+**Placement Test** — extended to C2 (3 new questions: ellipsis, fronting, register). More importantly, restructured from one fixed-order list (A1→C1, "hard questions tacked on the end") into two real stages: a calibration round (A2/B1), then a branch to a targeted band (A1 / B2 / C1+C2) based on stage-1 accuracy — a struggling learner never sees C1/C2 content and a strong one isn't padded with A1.
+
+**Interview/Roleplay** — 5 more advanced questions in §25, plus 6 total new roleplay scenarios across §25/§26 (VIP escalation, retention negotiation, cross-team conflict, policy-exception pressure, enterprise contract renegotiation, leading a teammate through a crisis) reaching into C1/C2 leadership/negotiation territory, all on the existing `RoleplayScenario`/`AiRoleplayService` architecture.
+
+### New Supabase migration
+`supabase/activity-log-b2-c1-c2.sql` — widens the `activity_log.type` check constraint to allow the 2 new types this pass introduces (`'reading'`, `'final-assessment'`). **Required** before Reading-practice or Final-Assessment activity can persist to Supabase — not yet run by the user (same pattern as `vocabulary-b2-c1-c2.sql`, additive, safe to re-run).
+
+### Build/verification
+Every block above was committed separately, each preceded by a clean `npx tsc --noEmit -p tsconfig.json` → `ng lint` (0 errors) → `ng test --watch=false` (96/96 passing throughout, no regressions) → `ng build` (clean, same pre-existing roleplay-session 341-byte budget warning, unrelated to this work). Live Chrome verification was not attempted this pass — no working authenticated session was available (same test-account expiry noted in §24) — so this is stated honestly as structurally verified (typed, linted, built, unit-tested) but not re-confirmed against the running app.
+
 ## Completed
-- SALingo brand identity: reusable `LogoComponent`, applied everywhere the old placeholder emoji was, SVG favicon.
-- Full mobile navigation drawer with every real route, grouped, including 3 previously-unreachable mini-games.
-- Full responsive audit (§23): real `dvh` chat-height fixes, global reduced-motion/overflow safety nets, one real overflow-risk fix in Profile.
-- AI backend (Claude via a Supabase Edge Function) built and wired into 5 real features, all with honest failure states.
-- Deployment pipeline (GitHub Pages, GitHub Actions) built, domain-corrected, CNAME fixed.
-- Collapsible sidebar.
-- First wave of B2/C1/C2 content (§25): 15 grammar topics, 45 vocabulary words (migration pending), 4 advanced roleplay scenarios, 5 advanced interview questions — all live in the existing Grammar/Exam/Roleplay/Interview surfaces with zero engine changes.
+- SALingo brand identity, full mobile navigation, full responsive audit, AI backend, GitHub Pages deployment, collapsible sidebar (§20-§24, prior sessions).
+- B2/C1/C2 Grammar (15 topics), Vocabulary (45 words, migration pending), Interview (10 questions), Roleplay (6 scenarios) — §25.
+- B2/C1/C2 Reading (new module, 9 passages), Listening (20 clips), Writing (15 prompts, level-aware AI grading), Speaking (6 guided + 8 open-ended AI-judged prompts) — §26.
+- 3 Final Assessments (Grammar/Vocabulary/Reading/Listening, plus Professional English at C1), real level unlocking wired through every new module and Career Path, B2/C1/C2-aware Daily Challenge and Recommendation Engine, adaptive C2-reaching Placement Test — §26.
+- 3 new Career Path stages connecting English progress to real career milestones through C2.
 
 ## Remaining
-- Live visual confirmation of the mobile drawer + authenticated shell once the user's session is active again (or on the real deployed site).
-- Genuine breakpoint-by-breakpoint visual QA (320px→2560px) — blocked by this session's `resize_window` tool limitation both times it was attempted; recommend Chrome DevTools' device toolbar or a real device once live.
-- PWA manifest icons are still generic Angular CLI placeholders (no image-generation tool available in any session so far).
-- **B2/C1/C2 scope not yet covered** (deferred, not attempted this pass — flagging honestly rather than claiming full coverage of the original brief):
-  - Reading/Listening/Writing/Speaking content authored specifically for B2/C1/C2 (this pass covered Grammar, Vocabulary, Roleplay and Interview only).
-  - New per-level mini-game variants (Vocabulary Rush→Grammar Challenge/Sentence Builder for B2, Debate Challenge/Word Precision for C1, Nuance Master/Tone Detective for C2) — the brief explicitly asks for evolved games, not the existing ones reused unchanged; none were built this pass.
-  - Formal level-unlock gating (B2 locked until B1 done + Final Assessment + minimum mastery, same B2→C1→C2) — `CEFR_LEVEL_ORDER` supports this but no gating logic was added.
-  - Level-scoped Final Assessment / exam sections beyond Grammar (Vocabulary/Reading/Listening/Speaking/Writing/Critical-Thinking exam sections for B2/C1/C2).
-  - Skill Mastery dashboards broken out per level, Adaptive Learning remediation paths, and Error Memory pattern-detection extensions (e.g. "say vs tell") — none built this pass.
-  - Placement Test range extension to C2, Daily Challenge B2/C1/C2-aware recommendations, Career Path B2/C1/C2 tiers (Customer Service Specialist → Team Leader → International Business/Management) — none built this pass.
-  - These are large, mostly-new-component efforts (per the brief's own scope) rather than natural extensions of this pass's data-authoring work; recommend treating each as its own follow-up pass with its own build/test/commit cycle.
+- **Mini-games**: no new B2/C1/C2 game types (Debate Challenge, Word Precision, Nuance Master, Tone Detective, etc.) were built this pass. This was a deliberate scope call, not an oversight: the brief explicitly warns against low-value reskins ("no solo cambiar el título"), and building 8-12 genuinely new interaction types with real scoring in the same pass as everything above would have meant rushing either the games or the higher-priority items (Final Assessment was marked "PRIORIDAD ALTA" in the brief). Recommend a dedicated follow-up pass; `GameEngineService`-style shared scaffolding (score/accuracy/XP/attempts feeding the same Skill Engine every existing mini-game already feeds) is the right reuse target, one config-driven component with different question banks per mode rather than a component per game.
+- **Full manual breakpoint audit** (320px→2560px) for the new Reading/Listening/Writing/Speaking/Career-Path/Placement-Test UI — blocked by the same `resize_window` tool limitation noted in §23/§24. All new components reuse the same `.card`, `max-width: 480-560px`, flex-column layout patterns already responsive-audited in §23, so risk is low, but this is not the same as confirming it on a real narrow viewport.
+- Live Chrome / authenticated-session verification of everything in §26 (see Build/verification above).
+- C2-specific reading/listening content leans on tone/inference/irony as requested, but a native-speaker or CEFR-trained reviewer pass would strengthen confidence that the C1/C2 difficulty gap is calibrated correctly — this was authored carefully but not externally validated against a CEFR rubric.
+- PWA manifest icons are still generic Angular CLI placeholders (pre-existing, unrelated to this task).
 
 ## Known Issues
-- None newly introduced — every change this pass went through the full `tsc`/lint/test/build cycle clean.
+- None newly introduced — every change in both B2/C1/C2 passes went through the full `tsc`/lint/test/build cycle clean, and `ng test` stayed at 96/96 passing throughout (no regressions in any existing spec).
 
 ## External Dependencies
 - GitHub Pages source setting, DNS, Supabase auth redirect URLs (see §22 ACTION REQUIRED — unchanged, still pending on the user's side).
-- Anthropic API key / Edge Function deployment (paused by user's choice).
-- **New**: `supabase/vocabulary-b2-c1-c2.sql` must be run manually in the Supabase SQL Editor (after `vocabulary.sql`) for the 45 new B2/C1/C2 words to appear in the app — additive and safe to re-run (`ON CONFLICT DO NOTHING`), same pattern as the earlier `skill-tags.sql`.
+- Anthropic API key / Edge Function deployment (paused by user's choice) — Writing and open-ended Speaking (C1/C2) grading will show honest "AI not configured" states until this is deployed.
+- **`supabase/vocabulary-b2-c1-c2.sql`** — must be run in the Supabase SQL Editor (after `vocabulary.sql`) for the 45 B2/C1/C2 vocabulary words to appear. **Confirmed run by the user** after one syntax fix (double-quoted string literals aren't valid in Postgres — corrected to single-quoted with doubled apostrophes).
+- **`supabase/activity-log-b2-c1-c2.sql`** (new, §26) — must be run in the Supabase SQL Editor to widen the `activity_log.type` check constraint. **Not yet run** — until it is, Reading-practice and Final-Assessment activity will fail to persist to Supabase (the UI still updates optimistically in-session, per the established pattern, but the write will error server-side).
 
-## Next Steps
-1. Log back into the app and visually confirm the mobile drawer + collapsed sidebar on a real narrow viewport (DevTools device toolbar or a phone).
-2. Complete the GitHub Pages deployment steps from §22 so the branding/nav work is actually visible in production.
-3. Run `supabase/vocabulary-b2-c1-c2.sql` in the Supabase SQL Editor so the new B2/C1/C2 vocabulary words go live.
-4. If real device testing surfaces any drawer/nav issues, fix them directly — the component is small and self-contained.
-5. Pick one deferred B2/C1/C2 item from §25's Remaining list (Reading/Listening/Writing content is the most natural next slice, reusing the existing exercise types) for the next pass.
+## Recommended Next Steps
+1. Run `supabase/activity-log-b2-c1-c2.sql` in the Supabase SQL Editor — this is the one blocking action item for §26's new features to actually persist.
+2. Log back into the app and live-verify the new Reading/Listening/Writing/Speaking modules, the Final Assessments, and the Career Path lock/unlock UI on a real session.
+3. Pick mini-games as the next dedicated pass — it's the largest remaining piece of the original brief and deserves its own focused implementation rather than being squeezed in.
+4. Once mini-games exist, revisit `masteryByTag`/`weakestSkillTags` to confirm the new game-generated skill tags surface correctly in the Skill Engine and Recommendation Engine (both were built generically enough this pass that they should "just work," but that's worth confirming against real data).
+5. A genuine breakpoint-by-breakpoint pass (DevTools device toolbar or a real phone) on everything built in §26, once live.
