@@ -1,0 +1,60 @@
+name: Build and Deploy SALingo
+
+# Runs on every push to main: build, verify, then deploy dist/lingo-app/browser
+# to Hostinger over FTP. The deploy step only runs once the required secrets
+# exist in the repo (see DEPLOYMENT.md) — until then this workflow still
+# builds and tests every push, it just skips the actual upload.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit -p tsconfig.json
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test -- --watch=false
+
+      - name: Build (production)
+        run: npm run build
+
+      - name: Check FTP secrets are configured
+        id: check_secrets
+        run: |
+          if [ -n "${{ secrets.FTP_SERVER }}" ] && [ -n "${{ secrets.FTP_USERNAME }}" ] && [ -n "${{ secrets.FTP_PASSWORD }}" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::FTP_SERVER / FTP_USERNAME / FTP_PASSWORD secrets are not set yet — build succeeded but the deploy step is skipped. See DEPLOYMENT.md."
+          fi
+
+      - name: Deploy to Hostinger (FTP)
+        if: steps.check_secrets.outputs.ready == 'true'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/lingo-app/browser/
+          server-dir: ${{ secrets.FTP_SERVER_DIR || '/public_html/' }}
+          dangerous-clean-slate: false
