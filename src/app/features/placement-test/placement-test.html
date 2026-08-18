@@ -4,13 +4,17 @@
       <div class="card placement-test__idle">
         <span class="placement-test__icon" aria-hidden="true">🧭</span>
         <h1>Placement Test</h1>
-        <p>Answer {{ questions.length }} quick questions, from beginner to advanced, and we'll estimate your English level.</p>
+        <p>A short adaptive test — we'll start in the middle, then get harder or easier based on how you do, to estimate your level from A1 to C2.</p>
         <button type="button" class="btn btn--primary" (click)="start()">Start test</button>
       </div>
     }
 
-    @case ('testing') {
-      <app-exercise-player [exercises]="exercises" (finished)="onFinished($event)" />
+    @case ('stage1') {
+      <app-exercise-player [exercises]="stage1Exercises" (finished)="onStage1Finished($event)" />
+    }
+
+    @case ('stage2') {
+      <app-exercise-player [exercises]="stage2Exercises()" (finished)="onStage2Finished($event)" />
     }
 
     @case ('result') {

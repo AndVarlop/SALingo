@@ -71,4 +71,17 @@ export const MOCK_PLACEMENT_QUESTIONS: PlacementQuestion[] = [
     level: CefrLevel.C1,
     exercise: { id: 'pt-15', type: ExerciseType.MultipleChoice, prompt: 'The proposal, ___ was rejected, took months to prepare.', options: ['that', 'which', 'who', 'what'], correctOptionIndex: 1, xpReward: 5 },
   },
+  // C2
+  {
+    level: CefrLevel.C2,
+    exercise: { id: 'pt-16', type: ExerciseType.MultipleChoice, prompt: 'Choose the sentence using ellipsis correctly: "She can speak French, and he ___."', options: ['can too', 'can speak French too', 'can speaks too', 'can to'], correctOptionIndex: 0, xpReward: 5 },
+  },
+  {
+    level: CefrLevel.C2,
+    exercise: { id: 'pt-17', type: ExerciseType.MultipleChoice, prompt: 'Choose the sentence with correct emphatic fronting: "___ was the level of detail in the report."', options: ['What impressed me', 'It was what impressed me', 'Impressed me was', 'Was impressed me'], correctOptionIndex: 0, xpReward: 5 },
+  },
+  {
+    level: CefrLevel.C2,
+    exercise: { id: 'pt-18', type: ExerciseType.MultipleChoice, prompt: '"We took full responsibility" without any follow-through is best described as:', options: ['a precise commitment', 'a rhetorical gesture with no substance behind it', 'a legal contract', 'an apology in the passive voice'], correctOptionIndex: 1, xpReward: 5 },
+  },
 ];
