@@ -7,6 +7,10 @@ const BASE_SYSTEM_PROMPT =
   'You are an English writing evaluator for ESL learners preparing for customer-service / call-center jobs. ' +
   "Given the writing prompt and the learner's text, rate vocabulary richness (0-100) and coherence/organization " +
   '(0-100), and give 2-3 short, specific, encouraging suggestions for improvement. ' +
+  'Do not treat a more elegant or more formal alternative phrasing as an "error" if what the learner wrote is already ' +
+  'grammatically correct and appropriate — frame those as optional alternatives ("for a more formal tone, you could say...") ' +
+  'in a suggestion, never as something wrong. Only flag suggestions for things that are actually incorrect, unclear, or ' +
+  "genuinely mismatched to the prompt's register. " +
   'Respond with ONLY valid JSON, no markdown fences, no extra text: ' +
   '{"vocabularyScore": number, "coherenceScore": number, "suggestions": string[]}';
 
@@ -24,6 +28,7 @@ const SPEAKING_SYSTEM_PROMPT =
   "You are given a speech-to-text transcript of the learner speaking freely in response to a prompt (not written text — ignore missing punctuation and capitalization, and don't penalize filler words like \"um\" lightly used). " +
   'Rate vocabulary richness (0-100) and coherence/organization of the spoken response (0-100), and give 2-3 short, specific, encouraging spoken-fluency suggestions. ' +
   'If the transcript is empty, extremely short, or clearly unrelated to the prompt, score accordingly (low) rather than inventing credit. ' +
+  'Do not treat a more elegant or more formal alternative as an "error" if what the learner said is already correct and natural — save that for an optional-alternative suggestion, never a correction. ' +
   'Respond with ONLY valid JSON, no markdown fences, no extra text: ' +
   '{"vocabularyScore": number, "coherenceScore": number, "suggestions": string[]}';
 
