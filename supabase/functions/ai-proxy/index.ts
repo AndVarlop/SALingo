@@ -26,6 +26,8 @@ const ANTHROPIC_MODEL = 'claude-sonnet-5';
 const MAX_TOKENS_CEILING = 1024; // hard cap regardless of what the client asks for — cost/abuse guard
 const MAX_MESSAGES = 40; // a runaway client shouldn't be able to send an unbounded conversation history
 const MAX_REQUESTS_PER_HOUR = 40; // per signed-in user — generous for real practice, not for a scripted hammer
+const MAX_MESSAGE_CHARS = 8000; // per message — no legitimate writing/interview answer is anywhere near this; blocks an oversized-payload abuse attempt
+const MAX_SYSTEM_CHARS = 4000; // system prompts are authored server-side by SALingo's own services, never user text — this is a sanity ceiling, not a real limit
 
 // This function is only ever meant to be called from the SALingo app itself
 // (it still requires a valid signed-in-user JWT either way — see below —
@@ -75,7 +77,7 @@ function errorResponse(status: number, error: string, headers: Record<string, st
 function isValidRequest(body: unknown): body is CompleteRequest {
   if (!body || typeof body !== 'object') return false;
   const b = body as Record<string, unknown>;
-  if (typeof b['system'] !== 'string' || !b['system'].trim()) return false;
+  if (typeof b['system'] !== 'string' || !b['system'].trim() || b['system'].length > MAX_SYSTEM_CHARS) return false;
   if (!Array.isArray(b['messages']) || b['messages'].length === 0) return false;
   if (b['messages'].length > MAX_MESSAGES) return false;
   return b['messages'].every(
@@ -84,7 +86,8 @@ function isValidRequest(body: unknown): body is CompleteRequest {
       typeof m === 'object' &&
       (m.role === 'user' || m.role === 'assistant') &&
       typeof m.content === 'string' &&
-      m.content.trim().length > 0,
+      m.content.trim().length > 0 &&
+      m.content.length <= MAX_MESSAGE_CHARS,
   );
 }
 
