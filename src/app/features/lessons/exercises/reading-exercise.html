@@ -21,6 +21,14 @@
       </button>
     }
   </div>
+
+  @if (locked() && !isCorrectSelection(qi) && question.explanation) {
+    <p class="reading-exercise__why">
+      <span class="reading-exercise__your-answer">Your answer: <em>{{ question.options[selections()[qi]] }}</em></span>
+      <span class="reading-exercise__correct-answer">Correct answer: <em>{{ question.options[question.correctOptionIndex] }}</em></span>
+      <span>{{ question.explanation }}</span>
+    </p>
+  }
 }
 
 <button type="button" class="btn btn--primary" [disabled]="!canCheck()" (click)="check()">

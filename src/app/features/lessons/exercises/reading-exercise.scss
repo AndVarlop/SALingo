@@ -10,3 +10,31 @@
 .reading-exercise__question {
   margin-top: 20px;
 }
+
+.reading-exercise__why {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+  font-size: 0.82rem;
+
+  span {
+    color: var(--color-text-muted);
+  }
+
+  em {
+    font-style: normal;
+    font-weight: 700;
+  }
+}
+
+.reading-exercise__your-answer em {
+  color: var(--color-danger);
+}
+
+.reading-exercise__correct-answer em {
+  color: var(--color-success);
+}

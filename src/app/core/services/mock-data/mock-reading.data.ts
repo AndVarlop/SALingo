@@ -6,6 +6,10 @@ import { CefrLevel, ExerciseType, ReadingExercise } from '../../models';
  * inferential comprehension of everyday professional texts; C1 adds stance,
  * implicit meaning and argument structure over denser analytical texts; C2
  * works rhetoric, tone and nuance over essay-style writing.
+ *
+ * Every question carries a real `explanation` (spec: centralized Feedback
+ * Engine, §11) — a short "the text says X, therefore Y" pointer back into
+ * the passage, not just a checkmark on the right option.
  */
 export const MOCK_READING_EXERCISES: ReadingExercise[] = [
   // --------------------------------------------------------------- B2 ---
@@ -28,6 +32,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'To schedule the Friday call',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The text says she\'d "rather we take it seriously than dismiss it" and asks support to prioritize Hendricks tickets — she\'s asking the team to act carefully on a concern, not announcing bad news or scheduling anything.',
         xpReward: 10,
       },
       {
@@ -41,6 +47,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'Reply to the client before Friday',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'It follows directly after "if it turns out to be bigger than I think" — Priya wants to act early in case the issue is more serious, which is what "get ahead of" a problem means in workplace English.',
         xpReward: 12,
       },
       {
@@ -54,6 +62,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'She is going on vacation',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The sentence links directly to "get ahead of this" — waiting for the weekly report would be too slow if the pattern is real, so she wants to know immediately.',
         xpReward: 12,
       },
     ],
@@ -78,6 +88,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'Employees prefer commuting to working from home',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The whole passage is built around "it\'s become a trade-off": benefits ("on one hand") are weighed against a real cost ("on the other") — the article never claims remote work is downside-free.',
         xpReward: 10,
       },
       {
@@ -91,12 +103,14 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'Required everyone to return five days a week',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The text says they hired consultants "redesigning their spaces so that the days people do come in actually feel worth the commute" — a direct match for this option.',
         xpReward: 10,
       },
       {
         id: 'rd-b2-2-q3',
         type: ExerciseType.MultipleChoice,
-        prompt: 'What can you infer about the author\'s attitude toward this issue?',
+        prompt: "What can you infer about the author's attitude toward this issue?",
         options: [
           'They see it as a simple problem with an obvious solution',
           'They present it as a genuine, ongoing balancing act, without taking a strong side',
@@ -104,6 +118,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'They think remote work should be banned',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The author lists both sides ("on one hand"/"on the other") and two different company responses without endorsing either one — that balanced framing is the clue, not any single sentence.',
         xpReward: 13,
       },
     ],
@@ -128,6 +144,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'A change in the company\'s working hours',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The report says the drop "coincides with the rollout of our new ticketing system" and names agents falling behind during the transition as "very likely the main driver" — nothing about staffing, price, or hours is mentioned.',
         xpReward: 10,
       },
       {
@@ -141,6 +159,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'Raising customer satisfaction targets',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The last sentence states it directly: "We recommend continuing to monitor scores through next month before drawing any final conclusions."',
         xpReward: 10,
       },
       {
@@ -154,6 +174,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'Complained about',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'It appears right after "response times had already returned to normal" — the team improving at using the interface, i.e. becoming comfortable with it, is what caused response times to recover.',
         xpReward: 10,
       },
     ],
@@ -180,6 +202,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'They think it understates how good AI already is',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'Signal words like "comfortable assumption," "tidy story," and "it understates something important" all mark disagreement — the author goes on to explain exactly what the assumption gets wrong.',
         xpReward: 13,
       },
       {
@@ -193,12 +217,14 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'That the assumption came from a customer survey',
         ],
         correctOptionIndex: 0,
+        explanation:
+          '"Convenient for" someone with a specific goal (justifying a budget) implies the belief is attractive for a self-serving reason, not necessarily because it\'s accurate — that\'s the implicit criticism.',
         xpReward: 15,
       },
       {
         id: 'rd-c1-1-q3',
         type: ExerciseType.MultipleChoice,
-        prompt: "What risk does the author warn about at the end of the passage?",
+        prompt: 'What risk does the author warn about at the end of the passage?',
         options: [
           'Companies losing money on AI tools',
           'Agents ending up handling a higher proportion of difficult, conflict-heavy calls, risking burnout',
@@ -206,6 +232,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'AI replacing executives instead of agents',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The final two sentences state it explicitly: automating the "unremarkable" work leaves agents with "disproportionately the conflict," which "optimized their agents straight into burnout."',
         xpReward: 14,
       },
     ],
@@ -230,6 +258,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'Trust has nothing to do with communication style',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The core claim is stated directly: trusted leaders adjust "which version of themselves is appropriate for a given room" while keeping "the same underlying values" — adaptation, not raw unfilteredness.',
         xpReward: 14,
       },
       {
@@ -243,6 +273,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'Delivering bad news',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The text says it explicitly: "Call it register-switching rather than inauthenticity" — the whole point is that adapting your delivery isn\'t the same as being fake.',
         xpReward: 13,
       },
       {
@@ -256,6 +288,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'Being too formal or too informal in emails',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The last sentence names them directly: "so guarded that no one trusts what they say, or so unfiltered that no one feels safe saying anything back."',
         xpReward: 14,
       },
     ],
@@ -280,6 +314,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'That renewal rates are falling overall',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The text names it directly: "It would be tempting to conclude that we should therefore encourage more complaints, but that reading mistakes the correlation for the cause."',
         xpReward: 14,
       },
       {
@@ -293,6 +329,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'That the customer is likely to complain again',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The author\'s real explanation follows the word "actually": these customers "cared enough to reach out in the first place," and the resolution "confirmed that the relationship was worth maintaining."',
         xpReward: 14,
       },
       {
@@ -306,6 +344,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'Too many customers complaining at once',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The final sentence states it directly: for customers who "never complain but quietly disengage," the company has "no equivalent signal at all."',
         xpReward: 13,
       },
     ],
@@ -332,6 +372,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'Candor is not actually valuable in organizations',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The author explicitly rejects "hypocrisy" in favor of a more precise term: "institutional self-deception, in which the organization sincerely believes it wants what it has in fact spent years training its people not to offer."',
         xpReward: 16,
       },
       {
@@ -345,6 +387,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'To suggest that candor should never be rewarded',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'It follows "one learns to read the real policy not in the mission statement but in..." — the question is offered as a diagnostic tool for what actually happens, not the stated policy.',
         xpReward: 17,
       },
       {
@@ -358,6 +402,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'Purely celebratory of open-door policies',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'Phrases like "with almost mechanical reliability," "nobody quite believes in," and "more often than anyone would like to admit" are dry, ironic understatement — critical without ever raising its voice.',
         xpReward: 17,
       },
     ],
@@ -382,6 +428,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'Concessions have no effect on future negotiations',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The opening sentence frames the whole passage: concession is "a signal read over time," not "a single move" — everything that follows explains what that signal reveals.',
         xpReward: 16,
       },
       {
@@ -395,19 +443,23 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'Weakness is only shown by junior negotiators',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The text ties this directly to deliberateness: seasoned negotiators concede "deliberately... precisely so that the concession reads as generosity rather than weakness" — timing and intent, not the concession itself, make the difference.',
         xpReward: 17,
       },
       {
         id: 'rd-c2-2-q3',
         type: ExerciseType.MultipleChoice,
-        prompt: 'What can be inferred about the author\'s relationship to this subject?',
+        prompt: "What can be inferred about the author's relationship to this subject?",
         options: [
           'They are a casual observer with no direct experience',
           "They present themselves as having studied negotiators closely, drawing on direct observation ('in my experience')",
-          'They are quoting someone else\'s research exclusively',
+          "They are quoting someone else's research exclusively",
           'They disapprove of negotiation as a practice',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The phrases "negotiators I\'ve studied" and "in my experience" are first-person markers of direct, first-hand authority on the topic.',
         xpReward: 15,
       },
     ],
@@ -432,6 +484,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'Because only lawyers use that phrase',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The reasoning is explicit: "Absent that specificity, the sentence is doing rhetorical work rather than substantive work" — it\'s empty because nothing concrete backs it up, not because the phrase itself is flawed.',
         xpReward: 16,
       },
       {
@@ -445,12 +499,14 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'Avoiding the topic entirely',
         ],
         correctOptionIndex: 1,
+        explanation:
+          'The text says it directly: "A more honest version of the sentence would specify what changes... a policy revised, a person reassigned, a process audited."',
         xpReward: 15,
       },
       {
         id: 'rd-c2-3-q3',
         type: ExerciseType.MultipleChoice,
-        prompt: 'What is the author\'s implied attitude in the final sentence?',
+        prompt: "What is the author's implied attitude in the final sentence?",
         options: [
           'Cynical and hopeless about public language',
           'Cautiously optimistic that audiences are getting better at detecting empty rhetoric',
@@ -458,6 +514,8 @@ export const MOCK_READING_EXERCISES: ReadingExercise[] = [
           'Certain that all corporate apologies are meaningless',
         ],
         correctOptionIndex: 1,
+        explanation:
+          '"Gotten better, if not perfect" and "quietly encouraging" both signal measured optimism — not cynicism (that would be hopeless) and not indifference (the author clearly cares about this).',
         xpReward: 17,
       },
     ],
