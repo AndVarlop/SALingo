@@ -25,12 +25,30 @@ import { createClient } from 'jsr:@supabase/supabase-js@2';
 const ANTHROPIC_MODEL = 'claude-sonnet-5';
 const MAX_TOKENS_CEILING = 1024; // hard cap regardless of what the client asks for — cost/abuse guard
 const MAX_MESSAGES = 40; // a runaway client shouldn't be able to send an unbounded conversation history
+const MAX_REQUESTS_PER_HOUR = 40; // per signed-in user — generous for real practice, not for a scripted hammer
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+// This function is only ever meant to be called from the SALingo app itself
+// (it still requires a valid signed-in-user JWT either way — see below —
+// but a wildcard origin is unnecessarily permissive for something billed
+// per call). Configurable via the ALLOWED_ORIGINS secret (comma-separated)
+// so this doesn't need a code change/redeploy when the production domain
+// changes; falls back to the known production + local dev origins.
+//   supabase secrets set ALLOWED_ORIGINS=https://salingo.devandvar.com,http://localhost:4200
+const DEFAULT_ALLOWED_ORIGINS = ['https://salingo.devandvar.com', 'http://localhost:4200'];
+const ALLOWED_ORIGINS = (Deno.env.get('ALLOWED_ORIGINS') ?? DEFAULT_ALLOWED_ORIGINS.join(','))
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+function corsHeaders(origin: string | null): Record<string, string> {
+  const allowOrigin = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    Vary: 'Origin',
+  };
+}
 
 interface ChatMessage {
   role: 'user' | 'assistant';
@@ -43,15 +61,15 @@ interface CompleteRequest {
   maxTokens?: number;
 }
 
-function jsonResponse(body: unknown, status = 200): Response {
+function jsonResponse(body: unknown, headers: Record<string, string>, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    headers: { ...headers, 'Content-Type': 'application/json' },
   });
 }
 
-function errorResponse(status: number, error: string): Response {
-  return jsonResponse({ error }, status);
+function errorResponse(status: number, error: string, headers: Record<string, string>): Response {
+  return jsonResponse({ error }, headers, status);
 }
 
 function isValidRequest(body: unknown): body is CompleteRequest {
@@ -71,13 +89,15 @@ function isValidRequest(body: unknown): body is CompleteRequest {
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS_HEADERS });
-  if (req.method !== 'POST') return errorResponse(405, 'Method not allowed');
+  const headers = corsHeaders(req.headers.get('Origin'));
+
+  if (req.method === 'OPTIONS') return new Response('ok', { headers });
+  if (req.method !== 'POST') return errorResponse(405, 'Method not allowed', headers);
 
   try {
     // 1. Require a real, signed-in SALingo user — never an open proxy.
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) return errorResponse(401, 'Missing Authorization header');
+    if (!authHeader) return errorResponse(401, 'Missing Authorization header', headers);
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -88,19 +108,33 @@ Deno.serve(async (req: Request) => {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
-    if (authError || !user) return errorResponse(401, 'Invalid or expired session');
+    if (authError || !user) return errorResponse(401, 'Invalid or expired session', headers);
+
+    // 1b. Rate limit (spec §6/§28): a real per-user counter in Postgres, not
+    // an in-memory guess — this function can run as multiple concurrent
+    // instances, so only a shared, atomically-incremented counter actually
+    // limits anything. See supabase/ai-rate-limit.sql.
+    const { data: requestCount, error: rateLimitError } = await supabase.rpc('increment_ai_rate_limit');
+    if (rateLimitError) {
+      // Fail open on a missing/misconfigured counter (e.g. the migration
+      // hasn't been run yet) rather than breaking every AI feature outright —
+      // logged so it's visible, not silently ignored.
+      console.error('[ai-proxy] Rate limit check failed, allowing request', rateLimitError);
+    } else if ((requestCount ?? 0) > MAX_REQUESTS_PER_HOUR) {
+      return errorResponse(429, 'Too many AI requests this hour. Please try again later.', headers);
+    }
 
     // 2. Validate the request shape before spending anything on it.
     const body = await req.json().catch(() => null);
     if (!isValidRequest(body)) {
-      return errorResponse(400, 'Expected { system: string, messages: {role, content}[] }');
+      return errorResponse(400, 'Expected { system: string, messages: {role, content}[] }', headers);
     }
 
     const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
     if (!apiKey) {
       // Deliberately distinct from a provider error — the caller should
       // show "AI isn't configured yet", not a generic "something broke".
-      return errorResponse(503, 'AI backend is not configured (missing ANTHROPIC_API_KEY secret)');
+      return errorResponse(503, 'AI backend is not configured (missing ANTHROPIC_API_KEY secret)', headers);
     }
 
     // 3. Call Claude.
@@ -123,19 +157,19 @@ Deno.serve(async (req: Request) => {
     if (!anthropicRes.ok) {
       const errText = await anthropicRes.text();
       console.error('[ai-proxy] Anthropic API error', anthropicRes.status, errText);
-      return errorResponse(502, 'AI provider request failed');
+      return errorResponse(502, 'AI provider request failed', headers);
     }
 
     const data = await anthropicRes.json();
     const text = data?.content?.[0]?.text;
     if (typeof text !== 'string' || !text.trim()) {
       console.error('[ai-proxy] Unexpected Anthropic response shape', JSON.stringify(data));
-      return errorResponse(502, 'AI provider returned an empty response');
+      return errorResponse(502, 'AI provider returned an empty response', headers);
     }
 
-    return jsonResponse({ text });
+    return jsonResponse({ text }, headers);
   } catch (err) {
     console.error('[ai-proxy] Unexpected error', err);
-    return errorResponse(500, 'Internal error');
+    return errorResponse(500, 'Internal error', headers);
   }
 });

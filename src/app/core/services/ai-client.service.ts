@@ -17,6 +17,11 @@ export interface AiCompleteRequest {
  * set up yet" message, never silently fall back to a fabricated reply. */
 export class AiNotConfiguredError extends Error {}
 
+/** Thrown when the per-user AI rate limit (supabase/ai-rate-limit.sql) is
+ * hit. Message is already end-user-appropriate, so callers that don't
+ * special-case it still show something sensible via their generic catch. */
+export class AiRateLimitedError extends Error {}
+
 /**
  * The ONLY place in Angular that talks to the AI backend. Every AI feature
  * (AI Tutor today; Roleplay/Mock Interview/Writing evaluation/Resume
@@ -39,6 +44,9 @@ export class AiClientService {
       // the actual { error: '...' } body is on error.context, when available.
       const status = (error as { context?: { status?: number } }).context?.status;
       if (status === 503) throw new AiNotConfiguredError('AI backend is not configured yet.');
+      if (status === 429) {
+        throw new AiRateLimitedError("You've reached the AI practice limit for this hour — try again a bit later.");
+      }
       throw new Error(`AI request failed: ${error.message}`);
     }
 
