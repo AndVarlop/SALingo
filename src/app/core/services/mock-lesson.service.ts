@@ -30,6 +30,23 @@ export class MockLessonService {
     return MOCK_LESSONS.find((l) => l.id === id);
   }
 
+  /**
+   * Real, live completion percent for a level — computed straight from
+   * `lessonsCompleted` (the field `markLessonCompleted()` actually writes
+   * to, both in-memory and to Supabase), not the `LanguageProgress.levelProgress`
+   * stored field, which nothing in the app ever recalculates and which
+   * would silently stay 0 forever. Same "compute from the real activity
+   * data instead of trusting an unmaintained stored column" pattern
+   * `UserStateService.averageAccuracy`/`skillMastery` already use.
+   */
+  levelProgressPercent(level: CefrLevel, language: LanguageCode = this.userState.currentLanguage()): number {
+    const lessons = this.getByLevel(level, language);
+    if (lessons.length === 0) return 0;
+    const completed = this.userState.currentLanguageProgress().lessonsCompleted;
+    const completedCount = lessons.filter((l) => completed.includes(l.id)).length;
+    return Math.round((completedCount / lessons.length) * 100);
+  }
+
   isUnlocked(lesson: LessonSummary): boolean {
     const completed = this.userState.currentLanguageProgress().lessonsCompleted;
     return lesson.requiresLessonIds.every((id) => completed.includes(id));

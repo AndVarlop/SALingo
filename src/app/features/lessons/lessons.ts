@@ -26,7 +26,7 @@ export class LessonsComponent {
   }
 
   protected levelPercent(level: CefrLevel): number {
-    return this.userState.currentLanguageProgress().levelProgress[level] ?? 0;
+    return this.lessonService.levelProgressPercent(level);
   }
 
   protected isUnlocked(lesson: LessonSummary): boolean {
