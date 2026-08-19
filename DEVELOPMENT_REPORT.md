@@ -612,29 +612,60 @@ Deterministic exercise feedback has no AI dependency, so no fallback path is nee
 - Translation exercises still require an exact string match against `acceptedAnswers` (no synonym/paraphrase leniency) — a pre-existing limitation, not introduced or fixed this pass.
 - No partial-credit scoring (§19 of the brief) — every deterministic exercise remains binary correct/incorrect; `ExerciseFeedback` has room to grow a `partial` case later but none was added without a real per-exercise-type reason to score it as such.
 
+## 28. Lessons B2/C1/C2, Progress System repair, and Activity Randomization
+
+Three reported problems, each investigated for root cause before touching anything (per spec §46: "no asumir que el problema está en el CSS").
+
+### Lessons B2/C1/C2
+Audit first: `LessonsComponent` already iterated `CEFR_LEVEL_ORDER` (all 6 levels) and `MockLessonService.getByLevel()` was already level-agnostic — the `@if (lessonsForLevel(level).length)` guard in `lessons.html` simply never rendered B2/C1/C2 sections because **no B2/C1/C2 `Lesson` objects existed** in `mock-lesson.data.ts`. Not an architecture bug — a content gap, identical to the pattern found for Reading/Listening/Writing/Speaking in §26. Fixed by adding 12 new lessons (4 per level: mixed conditionals/advanced passive/modals of deduction/future forms for B2; inversion/cleft sentences/participle clauses/advanced reporting for C1; ellipsis/fronting/register shifts/discourse markers for C2), each with its own explanation and freshly-written examples/exercises — not the same sentences as the Grammar hub's topics on the same concepts — chained via `requiresLessonIds` (B2 after B1, C1 after B2, C2 after C1).
+
+### Progress System — root cause found and fixed
+Traced the actual read/write path (spec §7-§18/§46) instead of guessing: `lessons.html`'s level-percent bar read `LanguageProgress.levelProgress[level]`, a `Record<CefrLevel, number>` column persisted from Supabase — but grepping the entire codebase found **exactly two places** that ever touch this field, both in the *load* path (from `row.level_progress`, or an empty default). Nothing, anywhere, ever wrote an updated value to it after a lesson completed. It was frozen at whatever the last DB snapshot was (almost always 0) no matter how much progress a user made — the exact "stored column nothing keeps in sync" pattern `UserStateService.averageAccuracy`/`skillMastery` already had comments warning about, just not yet applied to this specific field. `lessonsCompleted` (written by `markLessonCompleted()`, both in-memory and to the real `lesson_completions` Supabase table) was already reliable. Fix: new `MockLessonService.levelProgressPercent(level)` computes `completedLessonsForLevel / totalLessonsForLevel × 100` live from `lessonsCompleted` — the same "derive from real activity instead of a dead stored column" pattern already established elsewhere — with a `lessons.length === 0` guard against `NaN%`. `lessons.ts` now reads from this instead of the dead field. No schema change; a live computed value needed neither.
+
+This also directly resolves the brief's §13 "Dashboard vs Lessons mismatch" concern: nothing on the Dashboard read the dead field either (confirmed by grep), so there was no actual disagreement to reconcile — just the one broken reader.
+
+### Activity Randomization / Question Pools / Repetition Prevention — audited, then fixed 2 real gaps and confirmed the rest already worked
+Before writing anything, checked what already had real per-attempt variation (verified by reading the code, not assumed):
+- **Exams** (`ExamRegistryService`) already draw a random subset from the full content pool on every `getExam()` call — confirmed unchanged since it was built earlier this session. No fix needed; §37/§38 were already satisfied.
+- **Vocabulary Rush** already builds each round's options dynamically per play and computes `correctIndex` via `options.indexOf(...)` after shuffling — already correct and already varied. No fix needed.
+- **Find the Mistake** and **Daily Challenge** already regenerate from live data (a fresh random sentence set; real, currently-weak-skill-driven recommendations) rather than a fixed script.
+
+What was genuinely static and fixed:
+- **Option-order shuffling** (spec §25/§26): every *authored* exercise (`MultipleChoiceExercise`/`FillBlankExercise`/`ListeningExercise`, Reading's nested comprehension questions, and Grammar Battle's question pool) stores a fixed `correctOptionIndex` — so replaying the same exercise always showed the correct answer in the same visual slot, learnable by position instead of understanding. New `shuffleOptions()` utility (`core/utils/shuffle.util.ts`) permutes by index (safe with duplicate-text options) and remaps the correct index; wired into all 5 of those render points, each shuffling once per exercise instance (a `computed()` keyed off the exercise input, so order is stable while on screen but varies next time).
+- **Grammar Battle's weak-topic prioritization** always opened with a topic's questions in the exact same authored order (most topics have exactly 2 MC exercises, so a flagged weak topic meant the identical first 2 questions, in the identical order, every single battle). Now shuffled.
+
+### What was deliberately NOT done — the honest limit of this pass
+The brief asks for 20-50 questions per grammar/vocabulary topic (spec §21) as the real fix for "same phrases repeatedly." **This was not attempted.** Authoring that volume of genuinely varied, natural, level-appropriate content — realistically 600+ new questions across 30+ grammar topics — is pure content-authoring work at a scale this pass's budget could not responsibly cover without either rushing the quality bar this whole project has held to, or leaving the rest of the audited problems (Lessons/Progress) unfixed to make room. The engineering fixes above (option shuffling, weak-topic shuffling) reduce *positional* memorization and *ordering* repetition within the existing pool; they do not create new content. Mistake-based practice ("Practice This Mistake" → new context, same concept, spec §29/§51) also remains at the same basic level noted as deferred in §27 — the CTA on the My Mistakes page already links to Find the Mistake's real, pattern-matched mistake bank, but there is no per-concept-targeted question generator yet.
+
+### Build/verification
+`npx tsc --noEmit -p tsconfig.json` clean · `ng lint` 0 errors · `ng test --watch=false` 96/96 passing throughout, no regressions · `ng build` clean (same pre-existing roleplay-session budget warning). Live Chrome verification (refresh test, logout/login test, mobile/desktop visual check per spec §15/§56) not attempted — no active authenticated session this pass, consistent with every pass since §24.
+
 ## Completed
 - SALingo brand identity, full mobile navigation, full responsive audit, AI backend, GitHub Pages deployment, collapsible sidebar (§20-§24, prior sessions).
 - B2/C1/C2 Grammar (15 topics), Vocabulary (45 words), Interview (10 questions), Roleplay (6 scenarios) — §25.
 - B2/C1/C2 Reading (new module, 9 passages), Listening (20 clips), Writing (15 prompts, level-aware AI grading), Speaking (6 guided + 8 open-ended AI-judged prompts) — §26.
 - 3 Final Assessments, real level unlocking, B2/C1/C2-aware Daily Challenge and Recommendation Engine, adaptive C2-reaching Placement Test, 3 new Career Path stages — §26.
 - Centralized Feedback Engine covering Grammar/Lessons/Listening/Reading/Speaking/Grammar Battle/Vocabulary Rush/Find the Mistake, plus real per-question Reading explanations and an AI over-correction guardrail — §27.
+- /lessons now serves real B2/C1/C2 content; level-progress bars now compute from real completion data instead of a dead stored field; multiple-choice-style exercises across Grammar/Lessons/Listening/Reading/Grammar Battle no longer show the correct answer in a fixed position — §28.
 
 ## Remaining
 - **Mini-games**: no new B2/C1/C2 game types (Debate Challenge, Word Precision, Nuance Master, Tone Detective, etc.) were built. Deliberate scope call — see §26's Remaining for the reasoning; recommend a dedicated follow-up pass.
 - **Full manual breakpoint audit** (320px→2560px) — blocked by the `resize_window` tool limitation noted since §23.
-- Live Chrome / authenticated-session verification of §25-§27's work (no active session in any of these passes).
-- Fine-grained deterministic error typing, "Practice My Mistakes" micro-remediation, translation-exercise synonym leniency, and partial credit — all deferred with rationale in §27's Known Limitations.
+- Live Chrome / authenticated-session verification of §25-§28's work (no active session in any of these passes) — this specifically includes §28's own refresh-test/logout-login-test recommendation, which needs a real session to run.
+- **Question-pool content volume** (spec §21): B2/C1/C2 grammar/vocabulary topics still have only 2 authored MC exercises each — real variety within a single topic (beyond option shuffling) needs substantially more content, not an engineering fix. The single largest remaining gap for the "repetitive activities" complaint.
+- Fine-grained deterministic error typing, "Practice My Mistakes" per-concept micro-remediation, translation-exercise synonym leniency, and partial credit — all deferred with rationale in §27's Known Limitations (unchanged this pass).
 - PWA manifest icons are still generic Angular CLI placeholders (pre-existing, unrelated to this task).
 
 ## Known Issues
-- None newly introduced — every change across §25-§27 went through the full `tsc`/lint/test/build cycle clean, and `ng test` stayed at 96/96 passing throughout (one pre-existing test updated to match a deliberate timing change, not a regression).
+- None newly introduced — every change across §25-§28 went through the full `tsc`/lint/test/build cycle clean, and `ng test` stayed at 96/96 passing throughout (one pre-existing test updated in §27 to match a deliberate timing change, not a regression).
 
 ## External Dependencies
 - GitHub Pages source setting, DNS, Supabase auth redirect URLs (see §22 ACTION REQUIRED — unchanged, still pending on the user's side).
 - Anthropic API key / Edge Function deployment (paused by user's choice) — Writing and open-ended Speaking (C1/C2) grading, and the new anti-over-correction instruction, will only take effect once this is deployed.
 
 ## Recommended Next Steps
-1. Log back into the app and live-verify the new Feedback Engine panels, the Reading/Listening/Writing/Speaking modules, the Final Assessments, and the Career Path lock/unlock UI on a real session.
+1. Log back into the app and live-verify §28's fixes specifically: complete a B2 lesson, confirm the level-percent bar moves, refresh, confirm it holds; replay a Grammar Battle round and confirm option positions vary.
 2. Pick mini-games as the next dedicated pass — it's the largest remaining piece of the B2/C1/C2 brief and deserves its own focused implementation rather than being squeezed in.
-3. A "Practice My Mistakes" micro-remediation flow (§22-§24 of the Feedback brief) is a natural next step for the Feedback Engine, building on the existing `MistakeMemoryService` rather than a new system.
-4. A genuine breakpoint-by-breakpoint pass (DevTools device toolbar or a real phone) on everything built across §25-§27, once live.
+3. A real question-pool expansion (more MC exercises per grammar/vocabulary topic) is the highest-leverage next step for the "repetitive activities" complaint specifically — a content pass, not an engineering one.
+4. A "Practice My Mistakes" micro-remediation flow (§22-§24/§29 of the Feedback brief) is a natural next step for the Feedback Engine, building on the existing `MistakeMemoryService` rather than a new system.
+5. A genuine breakpoint-by-breakpoint pass (DevTools device toolbar or a real phone) on everything built across §25-§28, once live.
