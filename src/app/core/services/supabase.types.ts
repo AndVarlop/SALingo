@@ -139,6 +139,17 @@ export interface Database {
           example: string;
           category: string;
           level: string;
+          part_of_speech: string | null;
+          definition: string | null;
+          examples: string[] | null;
+          synonyms: string[] | null;
+          antonyms: string[] | null;
+          collocations: string[] | null;
+          register: string | null;
+          topic: string | null;
+          related_words: string[] | null;
+          sense: string | null;
+          common_mistake: string | null;
         };
         Insert: Database['public']['Tables']['vocabulary_words']['Row'];
         Update: Partial<Database['public']['Tables']['vocabulary_words']['Row']>;

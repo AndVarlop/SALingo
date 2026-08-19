@@ -10,4 +10,5 @@ export const STORAGE_KEYS = {
   authToken: 'lingo.auth-token',
   dailyChallengeBonus: 'lingo.daily-challenge-bonus',
   sidebarCollapsed: 'lingo.sidebar-collapsed',
+  recentVocabulary: 'lingo.recent-vocabulary',
 } as const;
