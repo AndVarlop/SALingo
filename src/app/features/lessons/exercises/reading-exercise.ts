@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { ReadingExercise } from '../../../core/models';
+import { shuffleOptions } from '../../../core/utils/shuffle.util';
 import { ExerciseAnswer } from './exercise-answer';
 
 @Component({
@@ -17,6 +18,11 @@ export class ReadingExerciseComponent {
   protected readonly selections = signal<Record<number, number>>({});
   protected readonly locked = signal(false);
 
+  /** Each question's options shuffled once per exercise instance (spec §25/§26) — the original `exercise()` object (with its authored correctOptionIndex/explanation) stays untouched for FeedbackService and content authoring. */
+  protected readonly shuffledQuestions = computed(() =>
+    this.exercise().questions.map((q) => ({ ...q, ...shuffleOptions(q.options, q.correctOptionIndex) })),
+  );
+
   protected readonly canCheck = computed(
     () => !this.locked() && Object.keys(this.selections()).length === this.exercise().questions.length,
   );
@@ -27,13 +33,13 @@ export class ReadingExerciseComponent {
   }
 
   protected isCorrectSelection(questionIndex: number): boolean {
-    return this.selections()[questionIndex] === this.exercise().questions[questionIndex].correctOptionIndex;
+    return this.selections()[questionIndex] === this.shuffledQuestions()[questionIndex].correctOptionIndex;
   }
 
   protected check(): void {
     if (!this.canCheck()) return;
     this.locked.set(true);
-    const questions = this.exercise().questions;
+    const questions = this.shuffledQuestions();
     const allCorrect = questions.every((_, i) => this.isCorrectSelection(i));
     const userAnswer = questions
       .map((q, i) => q.options[this.selections()[i]])

@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { ListeningExercise } from '../../../core/models';
+import { shuffleOptions } from '../../../core/utils/shuffle.util';
 import { ExerciseAnswer } from './exercise-answer';
 
 const SPEEDS = [0.75, 1, 1.25, 1.5] as const;
@@ -20,6 +21,7 @@ export class ListeningExerciseComponent {
   protected readonly selected = signal<number | null>(null);
   protected readonly locked = signal<number | null>(null);
   protected readonly speechSupported = typeof window !== 'undefined' && 'speechSynthesis' in window;
+  protected readonly shuffled = computed(() => shuffleOptions(this.exercise().options, this.exercise().correctOptionIndex));
 
   protected play(): void {
     if (!this.speechSupported) return;
@@ -38,7 +40,7 @@ export class ListeningExerciseComponent {
     if (this.locked() !== null) return;
     this.selected.set(index);
     this.locked.set(index);
-    const correct = index === this.exercise().correctOptionIndex;
-    this.answered.emit({ correct, userAnswer: this.exercise().options[index] });
+    const correct = index === this.shuffled().correctOptionIndex;
+    this.answered.emit({ correct, userAnswer: this.shuffled().options[index] });
   }
 }

@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
 import { MultipleChoiceExercise } from '../../../core/models';
+import { shuffleOptions } from '../../../core/utils/shuffle.util';
 import { ExerciseAnswer } from './exercise-answer';
 
 @Component({
@@ -8,14 +9,14 @@ import { ExerciseAnswer } from './exercise-answer';
   template: `
     <p class="exercise-prompt">{{ exercise().prompt }}</p>
     <div class="exercise-options">
-      @for (option of exercise().options; track $index) {
+      @for (option of shuffled().options; track $index) {
         <button
           type="button"
           class="exercise-option"
           [class.exercise-option--selected]="selected() === $index && locked() === null"
-          [class.exercise-option--correct]="locked() !== null && $index === exercise().correctOptionIndex"
+          [class.exercise-option--correct]="locked() !== null && $index === shuffled().correctOptionIndex"
           [class.exercise-option--incorrect]="
-            locked() !== null && selected() === $index && $index !== exercise().correctOptionIndex
+            locked() !== null && selected() === $index && $index !== shuffled().correctOptionIndex
           "
           [disabled]="locked() !== null"
           (click)="choose($index)"
@@ -31,6 +32,9 @@ export class MultipleChoiceExerciseComponent {
   readonly exercise = input.required<MultipleChoiceExercise>();
   readonly answered = output<ExerciseAnswer>();
 
+  /** Recomputes only when `exercise` changes — so option order stays stable while this exercise is on screen, but varies the next time it's shown (spec §25/§26). */
+  protected readonly shuffled = computed(() => shuffleOptions(this.exercise().options, this.exercise().correctOptionIndex));
+
   protected readonly selected = signal<number | null>(null);
   protected readonly locked = signal<number | null>(null);
 
@@ -38,7 +42,7 @@ export class MultipleChoiceExerciseComponent {
     if (this.locked() !== null) return;
     this.selected.set(index);
     this.locked.set(index);
-    const correct = index === this.exercise().correctOptionIndex;
-    this.answered.emit({ correct, userAnswer: this.exercise().options[index] });
+    const correct = index === this.shuffled().correctOptionIndex;
+    this.answered.emit({ correct, userAnswer: this.shuffled().options[index] });
   }
 }

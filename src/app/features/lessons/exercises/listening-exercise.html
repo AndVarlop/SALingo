@@ -26,14 +26,14 @@
 
 <p class="exercise-prompt">What did you hear?</p>
 <div class="exercise-options">
-  @for (option of exercise().options; track $index) {
+  @for (option of shuffled().options; track $index) {
     <button
       type="button"
       class="exercise-option"
       [class.exercise-option--selected]="selected() === $index && locked() === null"
-      [class.exercise-option--correct]="locked() !== null && $index === exercise().correctOptionIndex"
+      [class.exercise-option--correct]="locked() !== null && $index === shuffled().correctOptionIndex"
       [class.exercise-option--incorrect]="
-        locked() !== null && selected() === $index && $index !== exercise().correctOptionIndex
+        locked() !== null && selected() === $index && $index !== shuffled().correctOptionIndex
       "
       [disabled]="locked() !== null"
       (click)="choose($index)"

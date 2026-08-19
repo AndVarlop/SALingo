@@ -4,6 +4,7 @@ import { MOCK_GRAMMAR_TOPICS } from '../../core/services/mock-data/mock-grammar.
 import { CareerCoachService } from '../../core/services/career-coach.service';
 import { UserStateService } from '../../core/services/user-state.service';
 import { FeedbackService } from '../../core/services/feedback.service';
+import { shuffleOptions } from '../../core/utils/shuffle.util';
 import { XP_RULES } from '../../core/constants/xp.constant';
 import { ExerciseFeedback, ExerciseType, MultipleChoiceExercise } from '../../core/models';
 
@@ -81,7 +82,10 @@ export class GrammarBattleComponent implements OnDestroy {
     for (const topic of MOCK_GRAMMAR_TOPICS) {
       for (const exercise of topic.exercises) {
         if (exercise.type === ExerciseType.MultipleChoice) {
-          all.push({ topicId: topic.id, exercise });
+          // Shuffle once per pool build (spec §25/§26) — the correct answer isn't
+          // always in the same visual position across replays of the same question.
+          const { options, correctOptionIndex } = shuffleOptions(exercise.options, exercise.correctOptionIndex);
+          all.push({ topicId: topic.id, exercise: { ...exercise, options, correctOptionIndex } });
         }
       }
     }
