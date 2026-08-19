@@ -37,7 +37,15 @@
       <label for="password">Password</label>
       <input id="password" type="password" formControlName="password" autocomplete="new-password" />
       @if (form.controls.password.invalid && form.controls.password.touched) {
-        <span class="auth-field__error">Password must be at least 6 characters.</span>
+        <span class="auth-field__error">Password must be at least 8 characters.</span>
+      }
+    </div>
+
+    <div class="auth-field">
+      <label for="confirmPassword">Confirm password</label>
+      <input id="confirmPassword" type="password" formControlName="confirmPassword" autocomplete="new-password" />
+      @if (form.controls.confirmPassword.touched && form.errors?.['passwordMismatch']) {
+        <span class="auth-field__error">Passwords don't match.</span>
       }
     </div>
 

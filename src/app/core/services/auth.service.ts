@@ -66,8 +66,19 @@ export class AuthService {
 
   async requestPasswordReset(email: string): Promise<void> {
     const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth/login`,
+      redirectTo: `${window.location.origin}/auth/reset-password`,
     });
+    if (error) throw new Error(error.message);
+  }
+
+  /**
+   * Completes a password reset. Only valid while the user holds the
+   * short-lived recovery session Supabase establishes from the emailed
+   * link (`detectSessionInUrl`, on by default) — there is no separate
+   * "reset token" this app handles directly; Supabase owns that entirely.
+   */
+  async updatePassword(newPassword: string): Promise<void> {
+    const { error } = await this.supabase.auth.updateUser({ password: newPassword });
     if (error) throw new Error(error.message);
   }
 

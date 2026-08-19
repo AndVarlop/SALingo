@@ -1,11 +1,14 @@
 import { Routes } from '@angular/router';
-import { authGuard, guestGuard } from './core/guards/auth.guard';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
   {
+    // No canActivate here — /auth/reset-password must stay reachable even
+    // with an active (recovery) session; guestGuard is applied per-child
+    // route instead (see auth.routes.ts) so it only guards login/register/
+    // forgot-password.
     path: 'auth',
-    canActivate: [guestGuard],
     loadChildren: () => import('./features/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
   {

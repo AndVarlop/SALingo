@@ -1,8 +1,9 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { LogoComponent } from '../../../shared/components/logo/logo';
+import { sanitizeReturnUrl } from '../../../core/utils/return-url.util';
 
 @Component({
   selector: 'app-login',
@@ -15,11 +16,15 @@ import { LogoComponent } from '../../../shared/components/logo/logo';
 export class LoginComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly fb = inject(FormBuilder);
 
   protected readonly form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(6)]],
+    // No minLength here on purpose: a pre-existing account created back when
+    // registration allowed a 6-char password must still be able to log in —
+    // login only needs "something was typed"; Supabase itself is the real check.
+    password: ['', Validators.required],
   });
 
   protected readonly loading = signal(false);
@@ -34,7 +39,8 @@ export class LoginComponent {
     this.errorMessage.set(null);
     try {
       await this.auth.login(this.form.getRawValue());
-      this.router.navigate(['/dashboard']);
+      const returnUrl = sanitizeReturnUrl(this.route.snapshot.queryParamMap.get('returnUrl'));
+      this.router.navigateByUrl(returnUrl ?? '/dashboard');
     } catch (err) {
       this.errorMessage.set(err instanceof Error ? err.message : 'Something went wrong.');
     } finally {

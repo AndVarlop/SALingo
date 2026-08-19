@@ -4,7 +4,6 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { LogoComponent } from '../../../shared/components/logo/logo';
 
-/** Cross-field validator: only meaningful once both controls have a value, so it doesn't fire required-field errors of its own. */
 function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
   const password = group.get('password')?.value;
   const confirmPassword = group.get('confirmPassword')?.value;
@@ -12,25 +11,28 @@ function passwordsMatchValidator(group: AbstractControl): ValidationErrors | nul
   return password === confirmPassword ? null : { passwordMismatch: true };
 }
 
+/**
+ * Completes the "forgot password" flow. Deliberately NOT behind guestGuard
+ * (see auth.routes.ts) — the email link lands here carrying Supabase's own
+ * short-lived recovery session, and guestGuard would otherwise bounce
+ * anyone with an active session (recovery included) straight to /dashboard
+ * before they could ever set a new password.
+ */
 @Component({
-  selector: 'app-register',
+  selector: 'app-reset-password',
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink, LogoComponent],
-  templateUrl: './register.html',
+  templateUrl: './reset-password.html',
   styleUrl: '../auth.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RegisterComponent {
+export class ResetPasswordComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
 
   protected readonly form = this.fb.nonNullable.group(
     {
-      name: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      // 8 chars is a floor, not the real defense — Supabase Auth enforces its own
-      // minimum server-side regardless of what this control allows through.
       password: ['', [Validators.required, Validators.minLength(8)]],
       confirmPassword: ['', Validators.required],
     },
@@ -39,7 +41,10 @@ export class RegisterComponent {
 
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
-  protected readonly confirmationSent = signal(false);
+  protected readonly done = signal(false);
+
+  /** True once the initial session check resolves and there's genuinely no session — link expired, already used, or opened directly with no token. */
+  protected readonly noRecoverySession = () => this.auth.ready() && !this.auth.isAuthenticated();
 
   protected async submit(): Promise<void> {
     if (this.form.invalid) {
@@ -49,13 +54,12 @@ export class RegisterComponent {
     this.loading.set(true);
     this.errorMessage.set(null);
     try {
-      const { name, email, password } = this.form.getRawValue();
-      const { requiresEmailConfirmation } = await this.auth.register({ name, email, password });
-      if (requiresEmailConfirmation) {
-        this.confirmationSent.set(true);
-      } else {
-        this.router.navigate(['/dashboard']);
-      }
+      await this.auth.updatePassword(this.form.getRawValue().password);
+      this.done.set(true);
+      // Force a fresh login with the new password rather than trusting the
+      // one-time recovery session as a standing login.
+      await this.auth.logout();
+      setTimeout(() => this.router.navigate(['/auth/login']), 2500);
     } catch (err) {
       this.errorMessage.set(err instanceof Error ? err.message : 'Something went wrong.');
     } finally {
