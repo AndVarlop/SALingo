@@ -75,6 +75,14 @@ export const routes: Routes = [
         title: 'Vocabulary Rush · SALingo',
       },
       {
+        path: 'vocabulary-practice',
+        loadComponent: () =>
+          import('./features/vocabulary-practice/vocabulary-practice').then(
+            (m) => m.VocabularyPracticeComponent,
+          ),
+        title: 'Vocabulary Practice · SALingo',
+      },
+      {
         path: 'grammar-battle',
         loadComponent: () =>
           import('./features/grammar-battle/grammar-battle').then((m) => m.GrammarBattleComponent),
