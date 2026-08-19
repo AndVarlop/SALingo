@@ -92,7 +92,9 @@ export class GrammarBattleComponent implements OnDestroy {
 
     const weakTag = this.careerCoach.weakestSkillTags().find((t) => t.tag.startsWith('grammar:'));
     const weakTopicId = weakTag?.tag.split(':')[1];
-    const prioritized = weakTopicId ? all.filter((q) => q.topicId === weakTopicId) : [];
+    // Shuffled too (spec §27) — without this, a weak topic's questions always opened
+    // in the exact same order every single battle, since `all` preserves authoring order.
+    const prioritized = weakTopicId ? all.filter((q) => q.topicId === weakTopicId).sort(() => Math.random() - 0.5) : [];
     const rest = all.filter((q) => !prioritized.includes(q)).sort(() => Math.random() - 0.5);
 
     return [...prioritized, ...rest].slice(0, MAX_QUESTIONS);
