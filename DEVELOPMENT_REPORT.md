@@ -556,11 +556,85 @@ Every block above was committed separately, each preceded by a clean `npx tsc --
 - GitHub Pages source setting, DNS, Supabase auth redirect URLs (see §22 ACTION REQUIRED — unchanged, still pending on the user's side).
 - Anthropic API key / Edge Function deployment (paused by user's choice) — Writing and open-ended Speaking (C1/C2) grading will show honest "AI not configured" states until this is deployed.
 - **`supabase/vocabulary-b2-c1-c2.sql`** — must be run in the Supabase SQL Editor (after `vocabulary.sql`) for the 45 B2/C1/C2 vocabulary words to appear. **Confirmed run by the user** after one syntax fix (double-quoted string literals aren't valid in Postgres — corrected to single-quoted with doubled apostrophes).
-- **`supabase/activity-log-b2-c1-c2.sql`** (new, §26) — must be run in the Supabase SQL Editor to widen the `activity_log.type` check constraint. **Not yet run** — until it is, Reading-practice and Final-Assessment activity will fail to persist to Supabase (the UI still updates optimistically in-session, per the established pattern, but the write will error server-side).
+- **`supabase/activity-log-b2-c1-c2.sql`** (§26) — widens the `activity_log.type` check constraint. **Confirmed run by the user.** Reading-practice and Final-Assessment activity now persist to Supabase.
+
+## 27. Feedback & Correction System — "NO SOLO DECIR QUE ESTÁ MAL"
+
+Audited every place SALingo tells a user they got something wrong (Grammar, Lessons, Listening, Reading, Speaking, Grammar Battle, Vocabulary Rush, Find the Mistake, Writing, open Speaking, Mock Interview, Roleplay, Exams, Placement Test) before writing anything, per the brief's own instruction not to build a duplicate system.
+
+**What already existed and didn't need rebuilding** (confirmed, not assumed, by reading the actual code):
+- Writing (`AiEvaluationService.evaluateWriting`) already returns real AI-judged vocabulary/coherence scores plus deterministic grammar-mistake detection (`MistakeDetectionService`) with specific wrong→correct pairs — genuine feedback, not a bare pass/fail.
+- Mock Interview (`AiInterviewEvaluationService`) already scores confidence/relevance/structure/professionalism/clarity individually via AI — a real dimension breakdown, matching the brief's §17 ask almost exactly.
+- Call-center roleplay (`CallFlowScoringService`) already scores each call-flow step (Greeting/Empathy/Understanding/Solution/Closing/etc.) individually with keyword-based detection — a real per-dimension breakdown, matching §16.
+- These three were **not rebuilt** — the gap was elsewhere.
+
+**The actual gap, and what was built:** every *deterministic* exercise type (MultipleChoice, FillBlank, TrueFalse, WordOrder, Translation, Listening, and Reading's nested comprehension questions) only ever highlighted the right/wrong option, with no "why" beyond an occasionally-authored `explanation` string nobody had populated consistently. New centralized **`FeedbackService`** (`core/services/feedback.service.ts`) + **`ExerciseFeedback`** model (`core/models/feedback.model.ts`): given an exercise, the user's answer, and correctness, it always returns a real explanation — the user's answer, the correct one, a plain-language "why", and (when the content has it — e.g. a `GrammarTopic`) the underlying rule, 1-2 examples, and a tip pulled from the topic's real `commonMistakes`. When no authored explanation exists, it falls back to a templated-but-still-concrete message (e.g. Reading/Listening: "what was actually said/written was X, you answered Y") — **never** a bare "wrong".
+
+**Where it's wired in:**
+- `ExercisePlayerComponent`'s shared feedback panel — one change here covers Grammar hub, Lessons (A1-B1), Listening, Reading, and guided Speaking all at once, since they all render through it. Grammar Detail also now passes its `GrammarTopic` in, unlocking the topic's real rule/examples/commonMistakes instead of the generic fallback.
+- Grammar Battle, Vocabulary Rush, Find the Mistake — the three timed mini-games that previously only flashed "❌ Not quite." now show a compact one-line "why" (topic rule for Grammar Battle, word meaning+example for Vocabulary Rush, mistake category for Find the Mistake). Wrong-answer pacing was slowed (900/800ms → 3200/3000ms) so the explanation is actually readable; correct answers keep the fast, game-like pace — proportional feedback per spec §20.
+- Reading's 27 B2/C1/C2 comprehension questions (authored in §26) all received a real `explanation` referencing the specific passage line ("the text says X, therefore Y"), and `ReadingExerciseComponent` now shows Your-answer/Correct-answer/Why for any missed question — the one Reading gap the centralized engine's plumbing doesn't reach automatically (Reading's sub-questions are graded as a batch, not individually, so this was wired directly into the component instead).
+- Writing/Speaking AI prompts gained an explicit anti-over-correction instruction (spec §14/§38): a more formal or elegant *alternative* must never be scored as an *error* when what the learner wrote was already correct — framed as an optional suggestion instead.
+
+**Error types implemented:** `grammar | vocabulary | word-order | listening-comprehension | reading-comprehension | correct` — a deliberately smaller set than the brief's full 17-type list (TENSE_ERROR, PREPOSITION_ERROR, ARTICLE_ERROR, etc.), because those finer categories aren't reliably derivable from a fixed multiple-choice option string without real NLP — claiming to detect "preposition error" from `"I'm interested on technology"` being one wrong option among four would be guessing, not diagnosing. The existing free-text mistake detector (`MistakeDetectionService`, used by Writing/Speaking) does have real pattern-matched categories for actual prose; that's the honest place for finer-grained typing to live.
+
+**Fallback behavior:** deterministic exercises (Grammar/Vocabulary/Reading/Listening) never depend on AI at all — `FeedbackService` is pure, synchronous, rule-based, so there is no failure mode to fall back from. Writing/Speaking AI feedback already had (and keeps) its established honest-failure-state pattern (`WritingEvaluationError`, a real error message, never a fabricated score) — unchanged by this pass.
+
+### Build/verification
+`npx tsc --noEmit -p tsconfig.json` clean · `ng lint` 0 errors · `ng test --watch=false` 96/96 passing (one pre-existing test's timer assertion updated to match the new, longer wrong-answer pause) · `ng build` clean (same pre-existing roleplay-session budget warning). Live Chrome verification not attempted — same reason as §25/§26 (no active authenticated session this pass).
+
+## Feedback & Correction System — Summary
+
+### Implemented
+Centralized `FeedbackService`/`ExerciseFeedback`, wired into `ExercisePlayerComponent` (Grammar/Lessons/Listening/Reading/Speaking), Grammar Battle, Vocabulary Rush, Find the Mistake; real per-question explanations for all 27 B2/C1/C2 Reading questions; Writing/Speaking AI over-correction guardrail.
+
+### Error Types
+`grammar`, `vocabulary`, `word-order`, `listening-comprehension`, `reading-comprehension`, `correct` (deterministic exercises) + `grammar`/`vocabulary`/`speaking` (free-text, via the pre-existing `MistakeDetectionService`).
+
+### Feedback Architecture
+One shared service + model for every deterministic exercise type, consumed at one central rendering point (`ExercisePlayerComponent`) plus 3 direct call sites for the games that have their own UI. No per-exercise-type duplication.
+
+### Adaptive Feedback
+Level-aware AI grading emphasis already existed for Writing/Speaking (§26); unchanged this pass. Deterministic feedback proportionality (short for games, fuller in Grammar/Lessons) implemented via pacing + panel richness, not per-level wording changes.
+
+### Mistake Tracking
+Pre-existing `MistakeMemoryService`/My Mistakes feature (built in an earlier session) is unchanged and untouched by this pass — still the system of record for free-text mistakes surfaced by Writing/Speaking/Find the Mistake.
+
+### AI Feedback
+Writing and open-ended Speaking (C1/C2) — real Claude-backed scoring via the Supabase Edge Function, honest "not configured"/error states when unavailable, now with an explicit anti-over-correction instruction.
+
+### Fallbacks
+Deterministic exercise feedback has no AI dependency, so no fallback path is needed. AI-backed feedback (Writing/Speaking/Interview) keeps its pre-existing typed-error, no-fabricated-score pattern.
+
+### Known Limitations
+- No fine-grained error typing (tense/preposition/article/register/etc.) for multiple-choice-style exercises — see rationale above; would require real NLP over free text, not guessing from a fixed option list.
+- No repeated-error pattern detection beyond what `MistakeMemoryService` already tracked before this pass ("Practice My Mistakes" micro-remediation flow, §22-§24 of the brief) — not attempted this pass; a real follow-up, not a rebuild, since Mistake Memory already exists to build on.
+- Translation exercises still require an exact string match against `acceptedAnswers` (no synonym/paraphrase leniency) — a pre-existing limitation, not introduced or fixed this pass.
+- No partial-credit scoring (§19 of the brief) — every deterministic exercise remains binary correct/incorrect; `ExerciseFeedback` has room to grow a `partial` case later but none was added without a real per-exercise-type reason to score it as such.
+
+## Completed
+- SALingo brand identity, full mobile navigation, full responsive audit, AI backend, GitHub Pages deployment, collapsible sidebar (§20-§24, prior sessions).
+- B2/C1/C2 Grammar (15 topics), Vocabulary (45 words), Interview (10 questions), Roleplay (6 scenarios) — §25.
+- B2/C1/C2 Reading (new module, 9 passages), Listening (20 clips), Writing (15 prompts, level-aware AI grading), Speaking (6 guided + 8 open-ended AI-judged prompts) — §26.
+- 3 Final Assessments, real level unlocking, B2/C1/C2-aware Daily Challenge and Recommendation Engine, adaptive C2-reaching Placement Test, 3 new Career Path stages — §26.
+- Centralized Feedback Engine covering Grammar/Lessons/Listening/Reading/Speaking/Grammar Battle/Vocabulary Rush/Find the Mistake, plus real per-question Reading explanations and an AI over-correction guardrail — §27.
+
+## Remaining
+- **Mini-games**: no new B2/C1/C2 game types (Debate Challenge, Word Precision, Nuance Master, Tone Detective, etc.) were built. Deliberate scope call — see §26's Remaining for the reasoning; recommend a dedicated follow-up pass.
+- **Full manual breakpoint audit** (320px→2560px) — blocked by the `resize_window` tool limitation noted since §23.
+- Live Chrome / authenticated-session verification of §25-§27's work (no active session in any of these passes).
+- Fine-grained deterministic error typing, "Practice My Mistakes" micro-remediation, translation-exercise synonym leniency, and partial credit — all deferred with rationale in §27's Known Limitations.
+- PWA manifest icons are still generic Angular CLI placeholders (pre-existing, unrelated to this task).
+
+## Known Issues
+- None newly introduced — every change across §25-§27 went through the full `tsc`/lint/test/build cycle clean, and `ng test` stayed at 96/96 passing throughout (one pre-existing test updated to match a deliberate timing change, not a regression).
+
+## External Dependencies
+- GitHub Pages source setting, DNS, Supabase auth redirect URLs (see §22 ACTION REQUIRED — unchanged, still pending on the user's side).
+- Anthropic API key / Edge Function deployment (paused by user's choice) — Writing and open-ended Speaking (C1/C2) grading, and the new anti-over-correction instruction, will only take effect once this is deployed.
 
 ## Recommended Next Steps
-1. Run `supabase/activity-log-b2-c1-c2.sql` in the Supabase SQL Editor — this is the one blocking action item for §26's new features to actually persist.
-2. Log back into the app and live-verify the new Reading/Listening/Writing/Speaking modules, the Final Assessments, and the Career Path lock/unlock UI on a real session.
-3. Pick mini-games as the next dedicated pass — it's the largest remaining piece of the original brief and deserves its own focused implementation rather than being squeezed in.
-4. Once mini-games exist, revisit `masteryByTag`/`weakestSkillTags` to confirm the new game-generated skill tags surface correctly in the Skill Engine and Recommendation Engine (both were built generically enough this pass that they should "just work," but that's worth confirming against real data).
-5. A genuine breakpoint-by-breakpoint pass (DevTools device toolbar or a real phone) on everything built in §26, once live.
+1. Log back into the app and live-verify the new Feedback Engine panels, the Reading/Listening/Writing/Speaking modules, the Final Assessments, and the Career Path lock/unlock UI on a real session.
+2. Pick mini-games as the next dedicated pass — it's the largest remaining piece of the B2/C1/C2 brief and deserves its own focused implementation rather than being squeezed in.
+3. A "Practice My Mistakes" micro-remediation flow (§22-§24 of the Feedback brief) is a natural next step for the Feedback Engine, building on the existing `MistakeMemoryService` rather than a new system.
+4. A genuine breakpoint-by-breakpoint pass (DevTools device toolbar or a real phone) on everything built across §25-§27, once live.
