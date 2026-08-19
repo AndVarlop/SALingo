@@ -113,6 +113,12 @@
   font-size: 0.82rem;
 }
 
+.ftm__why {
+  font-weight: 500;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
 .ftm__result-stats {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

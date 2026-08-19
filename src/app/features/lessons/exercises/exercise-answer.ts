@@ -1,5 +1,2 @@
-/** Emitted by every exercise-type component the moment the user's answer is locked in. */
-export interface ExerciseAnswer {
-  correct: boolean;
-  userAnswer: string;
-}
+/** Re-exported from core/models — kept here so every existing exercise-type component import stays unchanged. */
+export type { ExerciseAnswer } from '../../../core/models';

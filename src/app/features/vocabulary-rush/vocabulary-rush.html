@@ -45,6 +45,14 @@
             <p class="vr__feedback" [class.vr__feedback--bad]="fb !== 'correct'">
               {{ fb === 'correct' ? '✅ Correct!' : fb === 'timeout' ? "⏰ Time's up!" : '❌ Not quite.' }}
             </p>
+            @if (fb !== 'correct') {
+              <p class="vr__why">
+                "{{ round.word.term }}" means "{{ round.word.translation }}".
+                @if (round.word.example) {
+                  <em>{{ round.word.example }}</em>
+                }
+              </p>
+            }
           }
         </div>
       }

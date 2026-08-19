@@ -111,6 +111,14 @@
   }
 }
 
+.gb__why {
+  text-align: center;
+  margin-top: 6px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
 .gb__result-stats {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

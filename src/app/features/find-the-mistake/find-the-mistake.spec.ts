@@ -86,7 +86,8 @@ describe('FindTheMistakeComponent', () => {
       // missed real mistake feeds Mistake Memory.
       const wrongChoice = round.isCorrect ? 'has-mistake' : 'correct';
       await component.answer(wrongChoice);
-      vi.advanceTimersByTime(1400);
+      // Wrong answers now pause longer (3200ms) so the "why" feedback line is readable.
+      vi.advanceTimersByTime(3200);
       await Promise.resolve(); // flush the microtask finish() may be awaiting on
     }
 

@@ -28,7 +28,7 @@
       }
 
       @case ('test') {
-        <app-exercise-player [exercises]="topic.exercises" (finished)="onFinished($event)" />
+        <app-exercise-player [exercises]="topic.exercises" [topic]="topic" (finished)="onFinished($event)" />
       }
 
       @case ('summary') {

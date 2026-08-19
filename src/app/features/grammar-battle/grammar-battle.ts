@@ -3,8 +3,9 @@ import { RouterLink } from '@angular/router';
 import { MOCK_GRAMMAR_TOPICS } from '../../core/services/mock-data/mock-grammar.data';
 import { CareerCoachService } from '../../core/services/career-coach.service';
 import { UserStateService } from '../../core/services/user-state.service';
+import { FeedbackService } from '../../core/services/feedback.service';
 import { XP_RULES } from '../../core/constants/xp.constant';
-import { ExerciseType, MultipleChoiceExercise } from '../../core/models';
+import { ExerciseFeedback, ExerciseType, MultipleChoiceExercise } from '../../core/models';
 
 interface BattleQuestion {
   topicId: string;
@@ -35,6 +36,7 @@ const MAX_QUESTIONS = 10;
 export class GrammarBattleComponent implements OnDestroy {
   private readonly careerCoach = inject(CareerCoachService);
   private readonly userState = inject(UserStateService);
+  private readonly feedbackService = inject(FeedbackService);
 
   protected readonly phase = signal<Phase>('idle');
   protected readonly questions = signal<BattleQuestion[]>([]);
@@ -46,6 +48,8 @@ export class GrammarBattleComponent implements OnDestroy {
   protected readonly xpEarned = signal(0);
   protected readonly selectedIndex = signal<number | null>(null);
   protected readonly feedback = signal<'correct' | 'wrong' | 'timeout' | null>(null);
+  /** Why the answer was wrong — spec: "no solo decir que está mal". Only set for wrong answers; kept to one line for a timed game's pacing. */
+  protected readonly wrongFeedback = signal<ExerciseFeedback | null>(null);
 
   protected readonly focusTopicLabel = () => {
     const tag = this.careerCoach
@@ -93,6 +97,7 @@ export class GrammarBattleComponent implements OnDestroy {
   private startRound(): void {
     this.selectedIndex.set(null);
     this.feedback.set(null);
+    this.wrongFeedback.set(null);
     this.timeLeft.set(ROUND_SECONDS);
     this.stopTimer();
     this.timerHandle = setInterval(() => {
@@ -119,23 +124,39 @@ export class GrammarBattleComponent implements OnDestroy {
       this.xpEarned.update((x) => x + roundXp);
       this.score.update((s) => s + 1);
       this.feedback.set('correct');
+      setTimeout(() => this.nextQuestion(), 900);
     } else {
       this.streak.set(0);
       this.xpEarned.update((x) => x + XP_RULES.incorrectExercise);
       this.feedback.set('wrong');
-    }
 
-    setTimeout(() => this.nextQuestion(), 900);
+      const topic = MOCK_GRAMMAR_TOPICS.find((t) => t.id === question.topicId);
+      this.wrongFeedback.set(
+        this.feedbackService.build(
+          question.exercise,
+          { correct: false, userAnswer: question.exercise.options[optionIndex] },
+          { topic },
+        ),
+      );
+      // Longer pause than a correct answer — long enough to actually read the "why", per spec §20 (proportional feedback).
+      setTimeout(() => this.nextQuestion(), 3200);
+    }
   }
 
   private onTimeout(): void {
     this.stopTimer();
     if (this.selectedIndex() !== null) return;
     const question = this.currentQuestion();
-    if (question) this.topicsPlayed.push(question.topicId);
+    if (question) {
+      this.topicsPlayed.push(question.topicId);
+      const topic = MOCK_GRAMMAR_TOPICS.find((t) => t.id === question.topicId);
+      this.wrongFeedback.set(
+        this.feedbackService.build(question.exercise, { correct: false, userAnswer: '(no answer)' }, { topic }),
+      );
+    }
     this.streak.set(0);
     this.feedback.set('timeout');
-    setTimeout(() => this.nextQuestion(), 900);
+    setTimeout(() => this.nextQuestion(), 3200);
   }
 
   private nextQuestion(): void {

@@ -42,6 +42,9 @@
             <p class="gb__feedback" [class.gb__feedback--bad]="fb !== 'correct'">
               {{ fb === 'correct' ? '✅ Correct!' : fb === 'timeout' ? "⏰ Time's up!" : '❌ Not quite.' }}
             </p>
+            @if (wrongFeedback(); as wf) {
+              <p class="gb__why">{{ wf.why }}</p>
+            }
           }
         </div>
       }

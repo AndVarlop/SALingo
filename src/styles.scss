@@ -292,6 +292,48 @@ a {
   }
 }
 
+.exercise-feedback__compare {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 2px 0;
+  font-size: 0.85rem;
+
+  em {
+    font-style: normal;
+    font-weight: 700;
+  }
+}
+
+.exercise-feedback__your-answer em {
+  color: var(--color-danger);
+}
+
+.exercise-feedback__correct-answer em {
+  color: var(--color-success);
+}
+
+.exercise-feedback__why {
+  line-height: 1.5;
+}
+
+.exercise-feedback__rule {
+  font-weight: 700;
+}
+
+.exercise-feedback__examples {
+  list-style: none;
+  margin: 2px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.exercise-feedback__tip {
+  font-style: italic;
+}
+
 .visually-hidden {
   position: absolute;
   width: 1px;

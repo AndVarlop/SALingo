@@ -55,6 +55,14 @@
               }
               @if (!round.isCorrect) {
                 <span class="ftm__correction">Should be: “{{ round.corrected }}”</span>
+                @if (round.mistake; as mistake) {
+                  <span class="ftm__why">
+                    {{ mistake.category === 'grammar' ? 'Grammar' : mistake.category === 'vocabulary' ? 'Vocabulary' : 'Speaking' }}
+                    mistake — “{{ mistake.wrong }}” isn't natural English here; use “{{ mistake.correct }}” instead.
+                  </span>
+                }
+              } @else {
+                <span class="ftm__why">The sentence was already correct — no changes needed.</span>
               }
             </p>
           }

@@ -111,6 +111,20 @@
   }
 }
 
+.vr__why {
+  text-align: center;
+  margin-top: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+
+  em {
+    display: block;
+    font-style: italic;
+    margin-top: 2px;
+  }
+}
+
 .vr__result-stats {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

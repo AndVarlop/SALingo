@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
-import { Exercise, ExerciseResult, ExerciseType } from '../../../core/models';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { Exercise, ExerciseFeedback, ExerciseResult, ExerciseType, GrammarTopic } from '../../../core/models';
 import { XP_RULES } from '../../../core/constants/xp.constant';
+import { FeedbackService } from '../../../core/services/feedback.service';
 import { ExerciseAnswer } from '../exercises/exercise-answer';
 import { MultipleChoiceExerciseComponent } from '../exercises/multiple-choice-exercise';
 import { FillBlankExerciseComponent } from '../exercises/fill-blank-exercise';
@@ -31,7 +32,11 @@ import { ProgressBarComponent } from '../../../shared/components/progress-bar/pr
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ExercisePlayerComponent {
+  private readonly feedbackService = inject(FeedbackService);
+
   readonly exercises = input.required<Exercise[]>();
+  /** Optional: when every exercise belongs to one GrammarTopic (Grammar Detail), unlocks the topic's real rule/examples/commonMistakes in the feedback panel instead of a generic fallback. */
+  readonly topic = input<GrammarTopic | undefined>(undefined);
   readonly finished = output<{ results: ExerciseResult[]; xpEarned: number }>();
 
   protected readonly ExerciseType = ExerciseType;
@@ -47,10 +52,12 @@ export class ExercisePlayerComponent {
   protected readonly isLast = computed(() => this.currentIndex() === this.exercises().length - 1);
 
   protected readonly lastAnswer = signal<ExerciseAnswer | null>(null);
+  protected readonly lastFeedback = signal<ExerciseFeedback | null>(null);
 
   protected onAnswered(answer: ExerciseAnswer): void {
     this.lastAnswer.set(answer);
     const exercise = this.currentExercise();
+    this.lastFeedback.set(this.feedbackService.build(exercise, answer, { topic: this.topic() }));
     const timeSpentSeconds = Math.round((Date.now() - this.exerciseStartedAt) / 1000);
     this.results.update((r) => [
       ...r,
@@ -60,6 +67,7 @@ export class ExercisePlayerComponent {
 
   protected next(): void {
     this.lastAnswer.set(null);
+    this.lastFeedback.set(null);
     this.exerciseStartedAt = Date.now();
 
     if (this.isLast()) {

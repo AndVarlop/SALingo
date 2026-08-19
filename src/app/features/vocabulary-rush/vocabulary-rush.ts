@@ -109,13 +109,14 @@ export class VocabularyRushComponent implements OnDestroy {
       this.xpEarned.update((x) => x + XP_RULES.reviewCorrect + streakBonus);
       this.score.update((s) => s + 1);
       this.feedback.set('correct');
+      setTimeout(() => this.nextRound(), 800);
     } else {
       this.streak.set(0);
       this.xpEarned.update((x) => x + XP_RULES.incorrectExercise);
       this.feedback.set('wrong');
+      // Longer pause than a correct answer — long enough to read the word's example sentence, per spec §20.
+      setTimeout(() => this.nextRound(), 3000);
     }
-
-    setTimeout(() => this.nextRound(), 800);
   }
 
   private onTimeout(): void {
@@ -125,7 +126,7 @@ export class VocabularyRushComponent implements OnDestroy {
     if (round) this.categoriesPlayed.push(round.word.category);
     this.streak.set(0);
     this.feedback.set('timeout');
-    setTimeout(() => this.nextRound(), 800);
+    setTimeout(() => this.nextRound(), 3000);
   }
 
   private nextRound(): void {

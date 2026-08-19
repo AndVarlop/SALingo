@@ -123,14 +123,15 @@ export class FindTheMistakeComponent implements OnDestroy {
       this.xpEarned.update((x) => x + XP_RULES.correctExercise + streakBonus);
       this.score.update((s) => s + 1);
       this.feedback.set('correct');
+      setTimeout(() => this.nextRound(), 1400);
     } else {
       this.streak.set(0);
       this.xpEarned.update((x) => x + XP_RULES.incorrectExercise);
       this.feedback.set('wrong');
       if (round.mistake) this.missedMistakes.push(round.mistake);
+      // Longer pause than a correct answer — long enough to read the "why" line, per spec §20.
+      setTimeout(() => this.nextRound(), 3200);
     }
-
-    setTimeout(() => this.nextRound(), 1400);
   }
 
   private onTimeout(): void {
@@ -144,7 +145,7 @@ export class FindTheMistakeComponent implements OnDestroy {
     this.streak.set(0);
     this.feedback.set('timeout');
     this.answered.set('correct');
-    setTimeout(() => this.nextRound(), 1400);
+    setTimeout(() => this.nextRound(), 3200);
   }
 
   private nextRound(): void {

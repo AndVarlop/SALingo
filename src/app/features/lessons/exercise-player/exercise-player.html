@@ -34,17 +34,39 @@
       }
     }
 
-    @if (lastAnswer(); as answer) {
+    @if (lastFeedback(); as fb) {
       <div
         class="exercise-feedback"
-        [class.exercise-feedback--correct]="answer.correct"
-        [class.exercise-feedback--incorrect]="!answer.correct"
+        [class.exercise-feedback--correct]="fb.correct"
+        [class.exercise-feedback--incorrect]="!fb.correct"
       >
-        <span aria-hidden="true">{{ answer.correct ? '✅' : '❌' }}</span>
+        <span aria-hidden="true">{{ fb.correct ? '✅' : '❌' }}</span>
         <div class="exercise-feedback__body">
-          <strong>{{ answer.correct ? 'Correct!' : 'Not quite.' }}</strong>
-          @if (currentExercise().explanation) {
-            <span>{{ currentExercise().explanation }}</span>
+          <strong>{{ fb.correct ? 'Correct!' : 'Not quite' }}</strong>
+
+          @if (!fb.correct) {
+            <div class="exercise-feedback__compare">
+              <span class="exercise-feedback__your-answer">Your answer: <em>{{ fb.userAnswer }}</em></span>
+              <span class="exercise-feedback__correct-answer">Correct answer: <em>{{ fb.correctAnswer }}</em></span>
+            </div>
+          }
+
+          <span class="exercise-feedback__why">{{ fb.why }}</span>
+
+          @if (fb.rule) {
+            <span class="exercise-feedback__rule">📐 {{ fb.rule }}</span>
+          }
+
+          @if (fb.examples?.length) {
+            <ul class="exercise-feedback__examples">
+              @for (example of fb.examples; track example) {
+                <li>✅ {{ example }}</li>
+              }
+            </ul>
+          }
+
+          @if (fb.tip) {
+            <span class="exercise-feedback__tip">💡 {{ fb.tip }}</span>
           }
         </div>
       </div>
