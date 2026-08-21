@@ -4,6 +4,15 @@
     <p>{{ filteredWords().length }} words · search, filter and track how well you know each one.</p>
   </header>
 
+  <a class="card vocabulary__rush-cta" routerLink="/vocabulary-practice">
+    <span aria-hidden="true">🧩</span>
+    <div>
+      <strong>Vocabulary Practice</strong>
+      <span>Mixed new/review/weak words across 12 activity types — definitions, collocations, register, and more.</span>
+    </div>
+    <span class="vocabulary__rush-arrow">→</span>
+  </a>
+
   <a class="card vocabulary__rush-cta" routerLink="/vocabulary-rush">
     <span aria-hidden="true">⚡</span>
     <div>
@@ -97,12 +106,22 @@
           </div>
 
           <p class="vocabulary__translation">{{ word.translation }}</p>
+          @if (word.definition) {
+            <p class="vocabulary__definition">{{ word.definition }}</p>
+          }
           <p class="vocabulary__example">"{{ word.example }}"</p>
 
           <div class="vocabulary__meta">
             <span class="vocabulary__badge">{{ word.category }}</span>
             <span class="vocabulary__badge">{{ word.level }}</span>
+            @if (word.register) {
+              <span class="vocabulary__badge">{{ word.register }}</span>
+            }
           </div>
+
+          @if (word.collocations?.length) {
+            <p class="vocabulary__collocations">Collocations: {{ word.collocations!.join(' · ') }}</p>
+          }
 
           <app-progress-bar [value]="word.masteryPercent" label="Mastery" [showPercent]="true" />
         </article>

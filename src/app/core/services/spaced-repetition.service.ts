@@ -2,7 +2,20 @@ import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { SupabaseService } from './supabase.service';
 import { AuthService } from './auth.service';
 import { VocabularyService } from './vocabulary.service';
-import { ReviewGrade, ReviewItem, VocabularyWord } from '../models';
+import { ReviewGrade, ReviewItem, VocabularyStatus, VocabularyWord } from '../models';
+
+/**
+ * Maps raw review stats to the NEW → LEARNING → PRACTICING → FAMILIAR → MASTERED
+ * ladder (§9 of the Vocabulary Engine spec). Exported for testing.
+ */
+export function statusFromReviewItem(item: ReviewItem | undefined): VocabularyStatus {
+  if (!item || item.timesStudied === 0) return 'new';
+  const accuracy = item.timesCorrect / item.timesStudied;
+  if (item.timesStudied >= 3 && accuracy >= 0.9) return 'mastered';
+  if (accuracy >= 0.75) return 'familiar';
+  if (accuracy >= 0.5) return 'practicing';
+  return 'learning';
+}
 
 /**
  * Simplified SM-2-inspired spaced repetition. Not mathematically perfect —
@@ -60,6 +73,19 @@ export class SpacedRepetitionService {
   });
 
   readonly dueCount = computed(() => this.dueWords().length);
+
+  /** wordId -> ladder status, derived from the same review_items used for mastery. */
+  readonly statusByWordId = computed<Record<string, VocabularyStatus>>(() => {
+    const items = this.reviewItems();
+    const out: Record<string, VocabularyStatus> = {};
+    for (const word of this.vocabulary.words()) {
+      out[word.id] = statusFromReviewItem(items[word.id]);
+    }
+    return out;
+  });
+
+  /** Read-only snapshot of raw review items, keyed by wordId — used by VocabularyEngineService. */
+  readonly itemsByWordId = computed(() => this.reviewItems());
 
   constructor() {
     effect(() => {

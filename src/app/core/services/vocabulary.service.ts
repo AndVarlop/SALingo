@@ -90,6 +90,17 @@ export class VocabularyService {
           example: row.example,
           category: row.category as VocabularyCategory,
           level: row.level as CefrLevel,
+          partOfSpeech: row.part_of_speech ?? undefined,
+          definition: row.definition ?? undefined,
+          examples: row.examples ?? undefined,
+          synonyms: row.synonyms ?? undefined,
+          antonyms: row.antonyms ?? undefined,
+          collocations: row.collocations ?? undefined,
+          register: (row.register as VocabularyWord['register']) ?? undefined,
+          topic: row.topic ?? undefined,
+          relatedWords: row.related_words ?? undefined,
+          sense: row.sense ?? undefined,
+          commonMistake: row.common_mistake ?? undefined,
         })),
       );
       this.favoriteWordIds.set(new Set((favoritesRes.data ?? []).map((r) => r.word_id)));

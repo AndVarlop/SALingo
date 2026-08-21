@@ -1,0 +1,88 @@
+<section class="vpractice">
+  @switch (phase()) {
+    @case ('idle') {
+      <div class="card vpractice__idle">
+        <span class="vpractice__idle-icon" aria-hidden="true">🧩</span>
+        <h1>Vocabulary Practice</h1>
+        <p>A mixed session — new words, review, and words you've struggled with — using varied activity types, not just translation.</p>
+
+        <div class="vpractice__level-row">
+          @for (level of levels; track level) {
+            <button
+              type="button"
+              class="vpractice__level"
+              [class.vpractice__level--active]="levelChoice() === level"
+              (click)="levelChoice.set(level)"
+            >
+              {{ level === 'mixed' ? 'All levels' : level }}
+            </button>
+          }
+        </div>
+
+        <button type="button" class="btn btn--primary" [disabled]="loading()" (click)="startSession()">
+          Start practice
+        </button>
+      </div>
+    }
+
+    @case ('playing') {
+      @if (current(); as item) {
+        <div class="vpractice__progress">{{ progressLabel() }}</div>
+
+        <div class="card vpractice__card">
+          <span class="vpractice__badge">{{ item.selection.word.category }} · {{ item.selection.word.level }}</span>
+          <span class="vpractice__activity-badge">{{ activityLabel[item.question.type] }}</span>
+
+          <p class="vpractice__prompt">{{ item.question.prompt }}</p>
+
+          <div class="vpractice__options">
+            @for (option of item.question.options; track $index) {
+              <button
+                type="button"
+                class="vpractice__option"
+                [class.vpractice__option--correct]="selectedOption() !== null && $index === item.question.correctIndex"
+                [class.vpractice__option--wrong]="selectedOption() === $index && $index !== item.question.correctIndex"
+                [disabled]="selectedOption() !== null"
+                (click)="selectOption($index)"
+              >
+                {{ option }}
+              </button>
+            }
+          </div>
+
+          @if (feedback(); as fb) {
+            <div class="vpractice__feedback" [class.vpractice__feedback--wrong]="fb === 'wrong'">
+              <p>{{ fb === 'correct' ? '✅ Correct!' : '❌ Not quite.' }}</p>
+              @if (item.question.explanation) {
+                <p class="vpractice__explanation">{{ item.question.explanation }}</p>
+              }
+              @if (item.selection.word.commonMistake) {
+                <p class="vpractice__explanation">⚠️ {{ item.selection.word.commonMistake }}</p>
+              }
+              <button type="button" class="btn btn--primary btn--block" (click)="next()">Continue</button>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    @case ('complete') {
+      @if (queue().length > 0) {
+        <div class="card vpractice__idle">
+          <span class="vpractice__idle-icon" aria-hidden="true">🎉</span>
+          <h1>Session complete!</h1>
+          <p class="vpractice__summary-xp">+{{ sessionXp }} XP</p>
+          <p>{{ sessionAccuracy }}% accuracy this session</p>
+          <button type="button" class="btn btn--primary" (click)="playAgain()">Practice again</button>
+          <a class="vpractice__back" routerLink="/vocabulary">Back to Vocabulary</a>
+        </div>
+      } @else {
+        <app-empty-state
+          icon="📭"
+          title="Not enough vocabulary loaded"
+          description="Try a different level, or add more words from the Vocabulary page first."
+        />
+      }
+    }
+  }
+</section>
